@@ -62,6 +62,10 @@ export type CtfInstructorQuestion = CtfQuestionInput & {
   id: number;
   section: number;
   sectionTitle: string;
+  /** Instructor-only reference answers requiring classroom verification before saving. */
+  facilitatorAnswers?: string[];
+  /** Instructor-only scoring and source reconciliation notes. */
+  facilitatorNote?: string;
 };
 
 export interface CtfQuestionCatalog {
@@ -204,6 +208,8 @@ export interface CtfInstructorVerifyResult {
 }
 
 export interface CtfInstructorKeyInput {
+  /** Import a verified facilitator reference without replacing an existing classroom key. */
+  onlyIfUnset?: boolean;
   /** @minItems 1 */
   acceptedAnswers: string[];
 }

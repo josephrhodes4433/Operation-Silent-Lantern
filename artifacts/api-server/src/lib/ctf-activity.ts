@@ -1,4 +1,5 @@
 import sourceQuestions from "../data/questions.json";
+import { applyFacilitatorKey } from "./ctf-facilitator-key";
 
 export interface Question {
   id: number;
@@ -13,9 +14,11 @@ export interface Question {
   acceptedAnswers: string[];
   validationMethod: string;
   validationMode?: "normalised" | "exact" | "numeric" | "manual" | "dataset";
+  facilitatorAnswers?: string[];
+  facilitatorNote?: string;
 }
 
-export const questions = sourceQuestions as Question[];
+export const questions = (sourceQuestions as Question[]).map(applyFacilitatorKey);
 export const isManual = (q: Question) => q.validationMode ? q.validationMode === "manual" : q.kind === "long" || [117, 118].includes(q.id);
 export const validationMode = (q: Question): NonNullable<Question["validationMode"]> =>
   q.validationMode ?? (isManual(q) ? "manual" : q.category === "dataset" ? "dataset" : q.kind === "number" ? "numeric" : q.id === 99 ? "exact" : "normalised");
@@ -25,9 +28,9 @@ const sectionDetails = [
   ["ALPHA Triage: Pattern of Life and Network", "0840–0940", "11–29", "ALPHA belongs to the yard leaseholder, assessed as a facilitator. Establish who he contacts, what he calls things, and his activity between 1 February and 1 April 2022. Run the partner agency's MERIDIAN image hash set and check for malware."],
   ["BRAVO Verification and Validation", "0940–1040", "30–43", "BRAVO is the courier's phone. Every finding must be independently validated before it leaves the building: the tool's answer, then the raw database or a second tool saying the same thing. Investigate the native message thread and validate the photographs."],
   ["CHARLIE: The Foreign-Language Node", "1040–1210", "44–66", "Work the password-protected iTunes backup of a handset that remains at large. Establish its device profile, communications, collection opportunities and locations. Carefully review automated classifications and validate newly parsed artifacts."],
-  ["DELTA: Database Exploitation", "1250–1400", "67–79", "The supplied revised Word document leaves this section's question rows blank. No questions or answers have been invented. Ask your instructor for the revised station tasking."],
-  ["ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery", "1400–1520", "80–102", "This section originally covers hex benchmarking, 7-bit PDU, nibble reverse, carving and regular expressions. Only flags 99–101 are populated in the supplied revised document; the other source rows are blank."],
-  ["GOLF: The Unsupported Device", "1520–1600", "103–109", "The supplied revised Word document leaves this section's question rows blank. No questions or answers have been invented. Ask your instructor for the revised station tasking."],
+  ["DELTA: Database Exploitation", "1250–1400", "67–79", "The targeting cell needs original filenames, file paths, file sizes and creation dates—not just pictures. Work in Photos.sqlite, join the required tables in SQLite Wizard, map the results back into Analyzed Data, and validate the output against the raw database. Document missing primary keys and any discrepancy."],
+  ["ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery", "1400–1520", "80–102", "Work the legacy handset memory images: benchmark the hex data, decode 7-bit SMS and PDU timestamps, recover messages and images, and use regular expressions to locate email addresses. Tag recovered evidence and validate the confidence of location findings."],
+  ["GOLF: The Unsupported Device", "1520–1600", "103–109", "GOLF is an unsupported binary dump, not an empty device. Review the plug-in chains, apply the correct chain, compare it with the default output, and document the chain composition and recovered intelligence so the next analyst can reproduce your work."],
   ["Dissemination and the Commander's Brief", "1600–1800", "110–120", "Two audiences, two products, one set of findings. The field team needs device attributes and account identifiers. The analytical cell and partner agency need the comprehensive protected product. Then brief the PIRs with evidence and validation methodology."],
 ];
 

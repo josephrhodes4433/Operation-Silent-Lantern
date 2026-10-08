@@ -38,6 +38,8 @@ export function privateQuestion(q: Question, keys: Map<number, string[]>) {
     guideReference: q.guideReference, validationMethod: q.validationMethod,
     validationMode: validationMode(q),
     acceptedAnswers: q.category === "dataset" ? keys.get(q.id) ?? [] : q.acceptedAnswers,
+    facilitatorAnswers: q.facilitatorAnswers,
+    facilitatorNote: q.facilitatorNote,
   };
 }
 

@@ -1,11 +1,16 @@
-"""Extract the populated rows from the user-supplied CTF Word document."""
+"""Regenerate the question bank from the complete, instructor-supplied activity."""
+import argparse
 import json
 import re
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
-source = Path(".local/conversation-workspace/files/attached_assets/Operation_IRON_MERIDIAN_CTF_Activity_revised_with_comments_1791497613462.docx")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--source", type=Path, default=Path("attached_assets/Operation_IRON_MERIDIAN_CTF_Activity_1791502506053.docx"))
+parser.add_argument("--output", type=Path, default=Path("artifacts/api-server/src/data/questions.json"))
+args = parser.parse_args()
+source = args.source
 ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 with ZipFile(source) as archive:
     root = ET.fromstring(archive.read("word/document.xml"))
@@ -25,7 +30,7 @@ questions = []
 for table in root.findall(".//w:tbl", ns):
     for row in table.findall("./w:tr", ns):
         cells = [
-            " ".join("".join(p.itertext()).strip() for p in cell.findall(".//w:p", ns)).strip()
+            " ".join("".join(t.text or "" for t in p.findall(".//w:t", ns)).strip() for p in cell.findall(".//w:p", ns)).strip()
             for cell in row.findall("./w:tc", ns)
         ]
         if len(cells) < 5 or not cells[0].isdigit():
@@ -55,7 +60,9 @@ for table in root.findall(".//w:tbl", ns):
             "acceptedAnswers": (answer.split("; ") if kind == "multiple" else [answer]) if category == "auto" else [],
             "validationMethod": raw[marker.end():].replace("How to validate:", "").strip() if marker else "",
         })
-output = Path("artifacts/api-server/src/data/questions.json")
+if len(questions) != 120 or len({q["id"] for q in questions}) != 120:
+    raise ValueError("The complete activity must contain every flag ID from 1 to 120 exactly once.")
+output = args.output
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(json.dumps(questions, indent=2, ensure_ascii=False))
 print(f"Imported {len(questions)} populated questions, {sum(q['points'] for q in questions)} available points.")

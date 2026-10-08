@@ -419,6 +419,13 @@ components:
             id: { type: integer }
             section: { type: integer }
             sectionTitle: { type: string }
+            facilitatorAnswers:
+              type: array
+              description: Instructor-only reference answers requiring classroom verification before saving.
+              items: { type: string }
+            facilitatorNote:
+              type: string
+              description: Instructor-only scoring and source reconciliation notes.
     CtfQuestionCatalog:
       type: object
       required: [questions, missingIds]
@@ -555,6 +562,9 @@ components:
       type: object
       required: [acceptedAnswers]
       properties:
+        onlyIfUnset:
+          type: boolean
+          description: Import a verified facilitator reference without replacing an existing classroom key.
         acceptedAnswers:
           type: array
           minItems: 1

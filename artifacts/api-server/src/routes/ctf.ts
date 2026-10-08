@@ -168,6 +168,18 @@ router.put("/ctf/instructor/keys/:questionId", async (req, res): Promise<void> =
   if (!question || question.category !== "dataset" || isManual(question)) { res.status(400).json({ error: "Only shared dataset-dependent keys can be configured. Student-specific tasks require manual review." }); return; }
   const acceptedAnswers = input.data.acceptedAnswers.map(a => a.trim()).filter(Boolean);
   if (!acceptedAnswers.length || acceptedAnswers.length > 50 || acceptedAnswers.some(a => a.length > 12000)) { res.status(400).json({ error: "Enter a valid accepted answer." }); return; }
+  if (input.data.onlyIfUnset) {
+    if (!question.facilitatorAnswers || JSON.stringify(acceptedAnswers) !== JSON.stringify(question.facilitatorAnswers)) {
+      res.status(409).json({ error: "This question or guide reference changed. Refresh and review its current key before saving." }); return;
+    }
+    const inserted = await pool.query<{ accepted_answers: string[] }>(
+      "INSERT INTO ctf_keys (question_id,accepted_answers) VALUES ($1,$2::jsonb) ON CONFLICT (question_id) DO UPDATE SET accepted_answers=EXCLUDED.accepted_answers WHERE ctf_keys.accepted_answers='[]'::jsonb RETURNING accepted_answers",
+      [question.id, JSON.stringify(acceptedAnswers)],
+    );
+    const current = inserted.rows[0] ?? (await pool.query<{ accepted_answers: string[] }>("SELECT accepted_answers FROM ctf_keys WHERE question_id=$1", [question.id])).rows[0];
+    res.json({ questionId: question.id, acceptedAnswers: current.accepted_answers });
+    return;
+  }
   await pool.query("INSERT INTO ctf_keys (question_id,accepted_answers) VALUES ($1,$2::jsonb) ON CONFLICT (question_id) DO UPDATE SET accepted_answers=$2::jsonb", [question.id, JSON.stringify(acceptedAnswers)]);
   res.json({ questionId: question.id, acceptedAnswers });
 });

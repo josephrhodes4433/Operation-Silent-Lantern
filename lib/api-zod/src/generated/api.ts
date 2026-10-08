@@ -793,7 +793,9 @@ export const GetCtfInstructorQuestionsResponse = zod.object({
 }).and(zod.object({
   "id": zod.number().int(),
   "section": zod.number().int(),
-  "sectionTitle": zod.string()
+  "sectionTitle": zod.string(),
+  "facilitatorAnswers": zod.array(zod.string()).optional().describe('Instructor-only reference answers requiring classroom verification before saving.'),
+  "facilitatorNote": zod.string().optional().describe('Instructor-only scoring and source reconciliation notes.')
 }))),
   "missingIds": zod.array(zod.number().int())
 })
@@ -875,7 +877,9 @@ export const SetCtfInstructorQuestionResponse = zod.object({
 }).and(zod.object({
   "id": zod.number().int(),
   "section": zod.number().int(),
-  "sectionTitle": zod.string()
+  "sectionTitle": zod.string(),
+  "facilitatorAnswers": zod.array(zod.string()).optional().describe('Instructor-only reference answers requiring classroom verification before saving.'),
+  "facilitatorNote": zod.string().optional().describe('Instructor-only scoring and source reconciliation notes.')
 }))
 
 
@@ -928,6 +932,7 @@ export const SetCtfInstructorKeyHeader = zod.object({
 
 
 export const SetCtfInstructorKeyBody = zod.object({
+  "onlyIfUnset": zod.boolean().optional().describe('Import a verified facilitator reference without replacing an existing classroom key.'),
   "acceptedAnswers": zod.array(zod.string()).min(1)
 })
 

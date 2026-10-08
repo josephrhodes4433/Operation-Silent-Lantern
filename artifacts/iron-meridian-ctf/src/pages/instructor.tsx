@@ -70,6 +70,11 @@ function Console({ code, onLock }: { code: string; onLock: () => void }) {
 
 function Keys({ code }: { code: string }) {
   const headers = { 'x-instructor-code': code };
+  const qc = useQueryClient();
+  const importer = useSetCtfInstructorKey({ request: { headers } });
+  const [verified, setVerified] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState('');
   const cat = useGetCtfInstructorQuestions({ query: { enabled: true, queryKey: getGetCtfInstructorQuestionsQueryKey() }, request: { headers } });
   const keys = useGetCtfInstructorKeys({ query: { enabled: true, queryKey: getGetCtfInstructorKeysQueryKey() }, request: { headers } });
   if (cat.isLoading || keys.isLoading) return <PageSkeleton />;
@@ -77,7 +82,38 @@ function Keys({ code }: { code: string }) {
   const qs = cat.data.questions.filter((q) => q.validationMode === 'dataset').sort((a, b) => a.id - b.id);
   if (!qs.length) return <p className="bg-card border border-dashed p-8 text-center">No dataset-keyed questions. Set a question to dataset validation in the Questions tab.</p>;
   const map = new Map((keys.data ?? []).map((k) => [k.questionId, k.acceptedAnswers]));
-  return <ul className="space-y-3">{qs.map((q) => <KeyRow key={q.id} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>;
+  const references = qs.filter(q => q.facilitatorAnswers?.length && !map.get(q.id)?.length);
+  const importReferences = async () => {
+    if (!verified || importing) return;
+    setImporting(true);
+    setImportMessage('');
+    let saved = 0;
+    try {
+      for (const q of references) {
+        const result = await importer.mutateAsync({ questionId: q.id, data: { acceptedAnswers: q.facilitatorAnswers!, onlyIfUnset: true } });
+        if (JSON.stringify(result.acceptedAnswers) === JSON.stringify(q.facilitatorAnswers)) saved++;
+      }
+      setImportMessage(`${saved} verified guide keys saved. Existing instructor keys were left unchanged.`);
+    } catch {
+      setImportMessage(`${saved} keys saved before an error. Refresh the list, review the remaining keys and retry.`);
+    } finally {
+      setImporting(false);
+      qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() });
+      qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() });
+      qc.invalidateQueries({ queryKey: getGetCtfInstructorQuestionsQueryKey() });
+    }
+  };
+  return <div className="space-y-5">
+    <section className="bg-card border border-border p-5 space-y-3" aria-labelledby="guide-keys">
+      <h3 id="guide-keys" className="font-display font-bold text-lg">Facilitator guide reference keys</h3>
+      <p className="text-sm text-muted-foreground">The guide supplies recorded values for {references.length} currently unkeyed questions. Check them against your classroom extractions, software version and the notes below before activating automatic grading. List findings, student-specific products and written assessments remain instructor-reviewed.</p>
+      <label className="flex gap-3 items-start text-sm"><input type="checkbox" checked={verified} onChange={e => setVerified(e.target.checked)} disabled={importing} data-testid="checkbox-verify-guide-keys" /><span>I have verified these reference values against the current classroom datasets.</span></label>
+      <button type="button" className={btn} disabled={!verified || importing || !references.length} onClick={importReferences} data-testid="button-import-guide-keys">{importing ? 'Saving verified keys…' : `Save ${references.length} verified guide keys`}</button>
+      <p className="text-xs text-muted-foreground">This regrades saved responses against the active keys. Existing instructor keys and custom question definitions are not replaced. You can instead review and save each key separately below.</p>
+      {importMessage && <p role="status" className="text-sm">{importMessage}</p>}
+    </section>
+    <ul className="space-y-3">{qs.map(q => <KeyRow key={`${q.id}:${(map.get(q.id) ?? []).join('|')}`} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>
+  </div>;
 }
 
 function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Record<string, string>; initial: string[] }) {
@@ -90,12 +126,17 @@ function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Re
     <li className="bg-card border border-border p-4 space-y-2" data-testid={`row-key-${q.id}`}>
       <p className="text-sm"><span className="font-mono text-xs text-primary">Flag {q.id}</span> | {q.sectionTitle} | {q.points} pts</p>
       <p className="text-sm font-medium">{q.prompt}</p>
+      {q.facilitatorNote && <p className="text-sm border-l-2 border-accent pl-3 text-muted-foreground">{q.facilitatorNote}</p>}
+      {!!q.facilitatorAnswers?.length && <div className="space-y-2 text-sm">
+        <p className="text-muted-foreground">Guide reference: {q.facilitatorAnswers.join(' / ')}</p>
+        <button type="button" className={btnGhost} onClick={() => { setText(q.facilitatorAnswers!.join('\n')); setOk(false); }} data-testid={`button-use-guide-key-${q.id}`}>Load reference for review</button>
+      </div>}
       <label htmlFor={`k-${q.id}`} className="text-xs font-mono uppercase text-muted-foreground">Accepted answers, one per line {initial.length ? '' : '(not set)'}</label>
       <textarea id={`k-${q.id}`} rows={3} className={field} value={text} onChange={(e) => { setText(e.target.value); setOk(false); }} data-testid={`input-key-${q.id}`} />
       <div className="flex items-center gap-3">
         <button className={btn} disabled={!list.length || set.isPending} data-testid={`button-save-key-${q.id}`}
           onClick={() => set.mutate({ questionId: q.id, data: { acceptedAnswers: list } }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfInstructorQuestionsQueryKey() }); } })}>
-          {set.isPending ? 'Saving...' : 'Save key'}
+          {set.isPending ? 'Saving...' : 'Save verified key'}
         </button>
         {ok && <span role="status" className="text-sm text-[hsl(var(--ok))]">Key saved</span>}
         {set.isError && <span role="alert" className="text-sm text-destructive">Save failed</span>}

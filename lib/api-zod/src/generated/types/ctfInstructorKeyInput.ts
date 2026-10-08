@@ -7,6 +7,8 @@
  */
 
 export interface CtfInstructorKeyInput {
+  /** Import a verified facilitator reference without replacing an existing classroom key. */
+  onlyIfUnset?: boolean;
   /** @minItems 1 */
   acceptedAnswers: string[];
 }

@@ -11,4 +11,8 @@ export type CtfInstructorQuestion = CtfQuestionInput & {
   id: number;
   section: number;
   sectionTitle: string;
+  /** Instructor-only reference answers requiring classroom verification before saving. */
+  facilitatorAnswers?: string[];
+  /** Instructor-only scoring and source reconciliation notes. */
+  facilitatorNote?: string;
 };

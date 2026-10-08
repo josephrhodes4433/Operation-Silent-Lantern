@@ -132,6 +132,7 @@ function Editor({ id, q, isMissing, headers }: { id: number; q?: CtfInstructorQu
       <input id="qa-guide" maxLength={2000} className={field} value={d.guideReference} onChange={(e) => up({ guideReference: e.target.value })} data-testid="input-guide" />
       <label htmlFor="qa-method" className={lab}>Validation method (how to verify against evidence)</label>
       <textarea id="qa-method" rows={3} maxLength={12000} className={field} value={d.validationMethod} onChange={(e) => up({ validationMethod: e.target.value })} data-testid="input-method" />
+      {q?.facilitatorNote && <p className="text-sm border-l-2 border-accent pl-3 text-muted-foreground">Facilitator guidance: {q.facilitatorNote}</p>}
       {errors.length > 0 && <ul role="alert" className="text-sm text-destructive list-disc pl-5 pt-2" data-testid="list-validation">{errors.map((e) => <li key={e}>{e}</li>)}</ul>}
       <div className="flex items-center gap-3 pt-3">
         <button className={btn} disabled={errors.length > 0 || set.isPending} data-testid="button-save-question">{set.isPending ? 'Saving...' : isMissing ? 'Restore question' : 'Save question'}</button>
