@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: ctf
+    description: Operation IRON MERIDIAN capture-the-flag activity
+  - name: instructor
+    description: Instructor-only answer-key and review operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,288 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /ctf/activity:
+    get:
+      operationId: getCtfActivity
+      tags: [ctf]
+      summary: Get the public activity questions and section briefs
+      responses:
+        "200":
+          description: Activity definition without answer keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfActivity"
+  /ctf/progress:
+    post:
+      operationId: createCtfProgress
+      tags: [ctf]
+      summary: Create or resume a learner's progress record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CtfProgressInput"
+      responses:
+        "200":
+          description: Existing progress restored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "201":
+          description: New progress record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "400":
+          description: Invalid learner details
+  /ctf/progress/{sessionId}:
+    get:
+      operationId: getCtfProgress
+      tags: [ctf]
+      summary: Retrieve saved progress using the private resume token
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Saved learner progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "404":
+          description: Progress was not found
+  /ctf/progress/{sessionId}/answers/{questionId}:
+    put:
+      operationId: saveCtfAnswer
+      tags: [ctf]
+      summary: Save and validate one learner answer
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: questionId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 120
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CtfAnswerInput"
+      responses:
+        "200":
+          description: Answer saved and scored if an answer key is configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfAnswerResult"
+        "404":
+          description: Progress record or question was not found
+  /ctf/progress/{sessionId}/submit:
+    post:
+      operationId: submitCtfProgress
+      tags: [ctf]
+      summary: Mark a learner's saved assessment ready for review
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Submitted progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "404":
+          description: Progress record was not found
+  /ctf/instructor/verify:
+    post:
+      operationId: verifyCtfInstructor
+      tags: [instructor]
+      summary: Verify instructor access code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CtfInstructorVerifyInput"
+      responses:
+        "200":
+          description: Instructor access status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfInstructorVerifyResult"
+        "503":
+          description: Instructor access is not configured
+  /ctf/instructor/keys:
+    get:
+      operationId: getCtfInstructorKeys
+      tags: [instructor]
+      summary: List instructor-configured dataset answer keys
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dataset-dependent answer keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfInstructorKeys"
+        "401":
+          description: Instructor access denied
+        "503":
+          description: Instructor access is not configured
+  /ctf/instructor/keys/{questionId}:
+    put:
+      operationId: setCtfInstructorKey
+      tags: [instructor]
+      summary: Set the accepted response for a dataset-dependent question
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: questionId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 120
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CtfInstructorKeyInput"
+      responses:
+        "200":
+          description: Key saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfInstructorKey"
+        "400":
+          description: Key cannot be set for this question
+        "401":
+          description: Instructor access denied
+  /ctf/instructor/submissions:
+    get:
+      operationId: listCtfSubmissions
+      tags: [instructor]
+      summary: List learner submissions for instructor review
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Submission summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CtfSubmissionSummary"
+        "401":
+          description: Instructor access denied
+  /ctf/instructor/submissions/{sessionId}:
+    get:
+      operationId: getCtfInstructorSubmission
+      tags: [instructor]
+      summary: Retrieve one submission with written responses
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Learner submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "401":
+          description: Instructor access denied
+        "404":
+          description: Submission was not found
+  /ctf/instructor/submissions/{sessionId}/review/{questionId}:
+    put:
+      operationId: reviewCtfWrittenAnswer
+      tags: [instructor]
+      summary: Record a manual rubric score for a written answer
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: questionId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 120
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CtfReviewInput"
+      responses:
+        "200":
+          description: Manual score saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CtfProgress"
+        "401":
+          description: Instructor access denied
+        "404":
+          description: Submission or question was not found
 components:
   schemas:
     HealthStatus:
@@ -33,4 +319,155 @@ components:
           type: string
       required:
         - status
+    CtfQuestion:
+      type: object
+      required: [id, section, sectionTitle, prompt, kind, options, points, guideReference, correctAnswerAvailable, manualReview]
+      properties:
+        id: { type: integer }
+        section: { type: integer }
+        sectionTitle: { type: string }
+        prompt: { type: string }
+        kind:
+          type: string
+          enum: [single, multiple, short, number, long]
+        options:
+          type: array
+          items: { type: string }
+        points: { type: integer }
+        guideReference: { type: string }
+        correctAnswerAvailable: { type: boolean }
+        manualReview: { type: boolean }
+    CtfSection:
+      type: object
+      required: [id, title, time, flags, points, inject]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        time: { type: string }
+        flags: { type: string }
+        points: { type: integer }
+        inject: { type: string }
+    CtfActivity:
+      type: object
+      required: [title, course, duration, totalFlags, totalPoints, sections, questions]
+      properties:
+        title: { type: string }
+        course: { type: string }
+        duration: { type: string }
+        totalFlags: { type: integer }
+        totalPoints: { type: integer }
+        sections:
+          type: array
+          items: { $ref: "#/components/schemas/CtfSection" }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/CtfQuestion" }
+    CtfAnswer:
+      type: object
+      required: [value, correct, earnedPoints, status, updatedAt]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+        correct: { type: ["boolean", "null"] }
+        earnedPoints: { type: integer }
+        status:
+          type: string
+          enum: [correct, incorrect, unkeyed, manual]
+        updatedAt: { type: string, format: date-time }
+        instructorPoints: { type: ["integer", "null"] }
+        instructorNote: { type: ["string", "null"] }
+    CtfProgressInput:
+      type: object
+      required: [sessionId, name, email, instructorEmail]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 140 }
+        email: { type: string, format: email, maxLength: 254 }
+        instructorEmail: { type: string, format: email, maxLength: 254 }
+    CtfProgress:
+      type: object
+      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        instructorEmail: { type: string, format: email }
+        answers:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/CtfAnswer"
+        totalPoints: { type: integer }
+        answeredCount: { type: integer }
+        savedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }
+    CtfAnswerInput:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+    CtfAnswerResult:
+      type: object
+      required: [questionId, correct, earnedPoints, status, feedback, totalPoints]
+      properties:
+        questionId: { type: integer }
+        correct: { type: ["boolean", "null"] }
+        earnedPoints: { type: integer }
+        status:
+          type: string
+          enum: [correct, incorrect, unkeyed, manual]
+        feedback: { type: string }
+        totalPoints: { type: integer }
+    CtfInstructorVerifyInput:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 256 }
+    CtfInstructorVerifyResult:
+      type: object
+      required: [valid]
+      properties:
+        valid: { type: boolean }
+    CtfInstructorKeyInput:
+      type: object
+      required: [acceptedAnswers]
+      properties:
+        acceptedAnswers:
+          type: array
+          minItems: 1
+          items: { type: string }
+    CtfInstructorKey:
+      type: object
+      required: [questionId, acceptedAnswers]
+      properties:
+        questionId: { type: integer }
+        acceptedAnswers:
+          type: array
+          items: { type: string }
+    CtfInstructorKeys:
+      type: array
+      items: { $ref: "#/components/schemas/CtfInstructorKey" }
+    CtfReviewInput:
+      type: object
+      required: [points, note]
+      properties:
+        points: { type: integer, minimum: 0 }
+        note: { type: string, maxLength: 2000 }
+    CtfSubmissionSummary:
+      type: object
+      required: [sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        totalPoints: { type: integer }
+        answeredCount: { type: integer }
+        savedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }
 
