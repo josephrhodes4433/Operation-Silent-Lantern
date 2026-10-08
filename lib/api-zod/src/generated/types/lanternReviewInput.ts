@@ -5,10 +5,13 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LanternReviewInputDecision } from './lanternReviewInputDecision';
 
 export interface LanternReviewInput {
   /** @minimum 0 */
   points: number;
   /** @maxLength 2000 */
   note: string;
+  decision: LanternReviewInputDecision;
+  responseUpdatedAt: Date;
 }

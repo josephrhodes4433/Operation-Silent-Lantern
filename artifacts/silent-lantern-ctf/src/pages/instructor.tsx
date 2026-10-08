@@ -133,7 +133,7 @@ function Subs({ code }: { code: string }) {
 function Detail({ sid, headers }: { sid: string; headers: Headers }) {
   const qc = useQueryClient();
   const act = useGetLanternActivity();
-  const d = useGetLanternInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }, request: { headers } });
+  const d = useGetLanternInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetLanternInstructorSubmissionQueryKey(sid), refetchInterval: 5000 }, request: { headers } });
   const grant = useGrantLanternAuthorization({ request: { headers } });
   const adjust = useAdjustLanternScore({ request: { headers } });
   const [speed, setSpeed] = useState<number | null>(null);
@@ -172,8 +172,8 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
             <p className="text-xs font-mono text-primary">{q.code} | {q.points} pts{q.manualReview ? ' | written' : ''}</p>
             <p className="text-sm font-medium">{q.prompt}</p>
             <p className="text-sm whitespace-pre-wrap bg-muted p-2">{an ? asText(an.value) : 'Not answered'}</p>
-            {an && <p className="text-xs font-mono">Status: {an.status} | earned {an.earnedPoints}</p>}
-            {an && q.manualReview && <Review sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? 0} note={an.instructorNote ?? ''} />}
+            {an && <p className="text-xs font-mono">Status: {q.manualReview ? an.reviewStatus ?? 'pending' : an.status} | earned {an.earnedPoints}</p>}
+            {an && q.manualReview && <Review key={`${q.id}-${an.updatedAt}-${an.reviewStatus}`} sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? q.points} note={an.instructorNote ?? ''} updatedAt={an.updatedAt} />}
           </div>
         );
       })}
@@ -181,24 +181,30 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
   );
 }
 
-function Review({ sid, q, headers, pts, note }: { sid: string; q: LanternQuestion; headers: Headers; pts: number; note: string }) {
+function Review({ sid, q, headers, pts, note, updatedAt }: { sid: string; q: LanternQuestion; headers: Headers; pts: number; note: string; updatedAt: string }) {
   const qc = useQueryClient();
   const rev = useReviewLanternWrittenAnswer({ request: { headers } });
   const [points, setPoints] = useState(String(pts));
   const [n, setN] = useState(note);
   const num = Number(points);
-  const bad = !Number.isFinite(num) || num < 0 || num > q.points;
+  const bad = !points.trim() || !Number.isInteger(num) || num < 0 || num > q.points;
+  const decide = (decision: 'approved' | 'denied') => rev.mutate({
+    sessionId: sid, questionId: q.id,
+    data: { points: decision === 'denied' ? 0 : num, note: n, decision, responseUpdatedAt: updatedAt },
+  }, {
+    onSuccess: () => { qc.invalidateQueries({ queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListLanternSubmissionsQueryKey() }); },
+  });
   return (
     <div className="grid sm:grid-cols-[120px_1fr_auto] gap-2 items-end border-t border-border pt-3">
       <div><label htmlFor={`pt-${q.id}`} className="text-xs font-mono">Points (max {q.points})</label>
         <input id={`pt-${q.id}`} type="number" min={0} max={q.points} className={field} value={points} onChange={(e) => setPoints(e.target.value)} data-testid={`input-points-${q.id}`} /></div>
-      <div><label htmlFor={`nt-${q.id}`} className="text-xs font-mono">Note</label>
+      <div><label htmlFor={`nt-${q.id}`} className="text-xs font-mono">Feedback (required to deny)</label>
         <input id={`nt-${q.id}`} maxLength={2000} className={field} value={n} onChange={(e) => setN(e.target.value)} data-testid={`input-note-${q.id}`} /></div>
-      <button className={btn} disabled={bad || rev.isPending} data-testid={`button-review-${q.id}`}
-        onClick={() => rev.mutate({ sessionId: sid, questionId: q.id, data: { points: num, note: n } }, {
-          onSuccess: () => { qc.invalidateQueries({ queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListLanternSubmissionsQueryKey() }); } })}>
-        {rev.isPending ? 'Saving...' : rev.isSuccess ? 'Saved' : 'Save review'}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button className={btn} disabled={bad || rev.isPending} data-testid={`button-approve-${q.id}`} onClick={() => decide('approved')}>Approve</button>
+        <button className={btn + ' bg-destructive text-destructive-foreground'} disabled={!n.trim() || rev.isPending} data-testid={`button-deny-${q.id}`} onClick={() => decide('denied')}>Deny / reattempt</button>
+      </div>
+      {rev.isPending && <p role="status" className="text-xs sm:col-span-3">Saving decision...</p>}
       {rev.isError && <p role="alert" className="text-xs text-destructive sm:col-span-3">{errMessage(rev.error, 'Review failed to save.')}</p>}
     </div>
   );

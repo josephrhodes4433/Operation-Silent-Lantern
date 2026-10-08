@@ -113,7 +113,7 @@ def export(destination):
         api_files = [
             "build.mjs", "package.json", "tsconfig.json", "src/app.ts",
             "src/index.ts", "src/lib/logger.ts", "src/lib/instructor-access.ts",
-            "src/lib/lantern-activity.ts", "src/lib/lantern-progress.ts",
+            "src/lib/lantern-activity.ts", "src/lib/lantern-progress.ts", "src/lib/lantern-review.ts",
             "src/routes/health.ts", "src/routes/lantern.ts",
             "src/tests/lantern.test.ts",
         ]

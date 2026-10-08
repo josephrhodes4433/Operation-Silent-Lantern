@@ -329,6 +329,15 @@ export const LanternAnswerStatus = {
   manual: 'manual',
 } as const;
 
+export type LanternAnswerReviewStatus = typeof LanternAnswerReviewStatus[keyof typeof LanternAnswerReviewStatus];
+
+
+export const LanternAnswerReviewStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  denied: 'denied',
+} as const;
+
 export interface LanternAnswer {
   value: string | string[];
   /** @nullable */
@@ -340,6 +349,7 @@ export interface LanternAnswer {
   instructorPoints?: number | null;
   /** @nullable */
   instructorNote?: string | null;
+  reviewStatus?: LanternAnswerReviewStatus;
 }
 
 export type LanternBaseProgressAnswers = {[key: string]: LanternAnswer};
@@ -352,6 +362,8 @@ export interface LanternBaseProgress {
   answers: LanternBaseProgressAnswers;
   totalPoints: number;
   answeredCount: number;
+  /** @nullable */
+  reviewGateQuestionId: number | null;
   savedAt: string;
   /** @nullable */
   submittedAt: string | null;
@@ -475,10 +487,20 @@ export interface LanternKeyInput {
   acceptedAnswers: string[];
 }
 
+export type LanternReviewInputDecision = typeof LanternReviewInputDecision[keyof typeof LanternReviewInputDecision];
+
+
+export const LanternReviewInputDecision = {
+  approved: 'approved',
+  denied: 'denied',
+} as const;
+
 export interface LanternReviewInput {
   /** @minimum 0 */
   points: number;
   /** @maxLength 2000 */
   note: string;
+  decision: LanternReviewInputDecision;
+  responseUpdatedAt: string;
 }
 

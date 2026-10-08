@@ -44,7 +44,14 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
         }
         qc.setQueryData<LanternProgress>(getGetLanternProgressQueryKey(sessionId), (old) => old && {
           ...old, totalPoints: r.totalPoints,
-          answers: { ...old.answers, [String(q.id)]: { ...(old.answers[String(q.id)] ?? {}), value: v, correct: r.correct, earnedPoints: r.earnedPoints, status: r.status, updatedAt: new Date().toISOString() } as LanternAnswer },
+          answers: { ...old.answers, [String(q.id)]: {
+            ...(old.answers[String(q.id)] ?? {}), value: v, correct: r.correct, earnedPoints: r.earnedPoints, status: r.status, updatedAt: new Date().toISOString(),
+            ...(q.manualReview ? {
+              reviewStatus: r.status === 'correct' ? 'approved' : r.status === 'incorrect' ? 'denied' : 'pending',
+              instructorPoints: r.status === 'correct' ? r.earnedPoints : null,
+              instructorNote: ser(old.answers[String(q.id)]?.value) === ser(v) ? old.answers[String(q.id)]?.instructorNote : null,
+            } : {}),
+          } as LanternAnswer },
         });
         qc.invalidateQueries({ queryKey: getGetLanternProgressQueryKey(sessionId) });
       })
@@ -57,23 +64,24 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
   const change = (v: Val) => {
     storeDraft(sessionId, q.id, v);
     setValue(v); latest.current = v; setDirty(true); dirtyRef.current = true;
-    window.clearTimeout(timer.current); timer.current = window.setTimeout(() => send(v), 900);
+    window.clearTimeout(timer.current);
+    if (!q.manualReview) timer.current = window.setTimeout(() => send(v), 900);
   };
 
   useEffect(() => {
     mounted.current = true;
-    if (dirtyRef.current) timer.current = window.setTimeout(() => send(latest.current), 900);
+    if (dirtyRef.current && !q.manualReview) timer.current = window.setTimeout(() => send(latest.current), 900);
     return () => {
       mounted.current = false;
       window.clearTimeout(timer.current);
-      if (dirtyRef.current) send(latest.current);
+      if (dirtyRef.current && !q.manualReview) send(latest.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const status = dirty || isEmpty(value) ? undefined : result?.status ?? saved?.status;
+  const status = dirty || isEmpty(value) ? undefined : q.manualReview ? saved?.status : result?.status ?? saved?.status;
   const feedback = result?.feedback;
-  const earned = result?.earnedPoints ?? saved?.earnedPoints ?? 0;
+  const earned = q.manualReview ? saved?.earnedPoints ?? 0 : result?.earnedPoints ?? saved?.earnedPoints ?? 0;
   const id = `q-${q.id}`;
 
   return (
@@ -86,7 +94,7 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
         <p id={`${id}-p`} className="text-lg leading-snug font-medium">{q.prompt}</p>
         {q.format && <p className="text-sm text-muted-foreground font-mono" data-testid={`text-format-${q.id}`}>Format: {q.format}</p>}
         {q.isFinalSummary && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Write 6 to 8 sentences.</p>}
-        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Saved for instructor review and scored manually.</p>}
+        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Your draft is remembered in this browser. Submit it for instructor approval before moving on. Denied responses must be revised and resubmitted. Editing an approved response requires a new approval.</p>}
         {!q.manualReview && !q.correctAnswerAvailable && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Answer key not yet configured. Your response will be saved and marked pending.</p>}
         {locked && <p role="note" className="flex gap-2 items-start text-sm border-l-4 border-[hsl(var(--warn))] bg-muted/50 p-3" data-testid={`locked-${q.id}`}><Lock size={16} className="shrink-0 mt-0.5" />{locked}</p>}
 
@@ -129,22 +137,22 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
         )}
 
         <div className="flex flex-wrap items-center gap-4">
-          {keyed && (
-            <button className={btn} disabled={pending || isEmpty(value) || !!locked} onClick={() => send(value)} data-testid={`button-validate-${q.id}`}>
-              {pending ? 'Saving...' : 'Save & validate'}
+          {(keyed || q.manualReview) && (
+            <button className={btn} disabled={pending || isEmpty(value) || !!locked || (q.manualReview && !dirty && saved?.reviewStatus === 'approved')} onClick={() => send(value)} data-testid={`button-validate-${q.id}`}>
+              {pending ? 'Saving...' : q.manualReview ? saved?.reviewStatus === 'denied' ? 'Resubmit revised response' : 'Submit for approval' : 'Save & validate'}
             </button>
           )}
           <p role="status" aria-live="polite" className="text-xs font-mono text-muted-foreground" data-testid={`status-save-${q.id}`}>
-            {pending ? 'Saving...' : failed ? null : dirty ? 'Unsaved changes - autosaving shortly' : savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : 'Nothing saved yet'}
+            {pending ? 'Saving...' : failed ? null : dirty ? q.manualReview ? 'Draft saved in this browser — submit for approval' : 'Unsaved changes - autosaving shortly' : savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : 'Nothing submitted yet'}
             {failed && (
               <span className="text-destructive">{failed} <button className="underline" onClick={() => send(latest.current)} data-testid={`button-retry-save-${q.id}`}>Retry</button></span>
             )}
           </p>
         </div>
 
-        {status === 'correct' && <Banner icon={<CheckCircle2 />} tone="ok" text={`Correct. ${earned} points earned.`} fb={feedback} />}
-        {status === 'incorrect' && <Banner icon={<XCircle />} tone="bad" text="Not correct. Retry as often as you like. Only hints cost points." fb={feedback} />}
-        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Saved. Awaiting instructor review." fb={feedback} />}
+        {status === 'correct' && <Banner icon={<CheckCircle2 />} tone="ok" text={q.manualReview ? `Instructor approved. You may continue. ${earned} points earned.` : `Correct. ${earned} points earned.`} fb={feedback} />}
+        {status === 'incorrect' && <Banner icon={<XCircle />} tone="bad" text={q.manualReview ? 'Instructor denied this response. Revise your answer using the feedback below, then resubmit. You cannot continue until approved.' : 'Not correct. Retry as often as you like. Only hints cost points.'} fb={feedback} />}
+        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Submitted. Waiting for instructor approval before you can continue." fb={feedback} />}
         {status === 'unkeyed' && <Banner icon={<CircleDashed />} tone="warn" text="Saved. Pending: no answer key is configured yet." fb={feedback} />}
         {saved?.instructorNote && <p className="text-sm bg-muted p-3"><span className="font-mono text-xs uppercase">Instructor note:</span> {saved.instructorNote}</p>}
 

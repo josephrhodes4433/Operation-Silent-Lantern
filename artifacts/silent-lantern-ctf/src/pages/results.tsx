@@ -97,10 +97,10 @@ export default function Results() {
                     <p className="text-sm font-medium">{q.prompt}</p>
                     <p className="text-sm whitespace-pre-wrap break-words">{an ? asText(an.value) : <span className="text-muted-foreground italic">Incomplete</span>}</p>
                     {an?.instructorNote && <p className="text-xs bg-muted p-2">Instructor: {an.instructorNote}</p>}
-                    {q.section <= p.unlockedMission && <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>}
+                    {q.section <= p.unlockedMission && (p.reviewGateQuestionId === null || q.id <= p.reviewGateQuestionId) && <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>}
                   </div>
                   <div className="text-right text-sm">
-                    <p className={`font-semibold ${an ? tone[an.status] : 'text-muted-foreground'}`}>{an ? label[an.status] : 'Incomplete'}</p>
+                    <p className={`font-semibold ${an ? tone[an.status] : 'text-muted-foreground'}`}>{an ? q.manualReview ? an.reviewStatus === 'approved' ? 'Approved' : an.reviewStatus === 'denied' ? 'Denied — revise' : 'Awaiting approval' : label[an.status] : 'Incomplete'}</p>
                     <p className="font-mono text-xs">{an ? (an.instructorPoints ?? an.earnedPoints) : 0} / {q.points} pts</p>
                   </div>
                 </li>

@@ -306,7 +306,7 @@ components:
         instructorEmail: { type: string, format: email, maxLength: 254 }
     LanternBaseProgress:
       type: object
-      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt, reviewGateQuestionId]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string }
@@ -317,6 +317,7 @@ components:
           additionalProperties: { $ref: "#/components/schemas/LanternAnswer" }
         totalPoints: { type: integer }
         answeredCount: { type: integer }
+        reviewGateQuestionId: { type: ["integer", "null"] }
         savedAt: { type: string, format: date-time }
         submittedAt: { type: ["string", "null"], format: date-time }
     LanternAnswer:
@@ -334,6 +335,7 @@ components:
         updatedAt: { type: string, format: date-time }
         instructorPoints: { type: ["integer", "null"] }
         instructorNote: { type: ["string", "null"] }
+        reviewStatus: { type: string, enum: [pending, approved, denied] }
     LanternAnswerInput:
       type: object
       required: [value]
@@ -379,10 +381,12 @@ components:
         acceptedAnswers: { type: array, items: { type: string } }
     LanternReviewInput:
       type: object
-      required: [points, note]
+      required: [points, note, decision, responseUpdatedAt]
       properties:
         points: { type: integer, minimum: 0 }
         note: { type: string, maxLength: 2000 }
+        decision: { type: string, enum: [approved, denied] }
+        responseUpdatedAt: { type: string, format: date-time }
     LanternBaseSubmissionSummary:
       type: object
       required: [sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt]

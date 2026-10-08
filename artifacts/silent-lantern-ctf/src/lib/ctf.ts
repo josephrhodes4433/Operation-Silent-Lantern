@@ -43,6 +43,8 @@ export function submitBlockers(a: LanternActivity, p: LanternProgress): string[]
   if (missing.length) out.push(`Missing responses: ${missing.map((q) => q.code).join(', ')}`);
   const bad = a.questions.filter((q) => q.isFlag && p.answers[String(q.id)]?.status !== 'correct');
   if (bad.length) out.push(`Flags not yet correct: ${bad.map((q) => q.code).join(', ')}`);
+  const unapproved = a.questions.filter(q => q.manualReview && p.answers[String(q.id)]?.reviewStatus !== 'approved');
+  if (unapproved.length) out.push(`Written responses need instructor approval: ${unapproved.map(q => q.code).join(', ')}`);
   return out;
 }
 

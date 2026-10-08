@@ -58,7 +58,7 @@ export function publicLanternActivity(keys: Map<number, string[]>) {
       "UFED-only: do not use Physical Analyzer (PA) or Streamline.",
       "Follow classroom SOPs: document case identifiers, handling notes and artifact provenance.",
       "Do not circumvent security beyond the lab’s authorized workflows and instructor guidance.",
-      "All teams use the same dataset and progress independently. Capture each flag to unlock the next mission.",
+      "All teams use the same dataset and progress independently. Capture each flag and obtain instructor approval of written responses to unlock the next mission. Denied written responses must be revised and resubmitted.",
       "Three hint tokens per team; each hint costs 2 points. Wrong submissions have no penalty.",
       "Accuracy and defensible reasoning matter more than speed. A 10-minute optional break/intel inject follows Mission 3.",
     ],

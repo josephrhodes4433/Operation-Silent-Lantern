@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LanternAnswerReviewStatus } from './lanternAnswerReviewStatus';
 import type { LanternAnswerStatus } from './lanternAnswerStatus';
 
 export interface LanternAnswer {
@@ -18,4 +19,5 @@ export interface LanternAnswer {
   instructorPoints?: number | null;
   /** @nullable */
   instructorNote?: string | null;
+  reviewStatus?: LanternAnswerReviewStatus;
 }

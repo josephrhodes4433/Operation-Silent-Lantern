@@ -15,6 +15,8 @@ export interface LanternBaseProgress {
   answers: LanternBaseProgressAnswers;
   totalPoints: number;
   answeredCount: number;
+  /** @nullable */
+  reviewGateQuestionId: number | null;
   savedAt: Date;
   /** @nullable */
   submittedAt: Date | null;

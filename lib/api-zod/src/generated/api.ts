@@ -78,10 +78,12 @@ export const CreateLanternProgressResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -118,10 +120,12 @@ export const GetLanternProgressResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -181,10 +185,12 @@ export const SubmitLanternProgressResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -226,10 +232,12 @@ export const UseLanternHintResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -274,10 +282,12 @@ export const RequestLanternAuthorizationResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -391,10 +401,12 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -436,7 +448,9 @@ export const reviewLanternWrittenAnswerBodyNoteMax = 2000;
 
 export const ReviewLanternWrittenAnswerBody = zod.object({
   "points": zod.number().int().min(reviewLanternWrittenAnswerBodyPointsMin),
-  "note": zod.string().max(reviewLanternWrittenAnswerBodyNoteMax)
+  "note": zod.string().max(reviewLanternWrittenAnswerBodyNoteMax),
+  "decision": zod.enum(['approved', 'denied']),
+  "responseUpdatedAt": zod.coerce.date()
 })
 
 export const ReviewLanternWrittenAnswerResponse = zod.object({
@@ -451,10 +465,12 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -499,10 +515,12 @@ export const GrantLanternAuthorizationResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
@@ -548,10 +566,12 @@ export const AdjustLanternScoreResponse = zod.object({
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
+  "reviewGateQuestionId": zod.number().int().nullable(),
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({

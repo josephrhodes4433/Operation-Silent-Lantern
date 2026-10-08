@@ -2,6 +2,7 @@ import { pool } from "@workspace/db";
 import { GetLanternProgressResponse } from "@workspace/api-zod";
 import { ClassroomError } from "./instructor-access";
 import { evaluateLantern, hasLanternResponse, hintTexts, lanternQuestions, missionFlagIds } from "./lantern-activity";
+import { reviewGate } from "./lantern-review";
 
 export type Progress = ReturnType<typeof GetLanternProgressResponse.parse>;
 export interface LanternRow {
@@ -30,11 +31,22 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
         grade.earnedPoints = 0;
       }
     }
-    answers[id] = { ...answer, correct: grade.correct, status: grade.status, earnedPoints: question.manualReview && hasLanternResponse(answer.value) && answer.instructorPoints != null ? answer.instructorPoints : grade.earnedPoints };
+    if (question.manualReview) {
+      const approved = hasLanternResponse(answer.value) && answer.reviewStatus === "approved";
+      answers[id] = {
+        ...answer, reviewStatus: answer.reviewStatus ?? "pending",
+        correct: approved ? true : answer.reviewStatus === "denied" ? false : null,
+        status: approved ? "correct" : answer.reviewStatus === "denied" ? "incorrect" : "manual",
+        earnedPoints: approved ? answer.instructorPoints ?? 0 : 0,
+      };
+    } else {
+      answers[id] = { ...answer, correct: grade.correct, status: grade.status, earnedPoints: grade.earnedPoints };
+    }
   }
   let unlockedMission = 1;
   for (const id of missionFlagIds) {
-    if (answers[String(id)]?.correct !== true) break;
+    const section = lanternQuestions.find(q => q.id === id)!.section;
+    if (answers[String(id)]?.correct !== true || lanternQuestions.some(q => q.section === section && q.manualReview && answers[String(q.id)]?.reviewStatus !== "approved")) break;
     unlockedMission++;
   }
   const rawPoints = Object.values(answers).reduce((sum, answer) => sum + answer.earnedPoints, 0);
@@ -44,7 +56,7 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
     roeAcknowledged: true, answers, rawPoints, penaltyPoints, speedBonus: row.speed_bonus, tradecraftBonus: row.tradecraft_bonus,
     totalPoints: Math.max(0, rawPoints - penaltyPoints + row.speed_bonus + row.tradecraft_bonus),
     answeredCount: Object.values(answers).filter(a => hasLanternResponse(a.value)).length,
-    unlockedMission, authorizationNotes: row.authorization_notes, authorizationGranted: row.authorization_granted,
+    unlockedMission, reviewGateQuestionId: reviewGate(answers), authorizationNotes: row.authorization_notes, authorizationGranted: row.authorization_granted,
     trainingAuthorizationCode: row.authorization_granted && unlockedMission >= 5 ? keys.get(14)?.[0] ?? null : null,
     hints: row.hints.map(missionId => ({ missionId, text: hintTexts[missionId - 1] })),
     savedAt: row.saved_at, submittedAt: row.submitted_at,

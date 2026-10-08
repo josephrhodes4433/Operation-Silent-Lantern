@@ -162,11 +162,25 @@ export default function Activity() {
     if (positioned.current || !prog.data || !qs.length) return;
     positioned.current = true;
     const unlocked = prog.data.unlockedMission;
+    const gate = prog.data.reviewGateQuestionId;
+    const accessible = (q: typeof qs[number]) => q.section <= unlocked && (gate === null || q.id <= gate);
     const target = Number(new URLSearchParams(window.location.search).get('flag'));
-    const selected = qs.findIndex((q) => q.id === target && q.section <= unlocked);
-    const first = qs.findIndex((q) => q.section <= unlocked && !hasResponse(prog.data!.answers[String(q.id)]));
-    setIdx(selected >= 0 ? selected : first === -1 ? 0 : first);
+    const selected = qs.findIndex((q) => q.id === target && accessible(q));
+    const first = qs.findIndex((q) => accessible(q) && !hasResponse(prog.data!.answers[String(q.id)]));
+    const pendingReview = qs.findIndex(q => q.id === gate && accessible(q));
+    setIdx(selected >= 0 ? selected : first >= 0 ? first : pendingReview >= 0 ? pendingReview : 0);
   }, [prog.data, qs]);
+
+  useEffect(() => {
+    if (!prog.data || !qs.length) return;
+    const p = prog.data;
+    setIdx(old => {
+      const q = qs[old];
+      if (!q || (q.section <= p.unlockedMission && (p.reviewGateQuestionId === null || q.id <= p.reviewGateQuestionId))) return old;
+      const gate = qs.findIndex(q => q.id === p.reviewGateQuestionId && q.section <= p.unlockedMission);
+      return gate >= 0 ? gate : 0;
+    });
+  }, [prog.data?.reviewGateQuestionId, prog.data?.unlockedMission, qs]);
 
   if (!session) return <Shell><div className="mb-6"><Eyebrow>Activity</Eyebrow></div><Onboarding onDone={setSession} /></Shell>;
   if (act.isLoading || prog.isLoading) return <Shell><PageSkeleton /></Shell>;
@@ -188,9 +202,12 @@ export default function Activity() {
   const incomplete = a.questions.filter((q) => !hasResponse(p.answers[String(q.id)])).map((q) => q.code);
   const section = a.sections.find((s) => s.id === cur?.section);
   const nextIdx = idx + 1;
-  const nextLocked = nextIdx < qs.length && qs[nextIdx].section > unlocked;
-  const missionLocked = (m: number) => m > unlocked;
-  const qLocked = cur && (cur.id === 14 || cur.id === AUTH_QID) && !p.authorizationGranted ? 'Locked until your instructor grants training authorization from your preserved-handling notes (below).' : undefined;
+  const reviewLocked = nextIdx < qs.length && p.reviewGateQuestionId !== null && qs[nextIdx].id > p.reviewGateQuestionId;
+  const nextLocked = reviewLocked || (nextIdx < qs.length && qs[nextIdx].section > unlocked);
+  const missionLocked = (m: number) => m > unlocked || (p.reviewGateQuestionId !== null && (qs.find(q => q.section === m)?.id ?? 0) > p.reviewGateQuestionId);
+  const qLocked = cur && p.reviewGateQuestionId !== null && cur.id > p.reviewGateQuestionId
+    ? 'An earlier written response needs instructor approval before you can answer this question.'
+    : cur && (cur.id === 14 || cur.id === AUTH_QID) && !p.authorizationGranted ? 'Locked until your instructor grants training authorization from your preserved-handling notes (below).' : undefined;
 
   return (
     <Shell>
@@ -202,7 +219,10 @@ export default function Activity() {
             <p className="text-xs text-white/70" data-testid="text-adjust">Hints -{p.penaltyPoints} | speed +{p.speedBonus} | tradecraft +{p.tradecraftBonus}</p>
             <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Answered" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
             <p className="text-xs text-white/70" data-testid="text-progress">{p.answeredCount} of {total} answered</p>
-            <p className="text-xs text-white/70" data-testid="text-unlocked">{unlocked >= 7 ? 'All flags captured' : `Mission ${unlocked} unlocked`}</p>
+            <p className="text-xs text-white/70" data-testid="text-unlocked">{unlocked >= 7 ? 'All missions cleared' : `Mission ${unlocked} unlocked`}</p>
+            {p.reviewGateQuestionId !== null && p.answers[String(p.reviewGateQuestionId)] && <p className="text-xs text-white/80" data-testid="text-review-gate">
+              {p.answers[String(p.reviewGateQuestionId)].reviewStatus === 'denied' ? 'Written response denied — revise and resubmit.' : 'Written response waiting for instructor approval.'}
+            </p>}
           </div>
           <nav aria-label="Missions" className="bg-card border border-border">
             {[...a.sections].sort((x, y) => x.id - y.id).map((s) => {
@@ -238,7 +258,8 @@ export default function Activity() {
           <div className="flex justify-between gap-3">
             <button className={btnGhost} disabled={idx <= 0} onClick={() => setIdx(idx - 1)} data-testid="button-prev"><ArrowLeft size={16} /> Previous</button>
             {idx < qs.length - 1
-              ? <button className={btn} disabled={nextLocked} onClick={() => setIdx(idx + 1)} data-testid="button-next">{nextLocked ? <><Lock size={16} /> Capture this mission's flag</> : <>Next <ArrowRight size={16} /></>}</button>
+              ? <button className={btn} disabled={nextLocked} onClick={() => setIdx(idx + 1)} data-testid="button-next">{nextLocked ? <><Lock size={16} /> {reviewLocked ? 'Instructor approval required' : "Capture this mission's flag"}</> : <>Next <ArrowRight size={16} /></>}</button>
+              : p.reviewGateQuestionId !== null ? <button className={btn} disabled data-testid="button-finish"><Lock size={16} /> Instructor approval required</button>
               : <Link href="/results" className={btn} data-testid="button-finish">Review and finish <ArrowRight size={16} /></Link>}
           </div>
           <p className="text-xs text-muted-foreground font-mono" data-testid="text-incomplete">
