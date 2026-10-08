@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "IRON MERIDIAN CTF"
+description = "A Cellebrite Analysis for Defense and Intelligence capture-the-flag assessment site. Students work through 120 sequential flags, receive immediate validation where answer keys are configured, save their progress and written responses, and submit work for instructor review. Instructors configure dataset-dependent answer keys and the review email address."
+version = "1.0.0"
+id = "artifacts/iron-meridian-ctf"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25140
+
+[services.development]
+run = "pnpm --filter @workspace/iron-meridian-ctf run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/iron-meridian-ctf", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/iron-meridian-ctf/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25140"
+BASE_PATH = "/"
