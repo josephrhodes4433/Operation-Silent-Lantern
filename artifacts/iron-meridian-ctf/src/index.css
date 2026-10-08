@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -431,3 +432,29 @@
     inset: -1px;
   }
 }
+
+@theme inline { --font-display: 'Space Grotesk', sans-serif; }
+:root {
+  --background: 214 30% 95%; --foreground: 222 47% 9%;
+  --border: 214 22% 84%; --input: 214 22% 70%; --ring: 223 100% 50%;
+  --card: 210 40% 99%; --card-foreground: 222 47% 9%; --card-border: 214 22% 86%;
+  --popover: 210 40% 99%; --popover-foreground: 222 47% 9%; --popover-border: 214 22% 86%;
+  --primary: 223 100% 48%; --primary-foreground: 210 40% 98%;
+  --secondary: 222 45% 11%; --secondary-foreground: 210 40% 96%;
+  --muted: 214 28% 91%; --muted-foreground: 218 16% 38%;
+  --accent: 24 95% 54%; --accent-foreground: 222 47% 9%;
+  --destructive: 355 75% 46%; --destructive-foreground: 210 40% 98%;
+  --sidebar: 222 45% 11%; --sidebar-foreground: 210 40% 96%; --sidebar-border: 222 30% 20%;
+  --sidebar-primary: 223 100% 60%; --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 222 30% 18%; --sidebar-accent-foreground: 210 40% 96%; --sidebar-ring: 223 100% 60%;
+  --chart-1: 223 100% 48%; --chart-2: 24 95% 54%; --chart-3: 158 70% 32%; --chart-4: 355 75% 46%; --chart-5: 222 45% 11%;
+  --ok: 158 72% 30%; --warn: 32 95% 40%;
+  --app-font-sans: 'IBM Plex Sans', sans-serif; --app-font-mono: 'IBM Plex Mono', monospace;
+  --radius: 0.25rem;
+}
+body { background-image: linear-gradient(hsl(var(--border) / .35) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / .35) 1px, transparent 1px); background-size: 32px 32px; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes sk { 50% { opacity: .5; } }
+.skel { background: hsl(var(--muted)); animation: sk 1.4s infinite; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { .rise, .skel { animation: none; } * { scroll-behavior: auto !important; transition: none !important; } }

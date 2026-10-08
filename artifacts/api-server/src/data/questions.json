@@ -1,0 +1,1230 @@
+[
+  {
+    "id": 1,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Before you touch a single byte of MERIDIAN data you must prove your workstation is configured to the task force standard. Which keyboard shortcut opens the global Settings window in Inseyets.PA?",
+    "kind": "single",
+    "options": [
+      "Ctrl+T",
+      "Ctrl+P",
+      "Ctrl+H",
+      "Ctrl+M"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.1, p.19",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Ctrl+T"
+    ],
+    "validationMethod": "Tools > Settings, or Ctrl+T."
+  },
+  {
+    "id": 2,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "The task force SOP requires that your configuration apply to every device you open today, not just the first one. Settings made under the Tools menu apply to:",
+    "kind": "single",
+    "options": [
+      "Only the project that is currently open",
+      "All open and future projects after the configuration change",
+      "Only projects created after Inseyets.PA is restarted",
+      "Only the extraction highlighted in the Project Tree"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.1, p.18",
+    "category": "auto",
+    "acceptedAnswers": [
+      "All open and future projects after the configuration change"
+    ],
+    "validationMethod": "Tools settings are global; Project Settings (Ctrl+P) are per-project."
+  },
+  {
+    "id": 3,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Your collection order requires cryptographic verification of every image. Which hash algorithms can Inseyets.PA use to verify extractions? (Select all that apply.)",
+    "kind": "multiple",
+    "options": [
+      "MD5",
+      "SHA1",
+      "SHA256",
+      "CRC32"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.4, p.124; Mini-mission 1.2, p.28",
+    "category": "auto",
+    "acceptedAnswers": [
+      "MD5",
+      "SHA256"
+    ],
+    "validationMethod": "Inseyets.PA uses SHA256 and MD5; one or both may be used to verify extractions."
+  },
+  {
+    "id": 4,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "The cell chief wants every analyst on IRON MERIDIAN running an identical build. You export your configuration so it can be pushed to the rest of the team. What file extension does an exported Inseyets.PA settings configuration file use? (Include the dot.)",
+    "kind": "short",
+    "options": [],
+    "points": 5,
+    "guideReference": "Lesson 1.1, p.27",
+    "category": "auto",
+    "acceptedAnswers": [
+      ".cnf"
+    ],
+    "validationMethod": "Tools > Settings > Export saves an Inseyets.PA Settings Configuration file (*.cnf)."
+  },
+  {
+    "id": 5,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Task force reporting policy states that no product may leave the cell without a mission number recorded. You add a custom report field named 'Mission Number' at Tools > Settings > Additional Report Fields. What must you set on that field so a report CANNOT be generated until the field is filled in?",
+    "kind": "short",
+    "options": [],
+    "points": 5,
+    "guideReference": "Lesson 1.1, pp.23-24; Lesson 6.1, p.436",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Set Required to Yes"
+    ],
+    "validationMethod": "Additional Report Fields > Add New > set Required = Yes."
+  },
+  {
+    "id": 6,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "ALPHA was seized in the Eastern Time zone and the targeting board briefs in local time. You set the project time zone to (UTC-05:00) New_York (America). What effect does this setting have on the extraction itself?",
+    "kind": "single",
+    "options": [
+      "It rewrites the timestamps stored inside the extraction files",
+      "It only affects how timestamps appear in Inseyets.PA; it does not alter data in the extraction",
+      "It permanently converts all timestamps to UTC +0",
+      "It deletes and re-parses the extraction using the new zone"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 1.2, p.59; Activity 1.6, p.108",
+    "category": "auto",
+    "acceptedAnswers": [
+      "It only affects how timestamps appear in Inseyets.PA; it does not alter data in the extraction"
+    ],
+    "validationMethod": "Project Settings (Ctrl+P) > Time zone settings (UTC). Display only."
+  },
+  {
+    "id": 7,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "The collection team sent you two files alongside the ALPHA extraction folders. Which file type points to MULTIPLE extractions of the same device, contains the hash and HMAC string, and can be opened in any text editor?",
+    "kind": "single",
+    "options": [
+      ".ufd",
+      ".ufdx",
+      ".ufdr",
+      ".bin"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 1.2, pp.33-34",
+    "category": "auto",
+    "acceptedAnswers": [
+      ".ufdx"
+    ],
+    "validationMethod": "A single extraction creates a .ufd; multiple contiguous extractions create a .ufdx containing the hash and HMAC string."
+  },
+  {
+    "id": 8,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Enrichment engines cost processing time, so the cell applies most of them after ingest. Which single enrichment engine MUST be run during initial processing because it depends on raw file metadata and cannot be applied later?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.2, pp.50-51",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Analyze Media Origins"
+    ],
+    "validationMethod": "All other enrichment engines can be applied after initial processing and opening."
+  },
+  {
+    "id": 9,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Build case ALPHA with BOTH provided extractions loaded (File System first, then add the Advanced Logical through Edit case > Add evidence > Load extraction). How many extractions are listed in the Extraction Summary area when you are finished?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 1.3, pp.34-38",
+    "category": "auto",
+    "acceptedAnswers": [
+      "2"
+    ],
+    "validationMethod": "Close the case, three-dot menu > Edit case, add the second extraction; both appear in Extraction Summary."
+  },
+  {
+    "id": 10,
+    "section": 1,
+    "sectionTitle": "Workstation Preparation and Case Build",
+    "prompt": "Open the Extraction Summary for ALPHA and select Data Details View. What is the END date and time recorded for the Advanced Logical extraction?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.2, pp.59, 62; Activity 6.3 Q1, p.467",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Extraction Summary > Data Details View shows extraction start/end time and date, device model and name, and extraction type. Instructor: record the observed value."
+  },
+  {
+    "id": 12,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "You want to change the colour Inseyets.PA assigns to the different extractions in ALPHA  so they are visually distinct in merged views. Where do you change it?",
+    "kind": "single",
+    "options": [
+      "Tools > Settings > Models",
+      "Tools > Settings > Data Files",
+      "Tools > Project Settings",
+      "Tools > Manage Tags"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.3, p.67",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Tools > Settings > Models"
+    ],
+    "validationMethod": "Models settings customise colour schemes for device data types."
+  },
+  {
+    "id": 13,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "The MERIDIAN network is known to use throwaway numbers that mass-dialling services flag automatically. Using the Call Log, how many INCOMING calls on ALPHA were identified as Suspected Spam? Tag each one as Evidence with a description.",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.3 Q4, p.467; tagging p.100",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > Call Log, filter/sort on the spam indicator; tag with the Evidence tag."
+  },
+  {
+    "id": 14,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Unread traffic can indicate messages that arrived after the device was isolated. How many Instant Messages on ALPHA carry an unread status? Tag them as Leads with a description.",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.3 Q5, pp.467-468; tagging p.100",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > Instant Messages, filter on status. Tag as Leads."
+  },
+  {
+    "id": 15,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Push-to-talk applications are a known MERIDIAN tradecraft. What is the username of the Voxer account on ALPHA? Tag it as Evidence and add a description.",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.3 Q6, p.467",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > User Accounts, or search 'Voxer' in All Projects search."
+  },
+  {
+    "id": 16,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Voice notes are frequently used to pass instructions that avoid text-based collection. What is the file name of the audio file with the LARGEST file size on ALPHA? Tag it as Leads and add a description.",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.3 Q7, p.468",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > Audio, Table View, sort descending on Size."
+  },
+  {
+    "id": 17,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "With known files filtered out, how many .PNG images - minus duplications - are recorded on ALPHA? Capture the totals with the Snipping Tool and add the capture back to the case using File > Add external file.",
+    "kind": "number",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.3 Q8, p.468; filters pp.85-86; Activity 1.13, pp.147-150",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Images > Table View; apply the non-system (known files) filter, the PNG signature filter and the duplicate rule, then read the totals row."
+  },
+  {
+    "id": 18,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "The targeting board needs a sense of how much activity this device holds. How many unique Timeline events are on ALPHA?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.3 Q9, p.468; Timeline pp.94-95",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Application menu > Timeline; read the total event count."
+  },
+  {
+    "id": 19,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "The commander's window of interest is 1 February 2022 to 1 April 2022. In the Timeline, filter the Timestamp column to that range and clear every Type except Call Logs. How many entries remain?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.4, pp.110-111",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Timeline > Timestamp column date filter > Apply; Type column > clear all but Call Logs."
+  },
+  {
+    "id": 20,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Build a watch list named MERIDIAN-NARC containing the keywords Narcotics, Pharmaceuticals, Oxycodone, Oxycontin and Cash, then run it against ALPHA. Where in the Project Tree do the results appear? (Give the full path.)",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.4, pp.101-102, 111-112",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Insights > WatchList > Keywords"
+    ],
+    "validationMethod": "Tools > WatchList > WatchList Editor to build; Tools > WatchList > Run WatchList to run."
+  },
+  {
+    "id": 21,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Your partner nation liaison asks how many watch lists and how many entries per list Inseyets.PA supports. What are the limits?",
+    "kind": "single",
+    "options": [
+      "10 watch lists, 50 entries each",
+      "50 watch lists, 100 entries each",
+      "100 watch lists, 50 entries each",
+      "Unlimited watch lists, 1000 entries each"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.4, p.101",
+    "category": "auto",
+    "acceptedAnswers": [
+      "50 watch lists, 100 entries each"
+    ],
+    "validationMethod": "Define up to 50 watch lists with up to 100 entries each."
+  },
+  {
+    "id": 22,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "You need to share the MERIDIAN-NARC keyword list with a partner agency running its own Inseyets.PA. In what format can watch lists be imported and exported?",
+    "kind": "single",
+    "options": [
+      "CSV",
+      "JSON",
+      "XML",
+      "UFDR"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.4, p.102",
+    "category": "auto",
+    "acceptedAnswers": [
+      "CSV"
+    ],
+    "validationMethod": "Watch lists import and export as CSV files."
+  },
+  {
+    "id": 23,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "A partner agency supplied a hash set of images already associated with the MERIDIAN network. Import the provided CSV hash set, run it against ALPHA, and report how many images matched.",
+    "kind": "number",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 1.9/1.10, pp.112-117",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Ctrl+H or Tools > Hash Sets > Hash set manager > Add > CSV File; then Tools > Hash Sets > Run Hash Set. Results at Insights > WatchLists under the Image subcategory."
+  },
+  {
+    "id": 24,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Where do hash set results appear once the hash set has been run against the case?",
+    "kind": "single",
+    "options": [
+      "Insights > Hash Sets, under the Hash set name you assigned when creating the Hash set",
+      "Analyzed Data > Manual Data Collection",
+      "File Systems > Memory Images",
+      "Reports > Hash Verification"
+    ],
+    "points": 5,
+    "guideReference": "Lesson 1.4, pp.116-117",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Insights > Hash sets, under the Hash set name you assigned when creating the Hash set."
+    ],
+    "validationMethod": "Double-click the hash set entry and review Source file information, MD5, Hash sets and Extraction in Table View."
+  },
+  {
+    "id": 25,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "ALPHA is passcode protected on a second, still-locked handset recovered at the same site. You generate dictionary files from ALPHA to support that attack. Which three dictionary types does the built-in utility create?",
+    "kind": "multiple",
+    "options": [
+      "Four-digit numeric strings",
+      "Six-digit numeric strings",
+      "A full list of alphanumeric strings starting with the number 1",
+      "Eight-character symbol strings"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 1.4, pp.105, 117-118",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Four-digit numeric strings",
+      "Six-digit numeric strings",
+      "A full list of alphanumeric strings starting with the number 1"
+    ],
+    "validationMethod": "Tools > Generate dictionary files."
+  },
+  {
+    "id": 26,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "MERIDIAN has previously pushed implants to facilitator handsets. Before scanning ALPHA you must update the malware signatures. Which anti-malware engine does Inseyets.PA use?",
+    "kind": "short",
+    "options": [],
+    "points": 5,
+    "guideReference": "Lesson 1.4, pp.107, 118-119",
+    "category": "auto",
+    "acceptedAnswers": [
+      "BitDefender"
+    ],
+    "validationMethod": "Tools > Malware Scanner > Update Signature Database > Update from file."
+  },
+  {
+    "id": 27,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Your exploitation workstation is air-gapped, so signatures must be updated from a donor file. What is the file name of the definitions file you load?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.4, pp.118-119",
+    "category": "auto",
+    "acceptedAnswers": [
+      "definitions64.msd"
+    ],
+    "validationMethod": "Air-gapped systems need a donor copy of the BitDefender definitions file from a network-connected Inseyets.PA v10.7."
+  },
+  {
+    "id": 28,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "Run the malware scan against the ALPHA file systems. How many malware detections are reported?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 1.4, pp.119-120",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Tools > Malware Scanner > Scan Malware; watch progress in the Insights window."
+  },
+  {
+    "id": 29,
+    "section": 2,
+    "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
+    "prompt": "The cell has standardised its tag set for IRON MERIDIAN. Which menu path lets you rename tags, assign hotkeys and create new tags such as Leads?",
+    "kind": "short",
+    "options": [],
+    "points": 5,
+    "guideReference": "Lesson 1.4, pp.143, 145",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Tools > Manage Tags"
+    ],
+    "validationMethod": "Tools > Manage Tags; tag sets can be exported for use in other cases or on other computers."
+  },
+  {
+    "id": 30,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "BRAVO's findings will support a targeting recommendation, so the image must be verified before any of it is briefed. For Logical and Advanced Logical Extractions, Inseyets.PA can verify the hash obtained during extraction only if the original hash is present in which file?",
+    "kind": "single",
+    "options": [
+      "The .ufd file",
+      "The .ufdr report",
+      "The Hash.DB repository",
+      "The extraction .bin file"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 1.4, p.124; Activity 1.8, pp.132-135",
+    "category": "auto",
+    "acceptedAnswers": [
+      "The .ufd file"
+    ],
+    "validationMethod": "Extraction Summary > Image Hash > Verify, then View. Open the .ufd in Notepad and read the SHA256 value at the bottom for comparison."
+  },
+  {
+    "id": 31,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "In Analyzed Data > Images on BRAVO, locate Img_0049.HEIC. What is its byte size?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 1.8, p.134",
+    "category": "auto",
+    "acceptedAnswers": [
+      "2553875"
+    ],
+    "validationMethod": "Search the Images table for Img_0003.HEIC; the guide records byte size 1459886."
+  },
+  {
+    "id": 32,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Save Img_0049.HEIC to the desktop, then drag it into Hasher.exe with MD5 selected as the algorithm. What MD5 value does Hasher return, and does it match the MD5 shown by Inseyets.PA? (Give the hash, then Match or No match.)",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 1.8, pp.134-135; Activity 5.3, pp.420-421",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Hasher.exe is in the Student Folder software directory. Instructor: record the MD5."
+  },
+  {
+    "id": 33,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Open Analyzed Data > Messages/Chats > Native Messages on BRAVO and find the thread with the contact Flaco (15202830356). How many messages does that thread contain?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 5.1, p.405",
+    "category": "auto",
+    "acceptedAnswers": [
+      "17"
+    ],
+    "validationMethod": "Current version records seventeen  messages sent between Jay Walker and Flaco."
+  },
+  {
+    "id": 34,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "To prove the tool decoded that thread correctly you want to review the source database verify a sampling of messages..  Which data base contains the source information for these native iOS SMS messages?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 5.1, p.407",
+    "category": "auto",
+    "acceptedAnswers": [
+      "sms.db"
+    ],
+    "validationMethod": "All Projects search > type sms.db > Show All > select the sms.db entry."
+  },
+  {
+    "id": 35,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Inside sms.db, which table do you open in Database View to compare message bodies against the decoded output?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 5.1, p.407",
+    "category": "auto",
+    "acceptedAnswers": [
+      "message"
+    ],
+    "validationMethod": "The guide directs you to the message (80) table."
+  },
+  {
+    "id": 36,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "You reach the date column of the message table and the value does not look like local time. How are dates and times stored in these databases?",
+    "kind": "single",
+    "options": [
+      "In device local time",
+      "In UTC",
+      "In the analyst workstation time zone",
+      "In the carrier network time"
+    ],
+    "points": 10,
+    "guideReference": "Activity 5.1, p.408",
+    "category": "auto",
+    "acceptedAnswers": [
+      "In UTC"
+    ],
+    "validationMethod": "Convert with the drop-down suggested timestamp, and remember database times are UTC."
+  },
+  {
+    "id": 37,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Record the message body and the converted date/time (UTC) of the FIRST message in the thread as your flag.",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 5.1, pp.405-408",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Database View search bar > paste the message body; convert the date column value."
+  },
+  {
+    "id": 38,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "MERIDIAN data  is being cross-checked against a partner report, so the EXIF must be validated with a second tool. Save IMG_0049.HEIC from BRAVO and drop it onto ExifTool.exe. Which tab in Inseyets.PA do you open to compare the tool's EXIF output against ExifTool?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 5.2, p.417",
+    "category": "auto",
+    "acceptedAnswers": [
+      "File Info"
+    ],
+    "validationMethod": "Analyzed Data > Media > Images; right-click > Save As; ExifTool is command-line based - drag the file onto ExifTool.exe rather than launching it."
+  },
+  {
+    "id": 39,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "You open the Calendar entry 'flyhome' in the CalendarItem table and the start_date is a large integer. Seconds are counted from which epoch?",
+    "kind": "single",
+    "options": [
+      "UTC 1970 (Unix)",
+      "UTC 1601 (Windows)",
+      "UTC 2001 (Apple / Mac Absolute Time)",
+      "UTC 1904 (legacy Apple)"
+    ],
+    "points": 10,
+    "guideReference": "Activity 5.2, p.418; Lesson 3.4, p.237",
+    "category": "auto",
+    "acceptedAnswers": [
+      "UTC 2001 (Apple / Mac Absolute Time)"
+    ],
+    "validationMethod": "MAC Absolute Time (CF Absolute Time) is based on 1 January 2001 00:00:00 UTC and is used by iOS since iOS 5."
+  },
+  {
+    "id": 40,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Install and launch DCode, paste the start_date value, and set the time zone to UTC-7:00 Arizona. What Apple Absolute Time (UTC) value does DCode return, and does it match the decoded start date in Analyzed Data > Calendar > Work?",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 5.2, pp.418-419",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "DCode is in the Student Folder software directory. Instructor: record the decoded value."
+  },
+  {
+    "id": 42,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "Compare IMG_0006.heic (DCIM), IMG_0006.heic (SMS) and 5005.jpg on MD5 hash, date/time and location. Which is the ORIGINAL, which is the THUMBNAIL, and which has been ALTERED? (Answer in that order.)",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 5.3, pp.420-421",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Use Hasher for the MD5s, ExifTool for the EXIF, and Photos.sqlite for the true location."
+  },
+  {
+    "id": 43,
+    "section": 3,
+    "sectionTitle": "BRAVO Verification and Validation",
+    "prompt": "The device is available, powered on, and the passcode is known. Your section chief asks whether you can hand scroll it to confirm a finding. What is the governing rule?",
+    "kind": "single",
+    "options": [
+      "Hand scroll first so you know what to look for during extraction",
+      "All extractions must be performed prior to hand scrolling, and the device placed in a no-network state",
+      "Hand scrolling is prohibited once a device is in evidence",
+      "Hand scrolling replaces the need for third-party validation"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 5.1, pp.412-413",
+    "category": "auto",
+    "acceptedAnswers": [
+      "All extractions must be performed prior to hand scrolling, and the device placed in a no-network state"
+    ],
+    "validationMethod": "Hand scrolling can change data on the device; disable cellular, Wi-Fi, Bluetooth and NFC, and photograph and document any new findings."
+  },
+  {
+    "id": 44,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "CHARLIE arrived as an iTunes backup rather than a UFED extraction, so it must be opened through Open (Advanced). During ingest you are prompted for the backup password. What is it?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 3.2, p.240",
+    "category": "auto",
+    "acceptedAnswers": [
+      "manny"
+    ],
+    "validationMethod": "+Add Evidence > Common Source > Backup > iTunes backup > Select Folder (select the entire folder, do not open it)."
+  },
+  {
+    "id": 45,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Open (Advanced) is the right tool for CHARLIE. Which statement about Open (Advanced) is correct?",
+    "kind": "single",
+    "options": [
+      "It can only open files produced by a UFED unit",
+      "If a .ufd file is corrupt or missing, Open (Advanced) can create a new one",
+      "It cannot process iTunes or iCloud backups",
+      "It requires the device to be physically connected"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 3.3, pp.239, 244; Lesson 1.2, p.57",
+    "category": "auto",
+    "acceptedAnswers": [
+      "If a .ufd file is corrupt or missing, Open (Advanced) can create a new one"
+    ],
+    "validationMethod": "Open (Advanced) handles .bin, .dd, .img, iTunes/iCloud backups, JTAG, ISP and chip-off extractions."
+  },
+  {
+    "id": 46,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "AirDrop activity is a known MERIDIAN method for moving files without network logging. What is the AirDrop ID for CHARLIE?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q1, p.472",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Device Info / Extraction Summary. Instructor: record the observed value."
+  },
+  {
+    "id": 47,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "The equipment annex of your report needs the exact hardware. What is the model number of CHARLIE (Use the standard iPhone model?",
+    "kind": "short",
+    "options": [],
+    "points": 5,
+    "guideReference": "Activity 6.4 Q2, p.472",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Device Info. Instructor: record the observed value."
+  },
+  {
+    "id": 48,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "How long does CHARLIE retain messages before automatic deletion? (Message retention duration.)",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q3, p.472",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Device Info. This drives how far back message content can be expected to exist."
+  },
+  {
+    "id": 49,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Your timeline must be presented in the target's local time. What time zone is set on CHARLIE?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q4, p.472; Project Settings p.59",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Device Info; then confirm your project time zone setting matches your reporting standard."
+  },
+  {
+    "id": 50,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Was the iTunes backup on CHARLIE set to be encrypted?",
+    "kind": "single",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q5, p.472",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Device Info / backup settings. Instructor: confirm and key the correct option."
+  },
+  {
+    "id": 51,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Communications methodology  assessment: list FIVE messaging applications used on CHARLIE.",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.4 Q6, p.472; widgets p.74",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > Installed Applications, or the Top 5 messaging apps widget."
+  },
+  {
+    "id": 52,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Were there any pictures sent by MMS or iMessage on CHARLIE?",
+    "kind": "single",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q7, p.473",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Messages > filter on attachments. Instructor: confirm and key the correct option."
+  },
+  {
+    "id": 53,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Cloud accounts could extend collection beyond the handset. Was an iCloud account found on CHARLIE?",
+    "kind": "single",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "points": 10,
+    "guideReference": "Activity 6.4 Q8, p.473; cloud pp.473-474",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > User Accounts. Instructor: confirm and key the correct option."
+  },
+  {
+    "id": 54,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Communications analysis: who were the TOP FIVE messaging parties on CHARLIE?",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.4 Q9, p.473; widgets pp.69-70",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Use the Top 5 messaging parties widget."
+  },
+  {
+    "id": 55,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Which database on CHARLIE contains the most records (rows)?",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.4 Q10, p.473",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Analyzed Data > Data Files > Databases; sort on record count."
+  },
+  {
+    "id": 56,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Using the  filters within Timeline on CHARLIE, how many searched items and contacts are there in total?",
+    "kind": "number",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.4 Q11, p.473; Timeline pp.94-95, 110",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Timeline > Type column filter; select only Searched Items and Contacts and read the total."
+  },
+  {
+    "id": 57,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Movement assessment: was CHARLIE ever in Dhaka, Bangladesh?",
+    "kind": "single",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "points": 15,
+    "guideReference": "Activity 6.4 Q12, p.473; Locations pp.289-292",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Locations view plus offline maps. Instructor: confirm and key the correct option."
+  },
+  {
+    "id": 58,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Image volume on CHARLIE is too large to review by hand, so you run the automated classifier. Give the full menu path used to run media classification after a case has already been ingested.",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 3.4, pp.320-321",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Tools > Enrichment engines > Media classification"
+    ],
+    "validationMethod": "Choose the media type (Image and Video, Image, or Video) and the categories relevant to the mission."
+  },
+  {
+    "id": 59,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Where do you go to review the results of media classification once processing completes? (Give the full path.)",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 3.4, p.322; Activity 3.12, p.327",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Insights > Media Classification"
+    ],
+    "validationMethod": "You can also expand the Images and Videos categories under Analyzed Data."
+  },
+  {
+    "id": 60,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Run media classification on CHARLIE with all categories selected. How many items are classified under the Substance category?",
+    "kind": "number",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 3.12, pp.327-328",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Insights > Media Classification > Substance. Note the number shown under the category."
+  },
+  {
+    "id": 61,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Open the Drugs subcategory on CHARLIE and review the thumbnails. Identify at least two FALSE POSITIVES and explain, in one or two sentences each, why you are excluding them from the intelligence picture.",
+    "kind": "long",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 3.12, pp.327-328; Mini-mission 3.13, pp.328-330",
+    "category": "rubric",
+    "acceptedAnswers": [],
+    "validationMethod": "Rubric: names two specific items, gives a plausible classifier rationale, and states the exclusion decision. The guide warns classifications must be reviewed carefully for false positives."
+  },
+  {
+    "id": 62,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "The geospatial cell wants CHARLIE's location data. In the Locations view, into which categories is location data organised?",
+    "kind": "multiple",
+    "options": [
+      "Visited",
+      "Point of Interest",
+      "Media",
+      "Predicted"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 3.4, pp.289-291",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Visited",
+      "Point of Interest",
+      "Media"
+    ],
+    "validationMethod": "Double-click a category to open it in Table View and filter by Source."
+  },
+  {
+    "id": 64,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "In the Locations > Media table on CHARLIE, select several entries, right-click and choose Retrieve Address. Export the selected locations . What type of file does this EXPORT option generate for you?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Activity 3.8, pp.296-297",
+    "category": "auto",
+    "acceptedAnswers": [
+      "KML (locations);"
+    ],
+    "validationMethod": "Export > KML (locations); load the .KML into Google Earth and compare against Inseyets.PA."
+  },
+  {
+    "id": 65,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "You run AppGenie against CHARLIE's unsupported regional applications and it surfaces several new chat threads. How must those results be treated in your reporting?",
+    "kind": "single",
+    "options": [
+      "As confirmed intelligence, since AppGenie uses AI",
+      "As initial indicators only; findings are not fully validated and require verification",
+      "As inadmissible and excluded entirely",
+      "As confirmed only if the application is on the supported list"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 3.5, pp.331-332",
+    "category": "auto",
+    "acceptedAnswers": [
+      "As initial indicators only; findings are not fully validated and require verification"
+    ],
+    "validationMethod": "Tools > AppGenie, or Analyzed Data > Application > Installed Applications > Insights."
+  },
+  {
+    "id": 66,
+    "section": 4,
+    "sectionTitle": "CHARLIE: The Foreign-Language Node",
+    "prompt": "Run AppGenie against chat applications found on CHARLIE. Name ONE application from which AppGenie parsed artifacts that were not present in the standard decoded output, and state what artifact type it recovered (contacts, user accounts, or chats).",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Lesson 3.5, pp.331-340",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Instructor: run AppGenie once against the classroom image and record acceptable answers."
+  },
+  {
+    "id": 99,
+    "section": 6,
+    "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
+    "prompt": "The lead wants any email address in the memory image. Navigate to File Systems > Memory Images >Archive File and open Find > RegEx (GREP). What is the regular expression the guide provides for locating email addresses.",
+    "kind": "short",
+    "options": [],
+    "points": 20,
+    "guideReference": "Activity 3.7 regex activity, pp.276-279",
+    "category": "auto",
+    "acceptedAnswers": [
+      "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._%+-]+\\.[a-zA-Z]{2,4}"
+    ],
+    "validationMethod": "Ensure there are no spaces in the expression. Select Add to save it to the library, then Save it to disk for reuse."
+  },
+  {
+    "id": 100,
+    "section": 6,
+    "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
+    "prompt": "Run that expression against Alpha. Report the number of search results, and save the expression to the library with the description Email Search.",
+    "kind": "short",
+    "options": [],
+    "points": 20,
+    "guideReference": "Activity 3.7 regex activity, pp.277-279; Mini-mission 3.6, pp.280-281",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Instructor: run the expression once and record the address list."
+  },
+  {
+    "id": 101,
+    "section": 6,
+    "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
+    "prompt": "You want the last places FOXTROT's user searched for or visited. You run Tools > Get More Data (Carving) > Carve locations with Carve Most Visited Sites selected. What is the limit of that option?",
+    "kind": "single",
+    "options": [
+      "The last three sites visited",
+      "The last ten sites visited",
+      "All sites within a 5 km radius",
+      "Sites visited in the last 24 hours"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 3.4, p.288",
+    "category": "auto",
+    "acceptedAnswers": [
+      "The last three sites visited"
+    ],
+    "validationMethod": "Custom Radius lets you position a pin on a map and set a radius."
+  },
+  {
+    "id": 110,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "The partner agency requires password protection on everything it receives. Which report formats support password protection?",
+    "kind": "multiple",
+    "options": [
+      "Excel",
+      "PDF",
+      "Word",
+      "HTML",
+      "XML"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 6.1, p.433",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Excel",
+      "PDF",
+      "Word"
+    ],
+    "validationMethod": "Password protection is NOT available for HTML or XML."
+  },
+  {
+    "id": 111,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "UFDR protection encrypts the report file to protect the raw extracted data it contains. What encryption standard is used?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 6.1, pp.433; Lesson 1.1, p.25",
+    "category": "auto",
+    "acceptedAnswers": [
+      "AES"
+    ],
+    "validationMethod": "UFDR reports are encrypted using AES encryption with CBC."
+  },
+  {
+    "id": 112,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "A supported unit has no Inseyets.PA licence but needs to work through the findings themselves. What do you distribute with the report?",
+    "kind": "single",
+    "options": [
+      "Cellebrite Reader, a free portable application with most analytical features removed",
+      "A read-only Inseyets.PA licence",
+      "An XML export only",
+      "A Pathfinder workspace"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 6.1, p.431; Lesson 1.1, p.24",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Cellebrite Reader, a free portable application with most analytical features removed"
+    ],
+    "validationMethod": "Include Reader is a UFDR-only option; the Reader executable is placed in the report output folder. It can be encrypted and password protected."
+  },
+  {
+    "id": 113,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "The analytical cell wants to ingest your product into an advanced link-analysis tool. Which Cellebrite analytic tool does the guide name as the destination for UFDR and XML reports?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 6.1, pp.429, 431",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Pathfinder"
+    ],
+    "validationMethod": "XML assists with Unicode-based languages and can be imported by other analysis tools."
+  },
+  {
+    "id": 114,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "The field team needs something in the next ten minutes covering device attributes and account identifiers only. Which Inseyets.PA report type meets that requirement?",
+    "kind": "short",
+    "options": [],
+    "points": 10,
+    "guideReference": "Lesson 6.1, pp.438-439; Mini-mission 6.2, pp.461-463",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Preliminary Device Report"
+    ],
+    "validationMethod": "It gives a quick high-level summary of device and account information for analysts, operators and commanders."
+  },
+  {
+    "id": 115,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Your commander asks for the difference between the report Inseyets.PA generates and the product your cell writes. Which statement is correct?",
+    "kind": "single",
+    "options": [
+      "They are the same product under different names",
+      "An exploitation report documents artifacts recovered during extraction but does not provide full operational context or chronology; an intelligence report is an analyst narrative with a full timeline, authority, tools used and conclusions",
+      "An intelligence report is generated automatically from tagged items",
+      "An exploitation report must always be classified higher than an intelligence report"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 6.2, pp.455-456",
+    "category": "auto",
+    "acceptedAnswers": [
+      "An exploitation report documents artifacts recovered during extraction but does not provide full operational context or chronology; an intelligence report is an analyst narrative with a full timeline, authority, tools used and conclusions"
+    ],
+    "validationMethod": "Tool-generated reports may be included as attachments to the intelligence report."
+  },
+  {
+    "id": 116,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Your intelligence report must document how each device was received and handled. Which device-identification questions does the guide require you to answer?",
+    "kind": "multiple",
+    "options": [
+      "What is the make and model of the device?",
+      "What was the state of the device (powered on vs off)?",
+      "What is the IMEI/MEID?",
+      "What steps were taken to isolate the device from the network?",
+      "What is the retail value of the device?"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 6.2, p.449",
+    "category": "auto",
+    "acceptedAnswers": [
+      "What is the make and model of the device?",
+      "What was the state of the device (powered on vs off)?",
+      "What is the IMEI/MEID?",
+      "What steps were taken to isolate the device from the network?"
+    ],
+    "validationMethod": "Also: where the device originated, distinguishing characteristics, chain of custody or handling record, and associated or supporting devices."
+  },
+  {
+    "id": 117,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Generate a Tags Only report in PDF format covering your tagged findings across all cases. How many tagged items are included in the report?",
+    "kind": "number",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.1, pp.460-461",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Depends on the student's own tagging. Score against the student's tag count as displayed in Manage Tags / the generated report, not against a fixed number."
+  },
+  {
+    "id": 118,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Generate a UFDR report including all default data types, file types and preferences categories, and apply protection appropriate for partner release. State the protection you applied and the file name of the report you produced.",
+    "kind": "short",
+    "options": [],
+    "points": 15,
+    "guideReference": "Activity 6.1, p.461; Lesson 6.1, p.433; Mini-mission 6.2, pp.461-463",
+    "category": "dataset",
+    "acceptedAnswers": [],
+    "validationMethod": "Accept any answer that names UFDR AES protection and/or password protection plus the student's actual file name."
+  },
+  {
+    "id": 119,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Storage guidance for the completed products: which practice does the guide direct?",
+    "kind": "single",
+    "options": [
+      "Store products on the analysis workstation's local drive only",
+      "Archive reports on network storage or another solution using a RAID configuration, and strongly consider encrypting reports stored on portable drives if authorised",
+      "Email products to all supported units immediately",
+      "Delete products once the brief is complete"
+    ],
+    "points": 10,
+    "guideReference": "Lesson 6.2, p.458",
+    "category": "auto",
+    "acceptedAnswers": [
+      "Archive reports on network storage or another solution using a RAID configuration, and strongly consider encrypting reports stored on portable drives if authorized"
+    ],
+    "validationMethod": "Storing on a remote drive prevents data loss and lets other operators produce the intelligence briefing."
+  },
+  {
+    "id": 120,
+    "section": 8,
+    "sectionTitle": "Dissemination and the Commander's Brief",
+    "prompt": "Commander's Priority Intelligence Requirement. In no more than 300 words, answer PIR 1: Who are persons of interest  within the MERIDIAN network,  and why, as well as PIR 2: What is the MERIDIAN network’s area of operation, and their primary operating hubs.  Support every assertion with the specific device, artifact and location in Inseyets.PA where you found it, and state the validation method used for each of your three strongest findings.",
+    "kind": "long",
+    "options": [],
+    "points": 40,
+    "guideReference": "Activity 6.1, p.460; Mini-mission 5.4, pp.422-423; Lesson 6.2, pp.442-443, 445, 455-456",
+    "category": "rubric",
+    "acceptedAnswers": [],
+    "validationMethod": "Rubric (40 pts): names a directing individual with cross-device support (10); identifies the communications means with the artifact cited (10); cites device, artifact and Inseyets.PA location for each assertion (10); states a second-tool or raw-database validation method for three findings (10). Deduct for speculation unsupported by a cited artifact - reporting must remain objective and unbiased."
+  }
+]

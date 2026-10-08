@@ -1,0 +1,1 @@
+- [Email delivery decision](email-delivery.md) — user declined the email integration; do not silently add a provider or imply a draft was delivered.
