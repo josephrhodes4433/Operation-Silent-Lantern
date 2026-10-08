@@ -735,6 +735,131 @@ export const SubmitCtfProgressResponse = zod.object({
 
 
 /**
+ * @summary List editable questions and missing original flag IDs
+ */
+export const GetCtfInstructorQuestionsHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOnePromptMax = 12000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneOptionsItemMax = 2000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneOptionsMax = 20;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOnePointsMin = 0;
+export const getCtfInstructorQuestionsResponseQuestionsItemOnePointsMax = 1000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneGuideReferenceMax = 2000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneValidationMethodMax = 12000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersItemMax = 12000;
+
+export const getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersMax = 50;
+
+
+
+export const GetCtfInstructorQuestionsResponse = zod.object({
+  "questions": zod.array(zod.object({
+  "prompt": zod.string().min(1).max(getCtfInstructorQuestionsResponseQuestionsItemOnePromptMax),
+  "kind": zod.enum(['single', 'multiple', 'short', 'number', 'long']),
+  "options": zod.array(zod.string().min(1).max(getCtfInstructorQuestionsResponseQuestionsItemOneOptionsItemMax)).max(getCtfInstructorQuestionsResponseQuestionsItemOneOptionsMax),
+  "points": zod.number().int().min(getCtfInstructorQuestionsResponseQuestionsItemOnePointsMin).max(getCtfInstructorQuestionsResponseQuestionsItemOnePointsMax),
+  "guideReference": zod.string().max(getCtfInstructorQuestionsResponseQuestionsItemOneGuideReferenceMax),
+  "validationMethod": zod.string().max(getCtfInstructorQuestionsResponseQuestionsItemOneValidationMethodMax),
+  "validationMode": zod.enum(['normalised', 'exact', 'numeric', 'manual', 'dataset']),
+  "acceptedAnswers": zod.array(zod.string().min(1).max(getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersItemMax)).max(getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "section": zod.number().int(),
+  "sectionTitle": zod.string()
+}))),
+  "missingIds": zod.array(zod.number().int())
+})
+
+
+/**
+ * @summary Restore or edit a question without changing its original flag ID or learner responses
+ */
+export const setCtfInstructorQuestionPathQuestionIdMax = 120;
+
+
+
+export const SetCtfInstructorQuestionParams = zod.object({
+  "questionId": zod.coerce.number().int().min(1).max(setCtfInstructorQuestionPathQuestionIdMax)
+})
+
+export const SetCtfInstructorQuestionHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const setCtfInstructorQuestionBodyPromptMax = 12000;
+
+export const setCtfInstructorQuestionBodyOptionsItemMax = 2000;
+
+export const setCtfInstructorQuestionBodyOptionsMax = 20;
+
+export const setCtfInstructorQuestionBodyPointsMin = 0;
+export const setCtfInstructorQuestionBodyPointsMax = 1000;
+
+export const setCtfInstructorQuestionBodyGuideReferenceMax = 2000;
+
+export const setCtfInstructorQuestionBodyValidationMethodMax = 12000;
+
+export const setCtfInstructorQuestionBodyAcceptedAnswersItemMax = 12000;
+
+export const setCtfInstructorQuestionBodyAcceptedAnswersMax = 50;
+
+
+
+export const SetCtfInstructorQuestionBody = zod.object({
+  "prompt": zod.string().min(1).max(setCtfInstructorQuestionBodyPromptMax),
+  "kind": zod.enum(['single', 'multiple', 'short', 'number', 'long']),
+  "options": zod.array(zod.string().min(1).max(setCtfInstructorQuestionBodyOptionsItemMax)).max(setCtfInstructorQuestionBodyOptionsMax),
+  "points": zod.number().int().min(setCtfInstructorQuestionBodyPointsMin).max(setCtfInstructorQuestionBodyPointsMax),
+  "guideReference": zod.string().max(setCtfInstructorQuestionBodyGuideReferenceMax),
+  "validationMethod": zod.string().max(setCtfInstructorQuestionBodyValidationMethodMax),
+  "validationMode": zod.enum(['normalised', 'exact', 'numeric', 'manual', 'dataset']),
+  "acceptedAnswers": zod.array(zod.string().min(1).max(setCtfInstructorQuestionBodyAcceptedAnswersItemMax)).max(setCtfInstructorQuestionBodyAcceptedAnswersMax)
+})
+
+export const setCtfInstructorQuestionResponseOnePromptMax = 12000;
+
+export const setCtfInstructorQuestionResponseOneOptionsItemMax = 2000;
+
+export const setCtfInstructorQuestionResponseOneOptionsMax = 20;
+
+export const setCtfInstructorQuestionResponseOnePointsMin = 0;
+export const setCtfInstructorQuestionResponseOnePointsMax = 1000;
+
+export const setCtfInstructorQuestionResponseOneGuideReferenceMax = 2000;
+
+export const setCtfInstructorQuestionResponseOneValidationMethodMax = 12000;
+
+export const setCtfInstructorQuestionResponseOneAcceptedAnswersItemMax = 12000;
+
+export const setCtfInstructorQuestionResponseOneAcceptedAnswersMax = 50;
+
+
+
+export const SetCtfInstructorQuestionResponse = zod.object({
+  "prompt": zod.string().min(1).max(setCtfInstructorQuestionResponseOnePromptMax),
+  "kind": zod.enum(['single', 'multiple', 'short', 'number', 'long']),
+  "options": zod.array(zod.string().min(1).max(setCtfInstructorQuestionResponseOneOptionsItemMax)).max(setCtfInstructorQuestionResponseOneOptionsMax),
+  "points": zod.number().int().min(setCtfInstructorQuestionResponseOnePointsMin).max(setCtfInstructorQuestionResponseOnePointsMax),
+  "guideReference": zod.string().max(setCtfInstructorQuestionResponseOneGuideReferenceMax),
+  "validationMethod": zod.string().max(setCtfInstructorQuestionResponseOneValidationMethodMax),
+  "validationMode": zod.enum(['normalised', 'exact', 'numeric', 'manual', 'dataset']),
+  "acceptedAnswers": zod.array(zod.string().min(1).max(setCtfInstructorQuestionResponseOneAcceptedAnswersItemMax)).max(setCtfInstructorQuestionResponseOneAcceptedAnswersMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "section": zod.number().int(),
+  "sectionTitle": zod.string()
+}))
+
+
+/**
  * @summary Verify instructor access code
  */
 export const verifyCtfInstructorBodyCodeMax = 256;

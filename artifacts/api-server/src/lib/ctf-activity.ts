@@ -12,10 +12,13 @@ export interface Question {
   category: string;
   acceptedAnswers: string[];
   validationMethod: string;
+  validationMode?: "normalised" | "exact" | "numeric" | "manual" | "dataset";
 }
 
 export const questions = sourceQuestions as Question[];
-export const isManual = (q: Question) => q.kind === "long" || [117, 118].includes(q.id);
+export const isManual = (q: Question) => q.validationMode ? q.validationMode === "manual" : q.kind === "long" || [117, 118].includes(q.id);
+export const validationMode = (q: Question): NonNullable<Question["validationMode"]> =>
+  q.validationMode ?? (isManual(q) ? "manual" : q.category === "dataset" ? "dataset" : q.kind === "number" ? "numeric" : q.id === 99 ? "exact" : "normalised");
 
 const sectionDetails = [
   ["Workstation Preparation and Case Build", "0810–0840", "1–10", "The J2 requires all exploitation to be performed under standardised configuration, documented and repeatable. Build the workstation, build the ALPHA case, verify the image, and prove the build is repeatable before examining messages."],
@@ -28,21 +31,36 @@ const sectionDetails = [
   ["Dissemination and the Commander's Brief", "1600–1800", "110–120", "Two audiences, two products, one set of findings. The field team needs device attributes and account identifiers. The analytical cell and partner agency need the comprehensive protected product. Then brief the PIRs with evidence and validation methodology."],
 ];
 
-export function publicActivity(keys: Map<number, string[]>) {
+export function sectionForFlag(id: number) {
+  const limits = [10, 29, 43, 66, 79, 102, 109, 120];
+  const section = limits.findIndex(limit => id <= limit) + 1;
+  return { section, sectionTitle: sectionDetails[section - 1][0] };
+}
+
+export function mergeQuestions(overrides: Question[]) {
+  const merged = new Map(questions.map(q => [q.id, q]));
+  for (const q of overrides) merged.set(q.id, { ...q, ...sectionForFlag(q.id) });
+  return [...merged.values()].sort((a, b) => a.id - b.id);
+}
+
+export function publicActivity(keys: Map<number, string[]>, activityQuestions = questions) {
   return {
     title: "OPERATION IRON MERIDIAN",
     course: "Cellebrite Analysis for Defense and Intelligence",
     duration: "6 hours",
-    totalFlags: questions.length,
-    totalPoints: questions.reduce((total, q) => total + q.points, 0),
+    totalFlags: activityQuestions.length,
+    totalPoints: activityQuestions.reduce((total, q) => total + q.points, 0),
     sections: sectionDetails.map(([title, time, flags, inject], index) => ({
-      id: index + 1, title, time, flags, inject,
-      points: questions.filter(q => q.section === index + 1).reduce((sum, q) => sum + q.points, 0),
+      id: index + 1, title, time, flags,
+      inject: index >= 4 && index <= 6 && activityQuestions.some(q => q.section === index + 1 && !questions.some(original => original.id === q.id))
+        ? "Your instructor has supplied revised station questions below. Any remaining blank flag rows are still unavailable; ask your instructor for tasking."
+        : inject,
+      points: activityQuestions.filter(q => q.section === index + 1).reduce((sum, q) => sum + q.points, 0),
     })),
-    questions: questions.map(q => ({
+    questions: activityQuestions.map(q => ({
       id: q.id, section: q.section, sectionTitle: q.sectionTitle, prompt: q.prompt,
       kind: q.kind, options: q.options, points: q.points, guideReference: q.guideReference,
-      correctAnswerAvailable: !isManual(q) && (q.category === "auto" || keys.has(q.id)),
+      correctAnswerAvailable: !isManual(q) && (q.category === "auto" ? q.acceptedAnswers.length > 0 : !!keys.get(q.id)?.length),
       manualReview: isManual(q),
     })),
   };
@@ -58,18 +76,19 @@ export function evaluate(q: Question, value: string | string[], datasetKeys: Map
   if (isManual(q)) return { correct: null, earnedPoints: 0, status: "manual" as const, feedback: "Written response saved for instructor review. It is not automatically scored." };
   let accepted = q.category === "auto" ? q.acceptedAnswers : datasetKeys.get(q.id);
   if (!accepted?.length) return { correct: null, earnedPoints: 0, status: "unkeyed" as const, feedback: "Response saved. The instructor has not configured this dataset-dependent answer yet; no automatic score has been awarded." };
-  if (q.id === 5) accepted = [...accepted, "Required yes", "Required = Yes", "Yes", "Make the field required"];
-  if (q.id === 64) accepted = [...accepted, "KML", ".KML", "KML locations"];
+  if (!q.validationMode && q.id === 5) accepted = [...accepted, "Required yes", "Required = Yes", "Yes", "Make the field required"];
+  if (!q.validationMode && q.id === 64) accepted = [...accepted, "KML", ".KML", "KML locations"];
   const values = Array.isArray(value) ? value : [value];
   let correct: boolean;
   if (q.kind === "multiple") {
-    const selected = [...new Set(values.map(normalise))].sort();
-    const expected = [...new Set(accepted.map(normalise))].sort();
+    const compare = validationMode(q) === "exact" ? (s: string) => s.trim() : normalise;
+    const selected = [...new Set(values.map(compare))].sort();
+    const expected = [...new Set(accepted.map(compare))].sort();
     correct = selected.length === expected.length && selected.every((item, i) => item === expected[i]);
-  } else if (q.kind === "number") {
+  } else if (validationMode(q) === "numeric" || q.kind === "number") {
     const numberValue = Number(values[0].trim().replace(/,/g, ""));
     correct = Number.isFinite(numberValue) && accepted.some(a => numberValue === Number(a.replace(/,/g, "")));
-  } else if (q.id === 99) {
+  } else if (validationMode(q) === "exact") {
     correct = accepted.some(a => values[0].trim() === a.trim());
   } else {
     correct = accepted.some(a => normalise(values[0]) === normalise(a));

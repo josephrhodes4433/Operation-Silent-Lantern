@@ -172,6 +172,54 @@ paths:
                 $ref: "#/components/schemas/CtfProgress"
         "404":
           description: Progress record was not found
+  /ctf/instructor/questions:
+    get:
+      operationId: getCtfInstructorQuestions
+      tags: [instructor]
+      summary: List editable questions and missing original flag IDs
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Private question definitions including accepted answers
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CtfQuestionCatalog" }
+        "401": { description: Instructor access denied }
+        "429": { description: Too many unsuccessful attempts }
+        "503": { description: Instructor access is not configured }
+  /ctf/instructor/questions/{questionId}:
+    put:
+      operationId: setCtfInstructorQuestion
+      tags: [instructor]
+      summary: Restore or edit a question without changing its original flag ID or learner responses
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema: { type: string }
+        - in: path
+          name: questionId
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 120 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CtfQuestionInput" }
+      responses:
+        "200":
+          description: Question saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CtfInstructorQuestion" }
+        "400": { description: Invalid question definition }
+        "401": { description: Instructor access denied }
+        "429": { description: Too many unsuccessful attempts }
+        "503": { description: Instructor access is not configured }
   /ctf/instructor/verify:
     post:
       operationId: verifyCtfInstructor
@@ -342,6 +390,45 @@ paths:
           description: Submission or question was not found
 components:
   schemas:
+    CtfQuestionInput:
+      type: object
+      required: [prompt, kind, options, points, guideReference, validationMethod, validationMode, acceptedAnswers]
+      properties:
+        prompt: { type: string, minLength: 1, maxLength: 12000 }
+        kind: { type: string, enum: [single, multiple, short, number, long] }
+        options:
+          type: array
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 2000 }
+        points: { type: integer, minimum: 0, maximum: 1000 }
+        guideReference: { type: string, maxLength: 2000 }
+        validationMethod: { type: string, maxLength: 12000 }
+        validationMode:
+          type: string
+          enum: [normalised, exact, numeric, manual, dataset]
+        acceptedAnswers:
+          type: array
+          maxItems: 50
+          items: { type: string, minLength: 1, maxLength: 12000 }
+    CtfInstructorQuestion:
+      allOf:
+        - $ref: "#/components/schemas/CtfQuestionInput"
+        - type: object
+          required: [id, section, sectionTitle]
+          properties:
+            id: { type: integer }
+            section: { type: integer }
+            sectionTitle: { type: string }
+    CtfQuestionCatalog:
+      type: object
+      required: [questions, missingIds]
+      properties:
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/CtfInstructorQuestion" }
+        missingIds:
+          type: array
+          items: { type: integer }
     HealthStatus:
       type: object
       properties:

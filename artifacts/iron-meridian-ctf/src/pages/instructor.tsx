@@ -2,18 +2,25 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetCtfInstructorKeysQueryKey, getGetCtfInstructorSubmissionQueryKey, getListCtfSubmissionsQueryKey,
-  getGetCtfActivityQueryKey,
+  getGetCtfActivityQueryKey, getGetCtfInstructorQuestionsQueryKey, useGetCtfInstructorQuestions,
   useGetCtfActivity, useGetCtfInstructorKeys, useGetCtfInstructorSubmission, useListCtfSubmissions,
   useReviewCtfWrittenAnswer, useSetCtfInstructorKey, useVerifyCtfInstructor,
 } from '@workspace/api-client-react';
-import type { CtfQuestion } from '@workspace/api-client-react';
+import type { CtfInstructorQuestion, CtfQuestion } from '@workspace/api-client-react';
 import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
+import { QuestionAuthoring } from '@/components/question-authoring';
 import { asText, errStatus } from '@/lib/ctf';
 
 export default function Instructor() {
   const [code, setCode] = useState<string | null>(null); // memory only
-  return <Shell>{code ? <Console code={code} onLock={() => setCode(null)} /> : <Gate onOk={setCode} />}</Shell>;
+  const qc = useQueryClient();
+  const lock = () => {
+    setCode(null);
+    qc.removeQueries({ predicate: (q) => String(q.queryKey[0]).startsWith('/api/ctf/instructor') });
+    qc.removeQueries({ predicate: (q) => String(q.queryKey[0]).startsWith('/api/ctf/progress') });
+  };
+  return <Shell>{code ? <Console code={code} onLock={lock} /> : <Gate onOk={setCode} />}</Shell>;
 }
 
 function Gate({ onOk }: { onOk: (c: string) => void }) {
@@ -43,37 +50,37 @@ function Gate({ onOk }: { onOk: (c: string) => void }) {
 }
 
 function Console({ code, onLock }: { code: string; onLock: () => void }) {
-  const [tab, setTab] = useState<'keys' | 'subs'>('keys');
+  const [tab, setTab] = useState<'keys' | 'subs' | 'author'>('keys');
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
-        <div><Eyebrow>Instructor console</Eyebrow><h1 className="font-display text-3xl font-bold">Keys and submissions</h1></div>
+        <div><Eyebrow>Instructor console</Eyebrow><h1 className="font-display text-3xl font-bold">Questions, keys and submissions</h1></div>
         <button className={btnGhost} onClick={onLock} data-testid="button-lock">Lock</button>
       </div>
       <div role="tablist" className="flex border-b border-border">
-        {([['keys', 'Answer keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
+        {([['author', 'Questions'], ['keys', 'Answer keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}
             className={`px-4 py-2 text-sm font-semibold border-b-2 ${tab === k ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{l}</button>
         ))}
       </div>
-      {tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
+      {tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
     </div>
   );
 }
 
 function Keys({ code }: { code: string }) {
   const headers = { 'x-instructor-code': code };
-  const act = useGetCtfActivity();
+  const cat = useGetCtfInstructorQuestions({ query: { enabled: true, queryKey: getGetCtfInstructorQuestionsQueryKey() }, request: { headers } });
   const keys = useGetCtfInstructorKeys({ query: { enabled: true, queryKey: getGetCtfInstructorKeysQueryKey() }, request: { headers } });
-  if (act.isLoading || keys.isLoading) return <PageSkeleton />;
-  if (act.isError || keys.isError || !act.data) return <ErrorPanel title="Could not load keys" message={errStatus(keys.error) === 401 ? 'Access code rejected.' : undefined} onRetry={() => { act.refetch(); keys.refetch(); }} />;
-  const qs = act.data.questions.filter((q) => !q.manualReview && (!q.correctAnswerAvailable || keys.data?.some(k => k.questionId === q.id)));
-  if (!qs.length) return <p className="bg-card border border-dashed p-8 text-center">No keyable questions in this activity.</p>;
+  if (cat.isLoading || keys.isLoading) return <PageSkeleton />;
+  if (cat.isError || keys.isError || !cat.data) return <ErrorPanel title="Could not load keys" message={errStatus(keys.error) === 401 ? 'Access code rejected.' : undefined} onRetry={() => { cat.refetch(); keys.refetch(); }} />;
+  const qs = cat.data.questions.filter((q) => q.validationMode === 'dataset').sort((a, b) => a.id - b.id);
+  if (!qs.length) return <p className="bg-card border border-dashed p-8 text-center">No dataset-keyed questions. Set a question to dataset validation in the Questions tab.</p>;
   const map = new Map((keys.data ?? []).map((k) => [k.questionId, k.acceptedAnswers]));
   return <ul className="space-y-3">{qs.map((q) => <KeyRow key={q.id} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>;
 }
 
-function KeyRow({ q, headers, initial }: { q: CtfQuestion; headers: Record<string, string>; initial: string[] }) {
+function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Record<string, string>; initial: string[] }) {
   const qc = useQueryClient();
   const set = useSetCtfInstructorKey({ request: { headers } });
   const [text, setText] = useState(initial.join('\n'));
@@ -87,7 +94,7 @@ function KeyRow({ q, headers, initial }: { q: CtfQuestion; headers: Record<strin
       <textarea id={`k-${q.id}`} rows={3} className={field} value={text} onChange={(e) => { setText(e.target.value); setOk(false); }} data-testid={`input-key-${q.id}`} />
       <div className="flex items-center gap-3">
         <button className={btn} disabled={!list.length || set.isPending} data-testid={`button-save-key-${q.id}`}
-          onClick={() => set.mutate({ questionId: q.id, data: { acceptedAnswers: list } }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() }); } })}>
+          onClick={() => set.mutate({ questionId: q.id, data: { acceptedAnswers: list } }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfInstructorQuestionsQueryKey() }); } })}>
           {set.isPending ? 'Saving...' : 'Save key'}
         </button>
         {ok && <span role="status" className="text-sm text-[hsl(var(--ok))]">Key saved</span>}

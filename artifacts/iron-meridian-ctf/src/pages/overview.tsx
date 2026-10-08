@@ -67,7 +67,7 @@ export default function Overview() {
 
           <section aria-labelledby="sections">
             <h2 id="sections" className="font-display text-2xl font-bold mb-4">Mission sections</h2>
-            <p role="note" className="text-sm border-l-4 border-accent bg-card p-4 mb-5">The revised packet's summary advertises 120 flags and 1,370 points, but 43 question rows are blank. This site includes the 77 populated questions worth 835 points, preserves their original numbers and identifies the missing content. Ask your instructor for updated tasking rather than guessing at absent questions.</p>
+            <p role="note" className="text-sm border-l-4 border-accent bg-card p-4 mb-5">The revised packet's summary advertises 120 flags and 1,370 points, but originally left 43 question rows blank. Currently {a.totalFlags} questions worth {a.totalPoints} points are available, preserving their original flag numbers. {120 - a.totalFlags > 0 ? `${120 - a.totalFlags} rows still need instructor-supplied content. Ask your instructor for updated tasking rather than guessing at absent questions.` : 'Your instructor has supplied all missing question rows.'}</p>
             <ol className="grid md:grid-cols-2 gap-4">
               {a.sections.map((s) => {
                 const count = a.questions.filter((x) => x.section === s.id).length;

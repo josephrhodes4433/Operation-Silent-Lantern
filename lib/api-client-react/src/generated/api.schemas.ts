@@ -5,6 +5,70 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type CtfQuestionInputKind = typeof CtfQuestionInputKind[keyof typeof CtfQuestionInputKind];
+
+
+export const CtfQuestionInputKind = {
+  single: 'single',
+  multiple: 'multiple',
+  short: 'short',
+  number: 'number',
+  long: 'long',
+} as const;
+
+export type CtfQuestionInputValidationMode = typeof CtfQuestionInputValidationMode[keyof typeof CtfQuestionInputValidationMode];
+
+
+export const CtfQuestionInputValidationMode = {
+  normalised: 'normalised',
+  exact: 'exact',
+  numeric: 'numeric',
+  manual: 'manual',
+  dataset: 'dataset',
+} as const;
+
+export interface CtfQuestionInput {
+  /**
+     * @minLength 1
+     * @maxLength 12000
+     */
+  prompt: string;
+  kind: CtfQuestionInputKind;
+  /**
+     * @maxItems 20
+     * @items.minLength 1
+     * @items.maxLength 2000
+     */
+  options: string[];
+  /**
+     * @minimum 0
+     * @maximum 1000
+     */
+  points: number;
+  /** @maxLength 2000 */
+  guideReference: string;
+  /** @maxLength 12000 */
+  validationMethod: string;
+  validationMode: CtfQuestionInputValidationMode;
+  /**
+     * @maxItems 50
+     * @items.minLength 1
+     * @items.maxLength 12000
+     */
+  acceptedAnswers: string[];
+}
+
+export type CtfInstructorQuestion = CtfQuestionInput & {
+  id: number;
+  section: number;
+  sectionTitle: string;
+};
+
+export interface CtfQuestionCatalog {
+  questions: CtfInstructorQuestion[];
+  missingIds: number[];
+}
+
 export interface HealthStatus {
   status: string;
 }

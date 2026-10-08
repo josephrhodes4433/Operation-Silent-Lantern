@@ -7,8 +7,10 @@ import {
   VerifyCtfInstructorBody, SetCtfInstructorKeyParams, SetCtfInstructorKeyBody,
   GetCtfInstructorSubmissionParams, ReviewCtfWrittenAnswerParams, ReviewCtfWrittenAnswerBody,
   GetCtfInstructorKeysResponse, ListCtfSubmissionsResponse,
+  SetCtfInstructorQuestionParams, SetCtfInstructorQuestionBody, SetCtfInstructorQuestionResponse,
 } from "@workspace/api-zod";
-import { evaluate, isManual, publicActivity, questions } from "../lib/ctf-activity";
+import { evaluate, isManual, publicActivity, type Question } from "../lib/ctf-activity";
+import { loadQuestions, questionCatalog, saveQuestion, validateQuestion } from "../lib/ctf-question-authoring";
 
 type Progress = ReturnType<typeof GetCtfProgressResponse.parse>;
 type Answers = Progress["answers"];
@@ -50,7 +52,7 @@ async function loadKeys() {
   return new Map(result.rows.map(row => [row.question_id, row.accepted_answers]));
 }
 
-function toProgress(row: ProgressRow, keys: Map<number, string[]>) {
+function toProgress(row: ProgressRow, keys: Map<number, string[]>, questions: Question[]) {
   const answers: Answers = {};
   for (const [id, answer] of Object.entries(row.answers || {})) {
     const question = questions.find(q => q.id === Number(id));
@@ -58,7 +60,7 @@ function toProgress(row: ProgressRow, keys: Map<number, string[]>) {
     const grade = evaluate(question, answer.value, keys);
     answers[id] = {
       ...answer, correct: grade.correct, status: grade.status,
-      earnedPoints: isManual(question) && answer.instructorPoints != null ? answer.instructorPoints : grade.earnedPoints,
+      earnedPoints: isManual(question) && answer.instructorPoints != null ? Math.min(answer.instructorPoints, question.points) : grade.earnedPoints,
     };
   }
   return GetCtfProgressResponse.parse({
@@ -70,7 +72,7 @@ function toProgress(row: ProgressRow, keys: Map<number, string[]>) {
 }
 
 router.get("/ctf/activity", async (_req, res): Promise<void> => {
-  res.json(GetCtfActivityResponse.parse(publicActivity(await loadKeys())));
+  res.set("Cache-Control", "no-store").json(GetCtfActivityResponse.parse(publicActivity(await loadKeys(), await loadQuestions())));
 });
 
 router.post("/ctf/progress", async (req, res): Promise<void> => {
@@ -83,7 +85,7 @@ router.post("/ctf/progress", async (req, res): Promise<void> => {
      RETURNING *, (xmax = 0) AS inserted`,
     [data.sessionId, data.name.trim(), data.email.toLowerCase(), data.instructorEmail.toLowerCase()],
   );
-  res.status(result.rows[0].inserted ? 201 : 200).json(toProgress(result.rows[0], await loadKeys()));
+  res.status(result.rows[0].inserted ? 201 : 200).json(toProgress(result.rows[0], await loadKeys(), await loadQuestions()));
 });
 
 router.get("/ctf/progress/:sessionId", async (req, res): Promise<void> => {
@@ -91,13 +93,14 @@ router.get("/ctf/progress/:sessionId", async (req, res): Promise<void> => {
   if (!params.success) { res.status(400).json({ error: "Invalid private resume token." }); return; }
   const result = await pool.query<ProgressRow>("SELECT * FROM ctf_progress WHERE session_id=$1", [params.data.sessionId]);
   if (!result.rows[0]) { res.status(404).json({ error: "No saved progress found." }); return; }
-  res.set("Cache-Control", "no-store").json(toProgress(result.rows[0], await loadKeys()));
+  res.set("Cache-Control", "no-store").json(toProgress(result.rows[0], await loadKeys(), await loadQuestions()));
 });
 
 router.put("/ctf/progress/:sessionId/answers/:questionId", async (req, res): Promise<void> => {
   const params = SaveCtfAnswerParams.safeParse(req.params);
   const input = SaveCtfAnswerBody.safeParse(req.body);
   if (!params.success || !input.success) { res.status(400).json({ error: "Invalid answer." }); return; }
+  const questions = await loadQuestions();
   const question = questions.find(q => q.id === params.data.questionId);
   if (!question) { res.status(404).json({ error: "This question is not present in the supplied activity document." }); return; }
   const value = input.data.value;
@@ -117,7 +120,7 @@ router.put("/ctf/progress/:sessionId/answers/:questionId", async (req, res): Pro
     [params.data.sessionId, String(question.id), JSON.stringify(answer)],
   );
   if (!result.rows[0]) { res.status(404).json({ error: "Start the activity before saving answers." }); return; }
-  res.json(SaveCtfAnswerResponse.parse({ questionId: question.id, ...grade, totalPoints: toProgress(result.rows[0], keys).totalPoints }));
+  res.json(SaveCtfAnswerResponse.parse({ questionId: question.id, ...grade, totalPoints: toProgress(result.rows[0], keys, questions).totalPoints }));
 });
 
 router.post("/ctf/progress/:sessionId/submit", async (req, res): Promise<void> => {
@@ -125,7 +128,22 @@ router.post("/ctf/progress/:sessionId/submit", async (req, res): Promise<void> =
   if (!params.success) { res.status(400).json({ error: "Invalid private resume token." }); return; }
   const result = await pool.query<ProgressRow>("UPDATE ctf_progress SET submitted_at=now(),saved_at=now() WHERE session_id=$1 RETURNING *", [params.data.sessionId]);
   if (!result.rows[0]) { res.status(404).json({ error: "No progress found." }); return; }
-  res.json(toProgress(result.rows[0], await loadKeys()));
+  res.json(toProgress(result.rows[0], await loadKeys(), await loadQuestions()));
+});
+
+router.get("/ctf/instructor/questions", async (req, res): Promise<void> => {
+  if (!instructorAllowed(req, res)) return;
+  res.set("Cache-Control", "no-store").json(questionCatalog(await loadQuestions(), await loadKeys()));
+});
+
+router.put("/ctf/instructor/questions/:questionId", async (req, res): Promise<void> => {
+  if (!instructorAllowed(req, res)) return;
+  const params = SetCtfInstructorQuestionParams.safeParse(req.params);
+  const input = SetCtfInstructorQuestionBody.safeParse(req.body);
+  if (!params.success || !input.success) { res.status(400).json({ error: "Invalid question fields. Check the prompt, options, points and validation mode." }); return; }
+  const error = validateQuestion(input.data);
+  if (error) { res.status(400).json({ error }); return; }
+  res.set("Cache-Control", "no-store").json(SetCtfInstructorQuestionResponse.parse(await saveQuestion(params.data.questionId, input.data)));
 });
 
 router.post("/ctf/instructor/verify", async (req, res): Promise<void> => {
@@ -146,7 +164,7 @@ router.put("/ctf/instructor/keys/:questionId", async (req, res): Promise<void> =
   const params = SetCtfInstructorKeyParams.safeParse(req.params);
   const input = SetCtfInstructorKeyBody.safeParse(req.body);
   if (!params.success || !input.success) { res.status(400).json({ error: "Enter at least one accepted answer." }); return; }
-  const question = questions.find(q => q.id === params.data.questionId);
+  const question = (await loadQuestions()).find(q => q.id === params.data.questionId);
   if (!question || question.category !== "dataset" || isManual(question)) { res.status(400).json({ error: "Only shared dataset-dependent keys can be configured. Student-specific tasks require manual review." }); return; }
   const acceptedAnswers = input.data.acceptedAnswers.map(a => a.trim()).filter(Boolean);
   if (!acceptedAnswers.length || acceptedAnswers.length > 50 || acceptedAnswers.some(a => a.length > 12000)) { res.status(400).json({ error: "Enter a valid accepted answer." }); return; }
@@ -158,8 +176,9 @@ router.get("/ctf/instructor/submissions", async (req, res): Promise<void> => {
   if (!instructorAllowed(req, res)) return;
   const records = await pool.query<ProgressRow>("SELECT * FROM ctf_progress ORDER BY saved_at DESC LIMIT 1000");
   const keys = await loadKeys();
+  const questions = await loadQuestions();
   res.set("Cache-Control", "no-store").json(ListCtfSubmissionsResponse.parse(records.rows.map(row => {
-    const { sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys);
+    const { sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
     return { sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt };
   })));
 });
@@ -170,7 +189,7 @@ router.get("/ctf/instructor/submissions/:sessionId", async (req, res): Promise<v
   if (!params.success) { res.status(400).json({ error: "Invalid submission." }); return; }
   const record = await pool.query<ProgressRow>("SELECT * FROM ctf_progress WHERE session_id=$1", [params.data.sessionId]);
   if (!record.rows[0]) { res.status(404).json({ error: "Submission not found." }); return; }
-  res.set("Cache-Control", "no-store").json(toProgress(record.rows[0], await loadKeys()));
+  res.set("Cache-Control", "no-store").json(toProgress(record.rows[0], await loadKeys(), await loadQuestions()));
 });
 
 router.put("/ctf/instructor/submissions/:sessionId/review/:questionId", async (req, res): Promise<void> => {
@@ -178,7 +197,7 @@ router.put("/ctf/instructor/submissions/:sessionId/review/:questionId", async (r
   const params = ReviewCtfWrittenAnswerParams.safeParse(req.params);
   const input = ReviewCtfWrittenAnswerBody.safeParse(req.body);
   if (!params.success || !input.success) { res.status(400).json({ error: "Invalid review." }); return; }
-  const question = questions.find(q => q.id === params.data.questionId);
+  const question = (await loadQuestions()).find(q => q.id === params.data.questionId);
   if (!question || !isManual(question) || input.data.points > question.points) { res.status(400).json({ error: "Manual points must be within this question's point value." }); return; }
   const result = await pool.query<ProgressRow>(
     `UPDATE ctf_progress SET answers=jsonb_set(jsonb_set(answers, ARRAY[$2::text,'instructorPoints'], $3::jsonb), ARRAY[$2::text,'instructorNote'], $4::jsonb),saved_at=now()
@@ -186,7 +205,7 @@ router.put("/ctf/instructor/submissions/:sessionId/review/:questionId", async (r
     [params.data.sessionId, String(question.id), JSON.stringify(input.data.points), JSON.stringify(input.data.note)],
   );
   if (!result.rows[0]) { res.status(404).json({ error: "No saved response exists for this question." }); return; }
-  res.json(toProgress(result.rows[0], await loadKeys()));
+  res.json(toProgress(result.rows[0], await loadKeys(), await loadQuestions()));
 });
 
 export default router;

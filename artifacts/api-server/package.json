@@ -7,7 +7,8 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:questions": "esbuild tests/ctf-question-authoring.test.ts --bundle --platform=node --format=cjs --external:pg-native --outfile=dist/ctf-question-authoring.test.cjs && node --test dist/ctf-question-authoring.test.cjs"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

@@ -26,10 +26,13 @@ import type {
   CtfInstructorKey,
   CtfInstructorKeyInput,
   CtfInstructorKeys,
+  CtfInstructorQuestion,
   CtfInstructorVerifyInput,
   CtfInstructorVerifyResult,
   CtfProgress,
   CtfProgressInput,
+  CtfQuestionCatalog,
+  CtfQuestionInput,
   CtfReviewInput,
   CtfSubmissionSummary,
   HealthStatus,
@@ -1719,6 +1722,172 @@ export const useSubmitCtfProgress = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSubmitCtfProgressMutationOptions(options));
+    }
+
+export const getGetCtfInstructorQuestionsUrl = () => {
+
+
+
+
+  return `/api/ctf/instructor/questions`
+}
+
+/**
+ * @summary List editable questions and missing original flag IDs
+ */
+export const getCtfInstructorQuestions = async ( options?: Parameters<typeof customFetch>[1]): Promise<CtfQuestionCatalog> => {
+
+  return customFetch<CtfQuestionCatalog>(getGetCtfInstructorQuestionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfInstructorQuestionsQueryKey = () => {
+    return [
+    `/api/ctf/instructor/questions`
+    ] as const;
+    }
+
+
+export const getGetCtfInstructorQuestionsQueryOptions = <TData = Awaited<ReturnType<typeof getCtfInstructorQuestions>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorQuestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfInstructorQuestionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfInstructorQuestions>>> = ({ signal }) => getCtfInstructorQuestions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorQuestions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfInstructorQuestionsQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfInstructorQuestions>>>
+export type GetCtfInstructorQuestionsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List editable questions and missing original flag IDs
+ */
+
+export function useGetCtfInstructorQuestions<TData = Awaited<ReturnType<typeof getCtfInstructorQuestions>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorQuestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfInstructorQuestionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetCtfInstructorQuestionUrl = (questionId: number,) => {
+
+
+
+
+  return `/api/ctf/instructor/questions/${questionId}`
+}
+
+/**
+ * @summary Restore or edit a question without changing its original flag ID or learner responses
+ */
+export const setCtfInstructorQuestion = async (questionId: number,
+    ctfQuestionInput: CtfQuestionInput, options?: Parameters<typeof customFetch>[1]): Promise<CtfInstructorQuestion> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CtfInstructorQuestion>(getSetCtfInstructorQuestionUrl(questionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(ctfQuestionInput)
+  }
+);}
+
+
+
+
+
+export const getSetCtfInstructorQuestionMutationKey = () => ['setCtfInstructorQuestion'] as const;
+
+export const getSetCtfInstructorQuestionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCtfInstructorQuestion>>, TError,SetCtfInstructorQuestionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setCtfInstructorQuestion>>, TError,SetCtfInstructorQuestionMutationVariables, TContext> => {
+
+const mutationKey = getSetCtfInstructorQuestionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setCtfInstructorQuestion>>, SetCtfInstructorQuestionMutationVariables> = (props) => {
+          const {questionId,data} = props ?? {};
+
+          return  setCtfInstructorQuestion(questionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetCtfInstructorQuestionMutationResult = NonNullable<Awaited<ReturnType<typeof setCtfInstructorQuestion>>>
+    export type SetCtfInstructorQuestionMutationBody = BodyType<CtfQuestionInput>
+    export type SetCtfInstructorQuestionMutationError = ErrorType<void>
+    export type SetCtfInstructorQuestionMutationVariables = {questionId: number;data: BodyType<CtfQuestionInput>}
+
+    /**
+ * @summary Restore or edit a question without changing its original flag ID or learner responses
+ */
+export const useSetCtfInstructorQuestion = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setCtfInstructorQuestion>>, TError,SetCtfInstructorQuestionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setCtfInstructorQuestion>>,
+        TError,
+        SetCtfInstructorQuestionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSetCtfInstructorQuestionMutationOptions(options));
     }
 
 export const getVerifyCtfInstructorUrl = () => {
