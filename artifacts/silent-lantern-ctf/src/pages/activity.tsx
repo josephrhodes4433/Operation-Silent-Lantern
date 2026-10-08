@@ -10,12 +10,18 @@ import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionCard } from '@/components/question-card';
 import { type Session, clearAuthDraft, errMessage, hasResponse, loadAuthDraft, loadSession, orderedQuestions, storeAuthDraft, storeSession } from '@/lib/ctf';
+import { clearCheckInDraft, loadCheckInDraft, loadLearnerProfile, storeCheckInDraft, type CheckInDraft } from '@/lib/check-in';
 
 const AUTH_QID = 15;
 
 function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const create = useCreateLanternProgress();
-  const [f, setF] = useState({ name: '', email: '', instructorEmail: '', team: '' });
+  const [f, setF] = useState(loadCheckInDraft);
+  const [editDetails, setEditDetails] = useState(() => {
+    const p = loadLearnerProfile();
+    return !p || p.name !== f.name || p.email !== f.email || p.instructorEmail !== f.instructorEmail;
+  });
+  const change = (next: CheckInDraft) => { setF(next); storeCheckInDraft(next); };
   const [roe, setRoe] = useState(false);
   const [resume, setResume] = useState('');
   const team = Number(f.team);
@@ -23,31 +29,43 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!teamOk || !roe) return;
-    const s: Session = { sessionId: crypto.randomUUID(), name: f.name.trim(), email: f.email, instructorEmail: f.instructorEmail, teamNumber: team };
+    storeCheckInDraft(f);
+    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: team };
     create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamNumber: team, roeAcknowledged: true } },
-      { onSuccess: () => { storeSession(s); onDone(s); } });
+      { onSuccess: (p) => {
+        const saved: Session = { sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber };
+        storeSession(saved); clearCheckInDraft(); onDone(saved);
+      } });
   };
   return (
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 max-w-4xl rise">
       <form onSubmit={submit} className="bg-card border border-border p-6 space-y-4" aria-labelledby="ob-h">
         <Eyebrow>Analyst onboarding</Eyebrow>
         <h1 id="ob-h" className="font-display text-3xl font-bold">Check in to the mission</h1>
-        {([['name', 'Your name', 'text'], ['email', 'Your email', 'email'], ['instructorEmail', 'Instructor email', 'email']] as const).map(([k, l, t]) => (
+        <p className="text-sm text-muted-foreground">Enter your details once. We reuse them for every mission, save and instructor email draft.</p>
+        {!editDetails && <div className="bg-muted p-3 space-y-1" data-testid="saved-learner-details">
+          <p className="text-sm font-semibold">{f.name}</p>
+          <p className="text-sm break-all">{f.email}</p>
+          <p className="text-xs text-muted-foreground break-all">Instructor: {f.instructorEmail}</p>
+          <button type="button" className="text-sm text-primary underline" onClick={() => setEditDetails(true)} data-testid="button-edit-learner-details">Edit details / different learner</button>
+        </div>}
+        {editDetails && ([['name', 'Your name', 'text'], ['email', 'Your email', 'email'], ['instructorEmail', 'Instructor email', 'email']] as const).map(([k, l, t]) => (
           <div key={k}>
             <label htmlFor={`f-${k}`} className="block text-sm font-medium mb-1">{l}</label>
             <input id={`f-${k}`} required type={t} maxLength={k === 'name' ? 140 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
-              onChange={(e) => setF({ ...f, [k]: e.target.value })} />
+              autoComplete={k === 'name' ? 'name' : k === 'email' ? 'email' : 'off'}
+              onChange={(e) => change({ ...f, [k]: e.target.value })} />
           </div>
         ))}
         <div>
           <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team number (1 to 999)</label>
-          <input id="f-team" required type="number" min={1} max={999} step={1} className={field} value={f.team} data-testid="input-teamNumber" onChange={(e) => setF({ ...f, team: e.target.value })} />
+          <input id="f-team" required type="number" min={1} max={999} step={1} className={field} value={f.team} data-testid="input-teamNumber" onChange={(e) => change({ ...f, team: e.target.value })} />
         </div>
         <label className="flex gap-3 items-start text-sm border border-border p-3 cursor-pointer">
           <input type="checkbox" required checked={roe} onChange={(e) => setRoe(e.target.checked)} className="mt-1 accent-[hsl(var(--primary))]" data-testid="checkbox-roe" />
           <span>I have read the rules of engagement on the Mission page and agree to follow them.</span>
         </label>
-        <p className="text-xs text-muted-foreground">Your name, emails and responses are saved for instructor review. A private resume key is stored in this browser. Anyone holding your resume link can view and continue your session; keep it private.</p>
+        <p className="text-xs text-muted-foreground">Your details are remembered in this browser. Your name, emails and responses are saved for instructor review. On another device, use your private resume link instead of checking in again. Anyone holding that link can continue your session; keep it private.</p>
         {create.isError && <ErrorPanel title="Could not start" message={errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
         <button className={btn} disabled={create.isPending || !roe || !teamOk} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>
@@ -133,9 +151,10 @@ export default function Activity() {
   const qs = useMemo(() => (act.data ? orderedQuestions(act.data) : []), [act.data]);
 
   useEffect(() => {
-    if (session && !session.name && prog.data?.name) {
+    if (session && prog.data?.name) {
       const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber };
-      storeSession(s); setSession(s);
+      storeSession(s);
+      if (JSON.stringify(s) !== JSON.stringify(session)) setSession(s);
     }
   }, [prog.data, session]);
 

@@ -13,3 +13,9 @@ SILENT LANTERN is intended to be a separate Replit project, not just a second we
 **Why:** After the initial side-by-side copy, the user explicitly requested “Seperate this as a seperate project.”
 
 **How to apply:** Keep SILENT LANTERN independently runnable, with its own backend, database and secret configuration. Do not describe a different URL inside the shared workspace as completing project separation.
+
+Learners should enter their names and email addresses only once.
+
+**Why:** The user explicitly requested “only make the user put in their names and emails one time.”
+
+**How to apply:** Reuse check-in details for missions, saves, results and instructor email drafts. Preserve unfinished check-ins across refreshes, and use the existing private resume link when continuing on another device.

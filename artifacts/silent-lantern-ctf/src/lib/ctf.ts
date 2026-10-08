@@ -1,4 +1,5 @@
 import type { LanternActivity, LanternProgress, LanternQuestion } from '@workspace/api-client-react';
+import { rememberLearner } from './check-in';
 
 const KEY = 'silent-lantern-session';
 export interface Session { sessionId: string; name: string; email: string; instructorEmail: string; teamNumber?: number }
@@ -10,7 +11,10 @@ export function loadSession(): Session | null {
   } catch { return null; }
 }
 export function storeSession(s: Session | null) {
-  if (s) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY);
+  if (s) {
+    localStorage.setItem(KEY, JSON.stringify(s));
+    rememberLearner(s);
+  } else localStorage.removeItem(KEY);
 }
 export function resumeLink(sessionId: string) {
   return `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}/activity?resume=${sessionId}`;
