@@ -22,3 +22,16 @@ do not describe those as real database persistence coverage. For future end-to-e
 key-management or authoring tests, provide an isolated database before modifying
 keys or definitions. Always restore the normal managed API workflow
 after a temporary instructor override, including when tests fail.
+
+Key-mutating browser tests should own a disposable database and test server for
+their full lifetime, rather than temporarily repointing the managed classroom
+workflow. Treat subprocess environment isolation as part of data isolation.
+
+**Why:** Database modules construct their connections during import. Inheriting
+the classroom environment can undermine otherwise isolated test fixtures, and
+repointing a managed workflow exposes real classroom users to the fixture.
+
+**How to apply:** Pass an allowlisted environment to fixture/build/browser
+subprocesses, inject only test-owned connection details and a public test code,
+and fail closed if the browser cannot verify that its target is the disposable
+server. Never accept a classroom target URL for key-mutating tests.

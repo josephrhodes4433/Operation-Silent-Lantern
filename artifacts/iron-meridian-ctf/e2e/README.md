@@ -41,6 +41,53 @@ to use a different installed browser executable if required.
 
 ## Coverage and boundaries
 
+### Isolated instructor key management
+
+```sh
+pnpm run typecheck:libs
+pnpm --filter @workspace/api-server run typecheck:e2e
+pnpm --filter @workspace/iron-meridian-ctf run typecheck:e2e
+pnpm --filter @workspace/iron-meridian-ctf run test:e2e:keys
+```
+
+This separate suite requires `initdb`, `pg_ctl`, and `psql` on `PATH`, plus
+Chromium (the managed Replit executable is detected automatically). It creates a
+fresh local PostgreSQL cluster in a temporary directory, with a Unix-socket-only
+database, builds the real web UI, and runs the real CTF router against that
+database on a loopback-only fixture server. No managed workflows are stopped or
+reconfigured. All fixture data and processes are removed on success, failure,
+or a normal interrupt; Playwright reports remain available.
+
+The runner does **not** accept a database URL or target app URL. It passes only
+an allowlisted environment to subprocesses, excluding saved classroom secrets,
+and supplies its own public instructor test code. The regular browser config
+excludes `key-management.spec.ts`; its separate config fails closed without the
+runner, and the test checks a per-run isolation marker before any mutation.
+Do not manually point these tests at a classroom server.
+
+Coverage uses existing dataset flag 13; it does not author or restore missing
+question content. It verifies:
+
+- Wrong-code UI rejection, unauthenticated/wrong-code key read/write denial,
+  blank-key rejection and refusal to key a fixed-answer flag.
+- Instructor UI key creation/replacement with whitespace-trimmed multiline
+  accepted answers.
+- Real server numeric normalization (commas, whitespace, decimals, leading
+  zeros), and incorrect/nonfinite values.
+- Regrading two already-saved learners in opposite directions on learner,
+  instructor list and instructor detail endpoints, without resubmitting answers.
+- Unchanged fixed answers, manual points/notes, answer timestamps, saved time,
+  answered counts and review-ready markers.
+- Learner browser reload/private-link resume and instructor reload/reunlock
+  retain the current grades and stored key.
+
+The fixture uses minimal PostgreSQL tables matching the CTF schema; this is
+real SQL/persistence coverage, not an in-memory adapter or schema-migration test.
+Application requests use the fixture's same origin; the local fixture is not a
+second preview server or a Vite proxy.
+
+### Regular development-preview suite
+
 - Empty onboarding fields cannot start a session; valid onboarding persists it.
 - Incorrect/correct fixed answers, exact multi-select sets, clearing answers.
 - 900ms autosave, delayed saves followed by a newer edit and navigation.

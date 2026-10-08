@@ -11,6 +11,8 @@ const executablePath = process.env.CTF_E2E_CHROMIUM_PATH ??
 
 export default defineConfig({
   testDir: './e2e',
+  // Key mutation tests must only run through the disposable database harness.
+  testIgnore: '**/key-management.spec.ts',
   timeout: 90_000,
   expect: { timeout: 15_000 },
   workers: 1,

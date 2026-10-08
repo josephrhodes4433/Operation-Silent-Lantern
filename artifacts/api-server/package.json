@@ -8,6 +8,7 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "test:questions": "esbuild tests/ctf-question-authoring.test.ts --bundle --platform=node --format=cjs --external:pg-native --outfile=dist/ctf-question-authoring.test.cjs && node --test dist/ctf-question-authoring.test.cjs"
   },
   "dependencies": {
