@@ -169,3 +169,252 @@ export interface CtfSubmissionSummary {
   submittedAt: string | null;
 }
 
+export type LanternQuestionKeyMode = typeof LanternQuestionKeyMode[keyof typeof LanternQuestionKeyMode];
+
+
+export const LanternQuestionKeyMode = {
+  fixed: 'fixed',
+  format: 'format',
+  dataset: 'dataset',
+  manual: 'manual',
+} as const;
+
+export type LanternBaseQuestionKind = typeof LanternBaseQuestionKind[keyof typeof LanternBaseQuestionKind];
+
+
+export const LanternBaseQuestionKind = {
+  single: 'single',
+  multiple: 'multiple',
+  short: 'short',
+  number: 'number',
+  long: 'long',
+} as const;
+
+export interface LanternBaseQuestion {
+  id: number;
+  section: number;
+  sectionTitle: string;
+  prompt: string;
+  kind: LanternBaseQuestionKind;
+  options: string[];
+  points: number;
+  guideReference: string;
+  correctAnswerAvailable: boolean;
+  manualReview: boolean;
+}
+
+export type LanternQuestion = LanternBaseQuestion & {
+  code: string;
+  isFlag: boolean;
+  format: string;
+  keyMode: LanternQuestionKeyMode;
+  isFinalSummary: boolean;
+};
+
+export interface LanternSection {
+  id: number;
+  title: string;
+  time: string;
+  flags: string;
+  points: number;
+  inject: string;
+}
+
+export interface LanternActivity {
+  title: string;
+  course: string;
+  duration: string;
+  totalFlags: number;
+  totalPoints: number;
+  sections: LanternSection[];
+  questions: LanternQuestion[];
+  scenario: string;
+  rules: string[];
+  evidence: string[];
+}
+
+export interface LanternLearnerInput {
+  sessionId: string;
+  /**
+     * @minLength 1
+     * @maxLength 140
+     */
+  name: string;
+  /** @maxLength 254 */
+  email: string;
+  /** @maxLength 254 */
+  instructorEmail: string;
+}
+
+export type LanternProgressInput = LanternLearnerInput & {
+  /**
+     * @minimum 1
+     * @maximum 999
+     */
+  teamNumber: number;
+  roeAcknowledged: true;
+};
+
+export type LanternAnswerStatus = typeof LanternAnswerStatus[keyof typeof LanternAnswerStatus];
+
+
+export const LanternAnswerStatus = {
+  correct: 'correct',
+  incorrect: 'incorrect',
+  unkeyed: 'unkeyed',
+  manual: 'manual',
+} as const;
+
+export interface LanternAnswer {
+  value: string | string[];
+  /** @nullable */
+  correct: boolean | null;
+  earnedPoints: number;
+  status: LanternAnswerStatus;
+  updatedAt: string;
+  /** @nullable */
+  instructorPoints?: number | null;
+  /** @nullable */
+  instructorNote?: string | null;
+}
+
+export type LanternBaseProgressAnswers = {[key: string]: LanternAnswer};
+
+export interface LanternBaseProgress {
+  sessionId: string;
+  name: string;
+  email: string;
+  instructorEmail: string;
+  answers: LanternBaseProgressAnswers;
+  totalPoints: number;
+  answeredCount: number;
+  savedAt: string;
+  /** @nullable */
+  submittedAt: string | null;
+}
+
+export interface LanternHint {
+  missionId: number;
+  text: string;
+}
+
+export type LanternProgress = LanternBaseProgress & ({
+  teamNumber: number;
+  roeAcknowledged: boolean;
+  unlockedMission: number;
+  authorizationNotes: string;
+  authorizationGranted: boolean;
+  /** @nullable */
+  trainingAuthorizationCode: string | null;
+  hints: LanternHint[];
+  penaltyPoints: number;
+  rawPoints: number;
+  speedBonus: number;
+  tradecraftBonus: number;
+});
+
+export interface LanternBaseSubmissionSummary {
+  sessionId: string;
+  name: string;
+  email: string;
+  totalPoints: number;
+  answeredCount: number;
+  savedAt: string;
+  /** @nullable */
+  submittedAt: string | null;
+}
+
+export type LanternSubmissionSummary = LanternBaseSubmissionSummary & {
+  teamNumber: number;
+  unlockedMission: number;
+  authorizationRequested: boolean;
+  authorizationGranted: boolean;
+};
+
+export interface LanternAuthorizationNotes {
+  /**
+     * @minLength 1
+     * @maxLength 12000
+     */
+  notes: string;
+}
+
+export interface LanternAuthorizationGrant {
+  granted: boolean;
+}
+
+export type LanternScoreAdjustmentsSpeedBonus = typeof LanternScoreAdjustmentsSpeedBonus[keyof typeof LanternScoreAdjustmentsSpeedBonus];
+
+
+export const LanternScoreAdjustmentsSpeedBonus = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
+  NUMBER_3: 3,
+  NUMBER_5: 5,
+} as const;
+
+export interface LanternScoreAdjustments {
+  speedBonus: LanternScoreAdjustmentsSpeedBonus;
+  tradecraftBonus: boolean;
+}
+
+export interface LanternAnswerInput {
+  value: string | string[];
+}
+
+export type LanternAnswerResultStatus = typeof LanternAnswerResultStatus[keyof typeof LanternAnswerResultStatus];
+
+
+export const LanternAnswerResultStatus = {
+  correct: 'correct',
+  incorrect: 'incorrect',
+  unkeyed: 'unkeyed',
+  manual: 'manual',
+} as const;
+
+export interface LanternAnswerResult {
+  questionId: number;
+  /** @nullable */
+  correct: boolean | null;
+  earnedPoints: number;
+  status: LanternAnswerResultStatus;
+  feedback: string;
+  totalPoints: number;
+}
+
+export interface LanternInstructorVerification {
+  /**
+     * @minLength 1
+     * @maxLength 256
+     */
+  code: string;
+}
+
+export interface LanternInstructorVerificationResult {
+  valid: boolean;
+}
+
+export interface LanternKey {
+  questionId: number;
+  acceptedAnswers: string[];
+}
+
+export type LanternKeys = LanternKey[];
+
+export interface LanternKeyInput {
+  /**
+     * @minItems 1
+     * @maxItems 50
+     * @items.minLength 1
+     * @items.maxLength 2000
+     */
+  acceptedAnswers: string[];
+}
+
+export interface LanternReviewInput {
+  /** @minimum 0 */
+  points: number;
+  /** @maxLength 2000 */
+  note: string;
+}
+

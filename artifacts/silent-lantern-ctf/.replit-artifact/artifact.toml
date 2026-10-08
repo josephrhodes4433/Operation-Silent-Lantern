@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/silent-lantern/"
+title = "SILENT LANTERN CTF"
+description = "A separate UFED-only, six-mission capture-the-flag classroom activity with validated flags, saved team progress, instructor review, authorization gating and email drafts, matching the IRON MERIDIAN website."
+version = "1.0.0"
+id = "artifacts/silent-lantern-ctf"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/silent-lantern/" ]
+localPort = 18303
+
+[services.development]
+run = "pnpm --filter @workspace/silent-lantern-ctf run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/silent-lantern-ctf", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/silent-lantern-ctf/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18303"
+BASE_PATH = "/silent-lantern/"

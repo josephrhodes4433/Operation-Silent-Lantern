@@ -1,0 +1,396 @@
+openapi: 3.1.0
+info: { title: Api, version: 0.1.0 }
+paths:
+  /lantern/activity:
+    get:
+      operationId: getLanternActivity
+      responses:
+        "200":
+          description: UFED-only activity without private answer keys
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternActivity" }
+  /lantern/progress:
+    post:
+      operationId: createLanternProgress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternProgressInput" }
+      responses:
+        "200": &progressResponse
+          description: Saved team progress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternProgress" }
+  /lantern/progress/{sessionId}:
+    get:
+      operationId: getLanternProgress
+      parameters: &sessionParams
+        - &sessionParam
+          in: path
+          name: sessionId
+          required: true
+          schema: { type: string, format: uuid }
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/progress/{sessionId}/answers/{questionId}:
+    put:
+      operationId: saveLanternAnswer
+      parameters: &answerParams
+        - *sessionParam
+        - &questionParam
+          in: path
+          name: questionId
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 18 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternAnswerInput" }
+      responses:
+        "200":
+          description: Saved and evaluated answer
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternAnswerResult" }
+        "403": { description: Mission or authorization gate is locked }
+  /lantern/progress/{sessionId}/submit:
+    post:
+      operationId: submitLanternProgress
+      parameters: *sessionParams
+      responses:
+        "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } }
+        "409": { description: Capture all flags and save all responses first }
+  /lantern/progress/{sessionId}/hints/{missionId}:
+    post:
+      operationId: useLanternHint
+      parameters:
+        - *sessionParam
+        - in: path
+          name: missionId
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 6 }
+      responses:
+        "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } }
+        "409": { description: No hint tokens remain }
+  /lantern/progress/{sessionId}/authorization:
+    put:
+      operationId: requestLanternAuthorization
+      parameters: *sessionParams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternAuthorizationNotes" }
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/instructor/verify:
+    post:
+      operationId: verifyLanternInstructor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternInstructorVerification" }
+      responses:
+        "200":
+          description: Instructor verification result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternInstructorVerificationResult" }
+  /lantern/instructor/keys:
+    get:
+      operationId: getLanternInstructorKeys
+      parameters: &instructorParams
+        - &instructorParam
+          in: header
+          name: x-instructor-code
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Private shared-dataset keys
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternKeys" }
+  /lantern/instructor/keys/{questionId}:
+    put:
+      operationId: setLanternInstructorKey
+      parameters: [*instructorParam, *questionParam]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternKeyInput" }
+      responses:
+        "200":
+          description: Key saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LanternKey" }
+  /lantern/instructor/submissions:
+    get:
+      operationId: listLanternSubmissions
+      parameters: *instructorParams
+      responses:
+        "200":
+          description: Isolated SILENT LANTERN sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/LanternSubmissionSummary" }
+  /lantern/instructor/submissions/{sessionId}:
+    get:
+      operationId: getLanternInstructorSubmission
+      parameters: &instructorSessionParams
+        - *instructorParam
+        - *sessionParam
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/instructor/submissions/{sessionId}/review/{questionId}:
+    put:
+      operationId: reviewLanternWrittenAnswer
+      parameters: [*instructorParam, *sessionParam, *questionParam]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternReviewInput" }
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/instructor/submissions/{sessionId}/authorization:
+    put:
+      operationId: grantLanternAuthorization
+      parameters: *instructorSessionParams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternAuthorizationGrant" }
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/instructor/submissions/{sessionId}/adjustments:
+    put:
+      operationId: adjustLanternScore
+      parameters: *instructorSessionParams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LanternScoreAdjustments" }
+      responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+components:
+  schemas:
+    LanternQuestion:
+      allOf:
+        - $ref: "#/components/schemas/LanternBaseQuestion"
+        - type: object
+          required: [code, isFlag, format, keyMode, isFinalSummary]
+          properties:
+            code: { type: string }
+            isFlag: { type: boolean }
+            format: { type: string }
+            keyMode: { type: string, enum: [fixed, format, dataset, manual] }
+            isFinalSummary: { type: boolean }
+    LanternActivity:
+      type: object
+      required: [title, course, duration, totalFlags, totalPoints, sections, questions, scenario, rules, evidence]
+      properties:
+        title: { type: string }
+        course: { type: string }
+        duration: { type: string }
+        totalFlags: { type: integer }
+        totalPoints: { type: integer }
+        sections:
+          type: array
+          items: { $ref: "#/components/schemas/LanternSection" }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/LanternQuestion" }
+        scenario: { type: string }
+        rules:
+          type: array
+          items: { type: string }
+        evidence:
+          type: array
+          items: { type: string }
+    LanternProgressInput:
+      allOf:
+        - $ref: "#/components/schemas/LanternLearnerInput"
+        - type: object
+          required: [teamNumber, roeAcknowledged]
+          properties:
+            teamNumber: { type: integer, minimum: 1, maximum: 999 }
+            roeAcknowledged: { type: boolean, const: true }
+    LanternProgress:
+      allOf:
+        - $ref: "#/components/schemas/LanternBaseProgress"
+        - type: object
+          required: [teamNumber, roeAcknowledged, unlockedMission, authorizationNotes, authorizationGranted, trainingAuthorizationCode, hints, penaltyPoints, rawPoints, speedBonus, tradecraftBonus]
+          properties:
+            teamNumber: { type: integer }
+            roeAcknowledged: { type: boolean }
+            unlockedMission: { type: integer }
+            authorizationNotes: { type: string }
+            authorizationGranted: { type: boolean }
+            trainingAuthorizationCode: { type: ["string", "null"] }
+            hints:
+              type: array
+              items: { $ref: "#/components/schemas/LanternHint" }
+            penaltyPoints: { type: integer }
+            rawPoints: { type: integer }
+            speedBonus: { type: integer }
+            tradecraftBonus: { type: integer }
+    LanternHint:
+      type: object
+      required: [missionId, text]
+      properties:
+        missionId: { type: integer }
+        text: { type: string }
+    LanternSubmissionSummary:
+      allOf:
+        - $ref: "#/components/schemas/LanternBaseSubmissionSummary"
+        - type: object
+          required: [teamNumber, unlockedMission, authorizationRequested, authorizationGranted]
+          properties:
+            teamNumber: { type: integer }
+            unlockedMission: { type: integer }
+            authorizationRequested: { type: boolean }
+            authorizationGranted: { type: boolean }
+    LanternAuthorizationNotes:
+      type: object
+      required: [notes]
+      properties:
+        notes: { type: string, minLength: 1, maxLength: 12000 }
+    LanternAuthorizationGrant:
+      type: object
+      required: [granted]
+      properties:
+        granted: { type: boolean }
+    LanternScoreAdjustments:
+      type: object
+      required: [speedBonus, tradecraftBonus]
+      properties:
+        speedBonus: { type: integer, enum: [0, 1, 3, 5] }
+        tradecraftBonus: { type: boolean }
+    LanternBaseQuestion:
+      type: object
+      required: [id, section, sectionTitle, prompt, kind, options, points, guideReference, correctAnswerAvailable, manualReview]
+      properties:
+        id: { type: integer }
+        section: { type: integer }
+        sectionTitle: { type: string }
+        prompt: { type: string }
+        kind: { type: string, enum: [single, multiple, short, number, long] }
+        options: { type: array, items: { type: string } }
+        points: { type: integer }
+        guideReference: { type: string }
+        correctAnswerAvailable: { type: boolean }
+        manualReview: { type: boolean }
+    LanternSection:
+      type: object
+      required: [id, title, time, flags, points, inject]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        time: { type: string }
+        flags: { type: string }
+        points: { type: integer }
+        inject: { type: string }
+    LanternLearnerInput:
+      type: object
+      required: [sessionId, name, email, instructorEmail]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 140 }
+        email: { type: string, format: email, maxLength: 254 }
+        instructorEmail: { type: string, format: email, maxLength: 254 }
+    LanternBaseProgress:
+      type: object
+      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        instructorEmail: { type: string, format: email }
+        answers:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/LanternAnswer" }
+        totalPoints: { type: integer }
+        answeredCount: { type: integer }
+        savedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }
+    LanternAnswer:
+      type: object
+      required: [value, correct, earnedPoints, status, updatedAt]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+        correct: { type: ["boolean", "null"] }
+        earnedPoints: { type: integer }
+        status: { type: string, enum: [correct, incorrect, unkeyed, manual] }
+        updatedAt: { type: string, format: date-time }
+        instructorPoints: { type: ["integer", "null"] }
+        instructorNote: { type: ["string", "null"] }
+    LanternAnswerInput:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items: { type: string }
+    LanternAnswerResult:
+      type: object
+      required: [questionId, correct, earnedPoints, status, feedback, totalPoints]
+      properties:
+        questionId: { type: integer }
+        correct: { type: ["boolean", "null"] }
+        earnedPoints: { type: integer }
+        status: { type: string, enum: [correct, incorrect, unkeyed, manual] }
+        feedback: { type: string }
+        totalPoints: { type: integer }
+    LanternInstructorVerification:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, minLength: 1, maxLength: 256 }
+    LanternInstructorVerificationResult:
+      type: object
+      required: [valid]
+      properties:
+        valid: { type: boolean }
+    LanternKeys:
+      type: array
+      items: { $ref: "#/components/schemas/LanternKey" }
+    LanternKeyInput:
+      type: object
+      required: [acceptedAnswers]
+      properties:
+        acceptedAnswers: { type: array, minItems: 1, maxItems: 50, items: { type: string, minLength: 1, maxLength: 2000 } }
+    LanternKey:
+      type: object
+      required: [questionId, acceptedAnswers]
+      properties:
+        questionId: { type: integer }
+        acceptedAnswers: { type: array, items: { type: string } }
+    LanternReviewInput:
+      type: object
+      required: [points, note]
+      properties:
+        points: { type: integer, minimum: 0 }
+        note: { type: string, maxLength: 2000 }
+    LanternBaseSubmissionSummary:
+      type: object
+      required: [sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt]
+      properties:
+        sessionId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        totalPoints: { type: integer }
+        answeredCount: { type: integer }
+        savedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }

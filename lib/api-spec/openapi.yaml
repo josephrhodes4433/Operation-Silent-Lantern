@@ -15,6 +15,36 @@ tags:
   - name: instructor
     description: Instructor-only answer-key and review operations
 paths:
+  /lantern/activity:
+    $ref: "./lantern.yaml#/paths/~1lantern~1activity"
+  /lantern/progress:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress"
+  /lantern/progress/{sessionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress~1{sessionId}"
+  /lantern/progress/{sessionId}/answers/{questionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress~1{sessionId}~1answers~1{questionId}"
+  /lantern/progress/{sessionId}/submit:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress~1{sessionId}~1submit"
+  /lantern/progress/{sessionId}/hints/{missionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress~1{sessionId}~1hints~1{missionId}"
+  /lantern/progress/{sessionId}/authorization:
+    $ref: "./lantern.yaml#/paths/~1lantern~1progress~1{sessionId}~1authorization"
+  /lantern/instructor/verify:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1verify"
+  /lantern/instructor/keys:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1keys"
+  /lantern/instructor/keys/{questionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1keys~1{questionId}"
+  /lantern/instructor/submissions:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions"
+  /lantern/instructor/submissions/{sessionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}"
+  /lantern/instructor/submissions/{sessionId}/review/{questionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1review~1{questionId}"
+  /lantern/instructor/submissions/{sessionId}/authorization:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1authorization"
+  /lantern/instructor/submissions/{sessionId}/adjustments:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1adjustments"
   /healthz:
     get:
       operationId: healthCheck

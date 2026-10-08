@@ -8,6 +8,570 @@
 import * as zod from 'zod';
 
 
+export const GetLanternActivityResponse = zod.object({
+  "title": zod.string(),
+  "course": zod.string(),
+  "duration": zod.string(),
+  "totalFlags": zod.number().int(),
+  "totalPoints": zod.number().int(),
+  "sections": zod.array(zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "time": zod.string(),
+  "flags": zod.string(),
+  "points": zod.number().int(),
+  "inject": zod.string()
+})),
+  "questions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "section": zod.number().int(),
+  "sectionTitle": zod.string(),
+  "prompt": zod.string(),
+  "kind": zod.enum(['single', 'multiple', 'short', 'number', 'long']),
+  "options": zod.array(zod.string()),
+  "points": zod.number().int(),
+  "guideReference": zod.string(),
+  "correctAnswerAvailable": zod.boolean(),
+  "manualReview": zod.boolean()
+}).and(zod.object({
+  "code": zod.string(),
+  "isFlag": zod.boolean(),
+  "format": zod.string(),
+  "keyMode": zod.enum(['fixed', 'format', 'dataset', 'manual']),
+  "isFinalSummary": zod.boolean()
+}))),
+  "scenario": zod.string(),
+  "rules": zod.array(zod.string()),
+  "evidence": zod.array(zod.string())
+})
+
+
+export const createLanternProgressBodyOneNameMax = 140;
+
+export const createLanternProgressBodyOneEmailMax = 254;
+
+export const createLanternProgressBodyOneInstructorEmailMax = 254;
+
+export const createLanternProgressBodyTwoTeamNumberMax = 999;
+
+
+
+export const CreateLanternProgressBody = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string().min(1).max(createLanternProgressBodyOneNameMax),
+  "email": zod.string().email().max(createLanternProgressBodyOneEmailMax),
+  "instructorEmail": zod.string().email().max(createLanternProgressBodyOneInstructorEmailMax)
+}).and(zod.object({
+  "teamNumber": zod.number().int().min(1).max(createLanternProgressBodyTwoTeamNumberMax),
+  "roeAcknowledged": zod.literal(true)
+}))
+
+export const CreateLanternProgressResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const GetLanternProgressParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const GetLanternProgressResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const saveLanternAnswerPathQuestionIdMax = 18;
+
+
+
+export const SaveLanternAnswerParams = zod.object({
+  "sessionId": zod.coerce.string().uuid(),
+  "questionId": zod.coerce.number().int().min(1).max(saveLanternAnswerPathQuestionIdMax)
+})
+
+export const SaveLanternAnswerBody = zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())])
+})
+
+export const SaveLanternAnswerResponse = zod.object({
+  "questionId": zod.number().int(),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "feedback": zod.string(),
+  "totalPoints": zod.number().int()
+})
+
+
+export const SubmitLanternProgressParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const SubmitLanternProgressResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const useLanternHintPathMissionIdMax = 6;
+
+
+
+export const UseLanternHintParams = zod.object({
+  "sessionId": zod.coerce.string().uuid(),
+  "missionId": zod.coerce.number().int().min(1).max(useLanternHintPathMissionIdMax)
+})
+
+export const UseLanternHintResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const RequestLanternAuthorizationParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const requestLanternAuthorizationBodyNotesMax = 12000;
+
+
+
+export const RequestLanternAuthorizationBody = zod.object({
+  "notes": zod.string().min(1).max(requestLanternAuthorizationBodyNotesMax)
+})
+
+export const RequestLanternAuthorizationResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const verifyLanternInstructorBodyCodeMax = 256;
+
+
+
+export const VerifyLanternInstructorBody = zod.object({
+  "code": zod.string().min(1).max(verifyLanternInstructorBodyCodeMax)
+})
+
+export const VerifyLanternInstructorResponse = zod.object({
+  "valid": zod.boolean()
+})
+
+
+export const GetLanternInstructorKeysHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetLanternInstructorKeysResponseItem = zod.object({
+  "questionId": zod.number().int(),
+  "acceptedAnswers": zod.array(zod.string())
+})
+export const GetLanternInstructorKeysResponse = zod.array(GetLanternInstructorKeysResponseItem)
+
+
+export const setLanternInstructorKeyPathQuestionIdMax = 18;
+
+
+
+export const SetLanternInstructorKeyParams = zod.object({
+  "questionId": zod.coerce.number().int().min(1).max(setLanternInstructorKeyPathQuestionIdMax)
+})
+
+export const SetLanternInstructorKeyHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const setLanternInstructorKeyBodyAcceptedAnswersItemMax = 2000;
+
+export const setLanternInstructorKeyBodyAcceptedAnswersMax = 50;
+
+
+
+export const SetLanternInstructorKeyBody = zod.object({
+  "acceptedAnswers": zod.array(zod.string().min(1).max(setLanternInstructorKeyBodyAcceptedAnswersItemMax)).min(1).max(setLanternInstructorKeyBodyAcceptedAnswersMax)
+})
+
+export const SetLanternInstructorKeyResponse = zod.object({
+  "questionId": zod.number().int(),
+  "acceptedAnswers": zod.array(zod.string())
+})
+
+
+export const ListLanternSubmissionsHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const ListLanternSubmissionsResponseItem = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "unlockedMission": zod.number().int(),
+  "authorizationRequested": zod.boolean(),
+  "authorizationGranted": zod.boolean()
+}))
+export const ListLanternSubmissionsResponse = zod.array(ListLanternSubmissionsResponseItem)
+
+
+export const GetLanternInstructorSubmissionParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const GetLanternInstructorSubmissionHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetLanternInstructorSubmissionResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const reviewLanternWrittenAnswerPathQuestionIdMax = 18;
+
+
+
+export const ReviewLanternWrittenAnswerParams = zod.object({
+  "sessionId": zod.coerce.string().uuid(),
+  "questionId": zod.coerce.number().int().min(1).max(reviewLanternWrittenAnswerPathQuestionIdMax)
+})
+
+export const ReviewLanternWrittenAnswerHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const reviewLanternWrittenAnswerBodyPointsMin = 0;
+
+export const reviewLanternWrittenAnswerBodyNoteMax = 2000;
+
+
+
+export const ReviewLanternWrittenAnswerBody = zod.object({
+  "points": zod.number().int().min(reviewLanternWrittenAnswerBodyPointsMin),
+  "note": zod.string().max(reviewLanternWrittenAnswerBodyNoteMax)
+})
+
+export const ReviewLanternWrittenAnswerResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const GrantLanternAuthorizationParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const GrantLanternAuthorizationHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GrantLanternAuthorizationBody = zod.object({
+  "granted": zod.boolean()
+})
+
+export const GrantLanternAuthorizationResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
+export const AdjustLanternScoreParams = zod.object({
+  "sessionId": zod.coerce.string().uuid()
+})
+
+export const AdjustLanternScoreHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const AdjustLanternScoreBody = zod.object({
+  "speedBonus": zod.union([zod.literal(0),zod.literal(1),zod.literal(3),zod.literal(5)]),
+  "tradecraftBonus": zod.boolean()
+})
+
+export const AdjustLanternScoreResponse = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "instructorEmail": zod.string().email(),
+  "answers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish()
+})),
+  "totalPoints": zod.number().int(),
+  "answeredCount": zod.number().int(),
+  "savedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "teamNumber": zod.number().int(),
+  "roeAcknowledged": zod.boolean(),
+  "unlockedMission": zod.number().int(),
+  "authorizationNotes": zod.string(),
+  "authorizationGranted": zod.boolean(),
+  "trainingAuthorizationCode": zod.string().nullable(),
+  "hints": zod.array(zod.object({
+  "missionId": zod.number().int(),
+  "text": zod.string()
+})),
+  "penaltyPoints": zod.number().int(),
+  "rawPoints": zod.number().int(),
+  "speedBonus": zod.number().int(),
+  "tradecraftBonus": zod.number().int()
+}))
+
+
 /**
  * Returns server health status
  * @summary Health check

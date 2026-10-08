@@ -32,7 +32,22 @@ import type {
   CtfProgressInput,
   CtfReviewInput,
   CtfSubmissionSummary,
-  HealthStatus
+  HealthStatus,
+  LanternActivity,
+  LanternAnswerInput,
+  LanternAnswerResult,
+  LanternAuthorizationGrant,
+  LanternAuthorizationNotes,
+  LanternInstructorVerification,
+  LanternInstructorVerificationResult,
+  LanternKey,
+  LanternKeyInput,
+  LanternKeys,
+  LanternProgress,
+  LanternProgressInput,
+  LanternReviewInput,
+  LanternScoreAdjustments,
+  LanternSubmissionSummary
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -61,6 +76,1165 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetLanternActivityUrl = () => {
+
+
+
+
+  return `/api/lantern/activity`
+}
+
+export const getLanternActivity = async ( options?: Parameters<typeof customFetch>[1]): Promise<LanternActivity> => {
+
+  return customFetch<LanternActivity>(getGetLanternActivityUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternActivityQueryKey = () => {
+    return [
+    `/api/lantern/activity`
+    ] as const;
+    }
+
+
+export const getGetLanternActivityQueryOptions = <TData = Awaited<ReturnType<typeof getLanternActivity>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternActivityQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternActivity>>> = ({ signal }) => getLanternActivity({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternActivity>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternActivityQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternActivity>>>
+export type GetLanternActivityQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternActivity<TData = Awaited<ReturnType<typeof getLanternActivity>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternActivityQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateLanternProgressUrl = () => {
+
+
+
+
+  return `/api/lantern/progress`
+}
+
+export const createLanternProgress = async (lanternProgressInput: LanternProgressInput, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternProgress>(getCreateLanternProgressUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternProgressInput)
+  }
+);}
+
+
+
+
+
+export const getCreateLanternProgressMutationKey = () => ['createLanternProgress'] as const;
+
+export const getCreateLanternProgressMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLanternProgress>>, TError,CreateLanternProgressMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLanternProgress>>, TError,CreateLanternProgressMutationVariables, TContext> => {
+
+const mutationKey = getCreateLanternProgressMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLanternProgress>>, CreateLanternProgressMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createLanternProgress(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateLanternProgressMutationResult = NonNullable<Awaited<ReturnType<typeof createLanternProgress>>>
+    export type CreateLanternProgressMutationBody = BodyType<LanternProgressInput>
+    export type CreateLanternProgressMutationError = ErrorType<unknown>
+    export type CreateLanternProgressMutationVariables = {data: BodyType<LanternProgressInput>}
+
+    export const useCreateLanternProgress = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLanternProgress>>, TError,CreateLanternProgressMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createLanternProgress>>,
+        TError,
+        CreateLanternProgressMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateLanternProgressMutationOptions(options));
+    }
+
+export const getGetLanternProgressUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/progress/${sessionId}`
+}
+
+export const getLanternProgress = async (sessionId: string, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+  return customFetch<LanternProgress>(getGetLanternProgressUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternProgressQueryKey = (sessionId: string,) => {
+    return [
+    `/api/lantern/progress/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetLanternProgressQueryOptions = <TData = Awaited<ReturnType<typeof getLanternProgress>>, TError = ErrorType<unknown>>(sessionId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternProgressQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternProgress>>> = ({ signal }) => getLanternProgress(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternProgress>>>
+export type GetLanternProgressQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternProgress<TData = Awaited<ReturnType<typeof getLanternProgress>>, TError = ErrorType<unknown>>(
+ sessionId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternProgressQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveLanternAnswerUrl = (sessionId: string,
+    questionId: number,) => {
+
+
+
+
+  return `/api/lantern/progress/${sessionId}/answers/${questionId}`
+}
+
+export const saveLanternAnswer = async (sessionId: string,
+    questionId: number,
+    lanternAnswerInput: LanternAnswerInput, options?: Parameters<typeof customFetch>[1]): Promise<LanternAnswerResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternAnswerResult>(getSaveLanternAnswerUrl(sessionId,questionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternAnswerInput)
+  }
+);}
+
+
+
+
+
+export const getSaveLanternAnswerMutationKey = () => ['saveLanternAnswer'] as const;
+
+export const getSaveLanternAnswerMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveLanternAnswer>>, TError,SaveLanternAnswerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveLanternAnswer>>, TError,SaveLanternAnswerMutationVariables, TContext> => {
+
+const mutationKey = getSaveLanternAnswerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveLanternAnswer>>, SaveLanternAnswerMutationVariables> = (props) => {
+          const {sessionId,questionId,data} = props ?? {};
+
+          return  saveLanternAnswer(sessionId,questionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveLanternAnswerMutationResult = NonNullable<Awaited<ReturnType<typeof saveLanternAnswer>>>
+    export type SaveLanternAnswerMutationBody = BodyType<LanternAnswerInput>
+    export type SaveLanternAnswerMutationError = ErrorType<void>
+    export type SaveLanternAnswerMutationVariables = {sessionId: string;questionId: number;data: BodyType<LanternAnswerInput>}
+
+    export const useSaveLanternAnswer = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveLanternAnswer>>, TError,SaveLanternAnswerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveLanternAnswer>>,
+        TError,
+        SaveLanternAnswerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveLanternAnswerMutationOptions(options));
+    }
+
+export const getSubmitLanternProgressUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/progress/${sessionId}/submit`
+}
+
+export const submitLanternProgress = async (sessionId: string, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+  return customFetch<LanternProgress>(getSubmitLanternProgressUrl(sessionId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSubmitLanternProgressMutationKey = () => ['submitLanternProgress'] as const;
+
+export const getSubmitLanternProgressMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitLanternProgress>>, TError,SubmitLanternProgressMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitLanternProgress>>, TError,SubmitLanternProgressMutationVariables, TContext> => {
+
+const mutationKey = getSubmitLanternProgressMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitLanternProgress>>, SubmitLanternProgressMutationVariables> = (props) => {
+          const {sessionId} = props ?? {};
+
+          return  submitLanternProgress(sessionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitLanternProgressMutationResult = NonNullable<Awaited<ReturnType<typeof submitLanternProgress>>>
+
+    export type SubmitLanternProgressMutationError = ErrorType<void>
+    export type SubmitLanternProgressMutationVariables = {sessionId: string}
+
+    export const useSubmitLanternProgress = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitLanternProgress>>, TError,SubmitLanternProgressMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitLanternProgress>>,
+        TError,
+        SubmitLanternProgressMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSubmitLanternProgressMutationOptions(options));
+    }
+
+export const getUseLanternHintUrl = (sessionId: string,
+    missionId: number,) => {
+
+
+
+
+  return `/api/lantern/progress/${sessionId}/hints/${missionId}`
+}
+
+export const useLanternHint = async (sessionId: string,
+    missionId: number, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+  return customFetch<LanternProgress>(getUseLanternHintUrl(sessionId,missionId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getUseLanternHintMutationKey = () => ['useLanternHint'] as const;
+
+export const getUseLanternHintMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof useLanternHint>>, TError,UseLanternHintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof useLanternHint>>, TError,UseLanternHintMutationVariables, TContext> => {
+
+const mutationKey = getUseLanternHintMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof useLanternHint>>, UseLanternHintMutationVariables> = (props) => {
+          const {sessionId,missionId} = props ?? {};
+
+          return  useLanternHint(sessionId,missionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UseLanternHintMutationResult = NonNullable<Awaited<ReturnType<typeof useLanternHint>>>
+
+    export type UseLanternHintMutationError = ErrorType<void>
+    export type UseLanternHintMutationVariables = {sessionId: string;missionId: number}
+
+    export const useUseLanternHint = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof useLanternHint>>, TError,UseLanternHintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof useLanternHint>>,
+        TError,
+        UseLanternHintMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUseLanternHintMutationOptions(options));
+    }
+
+export const getRequestLanternAuthorizationUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/progress/${sessionId}/authorization`
+}
+
+export const requestLanternAuthorization = async (sessionId: string,
+    lanternAuthorizationNotes: LanternAuthorizationNotes, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternProgress>(getRequestLanternAuthorizationUrl(sessionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternAuthorizationNotes)
+  }
+);}
+
+
+
+
+
+export const getRequestLanternAuthorizationMutationKey = () => ['requestLanternAuthorization'] as const;
+
+export const getRequestLanternAuthorizationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestLanternAuthorization>>, TError,RequestLanternAuthorizationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestLanternAuthorization>>, TError,RequestLanternAuthorizationMutationVariables, TContext> => {
+
+const mutationKey = getRequestLanternAuthorizationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestLanternAuthorization>>, RequestLanternAuthorizationMutationVariables> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  requestLanternAuthorization(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestLanternAuthorizationMutationResult = NonNullable<Awaited<ReturnType<typeof requestLanternAuthorization>>>
+    export type RequestLanternAuthorizationMutationBody = BodyType<LanternAuthorizationNotes>
+    export type RequestLanternAuthorizationMutationError = ErrorType<unknown>
+    export type RequestLanternAuthorizationMutationVariables = {sessionId: string;data: BodyType<LanternAuthorizationNotes>}
+
+    export const useRequestLanternAuthorization = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestLanternAuthorization>>, TError,RequestLanternAuthorizationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestLanternAuthorization>>,
+        TError,
+        RequestLanternAuthorizationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestLanternAuthorizationMutationOptions(options));
+    }
+
+export const getVerifyLanternInstructorUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/verify`
+}
+
+export const verifyLanternInstructor = async (lanternInstructorVerification: LanternInstructorVerification, options?: Parameters<typeof customFetch>[1]): Promise<LanternInstructorVerificationResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternInstructorVerificationResult>(getVerifyLanternInstructorUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternInstructorVerification)
+  }
+);}
+
+
+
+
+
+export const getVerifyLanternInstructorMutationKey = () => ['verifyLanternInstructor'] as const;
+
+export const getVerifyLanternInstructorMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyLanternInstructor>>, TError,VerifyLanternInstructorMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyLanternInstructor>>, TError,VerifyLanternInstructorMutationVariables, TContext> => {
+
+const mutationKey = getVerifyLanternInstructorMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyLanternInstructor>>, VerifyLanternInstructorMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyLanternInstructor(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyLanternInstructorMutationResult = NonNullable<Awaited<ReturnType<typeof verifyLanternInstructor>>>
+    export type VerifyLanternInstructorMutationBody = BodyType<LanternInstructorVerification>
+    export type VerifyLanternInstructorMutationError = ErrorType<unknown>
+    export type VerifyLanternInstructorMutationVariables = {data: BodyType<LanternInstructorVerification>}
+
+    export const useVerifyLanternInstructor = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyLanternInstructor>>, TError,VerifyLanternInstructorMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyLanternInstructor>>,
+        TError,
+        VerifyLanternInstructorMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyLanternInstructorMutationOptions(options));
+    }
+
+export const getGetLanternInstructorKeysUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/keys`
+}
+
+export const getLanternInstructorKeys = async ( options?: Parameters<typeof customFetch>[1]): Promise<LanternKeys> => {
+
+  return customFetch<LanternKeys>(getGetLanternInstructorKeysUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternInstructorKeysQueryKey = () => {
+    return [
+    `/api/lantern/instructor/keys`
+    ] as const;
+    }
+
+
+export const getGetLanternInstructorKeysQueryOptions = <TData = Awaited<ReturnType<typeof getLanternInstructorKeys>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorKeys>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternInstructorKeysQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternInstructorKeys>>> = ({ signal }) => getLanternInstructorKeys({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorKeys>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternInstructorKeysQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternInstructorKeys>>>
+export type GetLanternInstructorKeysQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternInstructorKeys<TData = Awaited<ReturnType<typeof getLanternInstructorKeys>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorKeys>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternInstructorKeysQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetLanternInstructorKeyUrl = (questionId: number,) => {
+
+
+
+
+  return `/api/lantern/instructor/keys/${questionId}`
+}
+
+export const setLanternInstructorKey = async (questionId: number,
+    lanternKeyInput: LanternKeyInput, options?: Parameters<typeof customFetch>[1]): Promise<LanternKey> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternKey>(getSetLanternInstructorKeyUrl(questionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternKeyInput)
+  }
+);}
+
+
+
+
+
+export const getSetLanternInstructorKeyMutationKey = () => ['setLanternInstructorKey'] as const;
+
+export const getSetLanternInstructorKeyMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setLanternInstructorKey>>, TError,SetLanternInstructorKeyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setLanternInstructorKey>>, TError,SetLanternInstructorKeyMutationVariables, TContext> => {
+
+const mutationKey = getSetLanternInstructorKeyMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setLanternInstructorKey>>, SetLanternInstructorKeyMutationVariables> = (props) => {
+          const {questionId,data} = props ?? {};
+
+          return  setLanternInstructorKey(questionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetLanternInstructorKeyMutationResult = NonNullable<Awaited<ReturnType<typeof setLanternInstructorKey>>>
+    export type SetLanternInstructorKeyMutationBody = BodyType<LanternKeyInput>
+    export type SetLanternInstructorKeyMutationError = ErrorType<unknown>
+    export type SetLanternInstructorKeyMutationVariables = {questionId: number;data: BodyType<LanternKeyInput>}
+
+    export const useSetLanternInstructorKey = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setLanternInstructorKey>>, TError,SetLanternInstructorKeyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setLanternInstructorKey>>,
+        TError,
+        SetLanternInstructorKeyMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSetLanternInstructorKeyMutationOptions(options));
+    }
+
+export const getListLanternSubmissionsUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/submissions`
+}
+
+export const listLanternSubmissions = async ( options?: Parameters<typeof customFetch>[1]): Promise<LanternSubmissionSummary[]> => {
+
+  return customFetch<LanternSubmissionSummary[]>(getListLanternSubmissionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLanternSubmissionsQueryKey = () => {
+    return [
+    `/api/lantern/instructor/submissions`
+    ] as const;
+    }
+
+
+export const getListLanternSubmissionsQueryOptions = <TData = Awaited<ReturnType<typeof listLanternSubmissions>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLanternSubmissions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLanternSubmissionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLanternSubmissions>>> = ({ signal }) => listLanternSubmissions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLanternSubmissions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLanternSubmissionsQueryResult = NonNullable<Awaited<ReturnType<typeof listLanternSubmissions>>>
+export type ListLanternSubmissionsQueryError = ErrorType<unknown>
+
+
+
+export function useListLanternSubmissions<TData = Awaited<ReturnType<typeof listLanternSubmissions>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLanternSubmissions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLanternSubmissionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternInstructorSubmissionUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/instructor/submissions/${sessionId}`
+}
+
+export const getLanternInstructorSubmission = async (sessionId: string, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+  return customFetch<LanternProgress>(getGetLanternInstructorSubmissionUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternInstructorSubmissionQueryKey = (sessionId: string,) => {
+    return [
+    `/api/lantern/instructor/submissions/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetLanternInstructorSubmissionQueryOptions = <TData = Awaited<ReturnType<typeof getLanternInstructorSubmission>>, TError = ErrorType<unknown>>(sessionId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorSubmission>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternInstructorSubmissionQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternInstructorSubmission>>> = ({ signal }) => getLanternInstructorSubmission(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorSubmission>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternInstructorSubmissionQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternInstructorSubmission>>>
+export type GetLanternInstructorSubmissionQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternInstructorSubmission<TData = Awaited<ReturnType<typeof getLanternInstructorSubmission>>, TError = ErrorType<unknown>>(
+ sessionId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorSubmission>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternInstructorSubmissionQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReviewLanternWrittenAnswerUrl = (sessionId: string,
+    questionId: number,) => {
+
+
+
+
+  return `/api/lantern/instructor/submissions/${sessionId}/review/${questionId}`
+}
+
+export const reviewLanternWrittenAnswer = async (sessionId: string,
+    questionId: number,
+    lanternReviewInput: LanternReviewInput, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternProgress>(getReviewLanternWrittenAnswerUrl(sessionId,questionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternReviewInput)
+  }
+);}
+
+
+
+
+
+export const getReviewLanternWrittenAnswerMutationKey = () => ['reviewLanternWrittenAnswer'] as const;
+
+export const getReviewLanternWrittenAnswerMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>, TError,ReviewLanternWrittenAnswerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>, TError,ReviewLanternWrittenAnswerMutationVariables, TContext> => {
+
+const mutationKey = getReviewLanternWrittenAnswerMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>, ReviewLanternWrittenAnswerMutationVariables> = (props) => {
+          const {sessionId,questionId,data} = props ?? {};
+
+          return  reviewLanternWrittenAnswer(sessionId,questionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReviewLanternWrittenAnswerMutationResult = NonNullable<Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>>
+    export type ReviewLanternWrittenAnswerMutationBody = BodyType<LanternReviewInput>
+    export type ReviewLanternWrittenAnswerMutationError = ErrorType<unknown>
+    export type ReviewLanternWrittenAnswerMutationVariables = {sessionId: string;questionId: number;data: BodyType<LanternReviewInput>}
+
+    export const useReviewLanternWrittenAnswer = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>, TError,ReviewLanternWrittenAnswerMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reviewLanternWrittenAnswer>>,
+        TError,
+        ReviewLanternWrittenAnswerMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReviewLanternWrittenAnswerMutationOptions(options));
+    }
+
+export const getGrantLanternAuthorizationUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/instructor/submissions/${sessionId}/authorization`
+}
+
+export const grantLanternAuthorization = async (sessionId: string,
+    lanternAuthorizationGrant: LanternAuthorizationGrant, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternProgress>(getGrantLanternAuthorizationUrl(sessionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternAuthorizationGrant)
+  }
+);}
+
+
+
+
+
+export const getGrantLanternAuthorizationMutationKey = () => ['grantLanternAuthorization'] as const;
+
+export const getGrantLanternAuthorizationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof grantLanternAuthorization>>, TError,GrantLanternAuthorizationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof grantLanternAuthorization>>, TError,GrantLanternAuthorizationMutationVariables, TContext> => {
+
+const mutationKey = getGrantLanternAuthorizationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof grantLanternAuthorization>>, GrantLanternAuthorizationMutationVariables> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  grantLanternAuthorization(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GrantLanternAuthorizationMutationResult = NonNullable<Awaited<ReturnType<typeof grantLanternAuthorization>>>
+    export type GrantLanternAuthorizationMutationBody = BodyType<LanternAuthorizationGrant>
+    export type GrantLanternAuthorizationMutationError = ErrorType<unknown>
+    export type GrantLanternAuthorizationMutationVariables = {sessionId: string;data: BodyType<LanternAuthorizationGrant>}
+
+    export const useGrantLanternAuthorization = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof grantLanternAuthorization>>, TError,GrantLanternAuthorizationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof grantLanternAuthorization>>,
+        TError,
+        GrantLanternAuthorizationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getGrantLanternAuthorizationMutationOptions(options));
+    }
+
+export const getAdjustLanternScoreUrl = (sessionId: string,) => {
+
+
+
+
+  return `/api/lantern/instructor/submissions/${sessionId}/adjustments`
+}
+
+export const adjustLanternScore = async (sessionId: string,
+    lanternScoreAdjustments: LanternScoreAdjustments, options?: Parameters<typeof customFetch>[1]): Promise<LanternProgress> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LanternProgress>(getAdjustLanternScoreUrl(sessionId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(lanternScoreAdjustments)
+  }
+);}
+
+
+
+
+
+export const getAdjustLanternScoreMutationKey = () => ['adjustLanternScore'] as const;
+
+export const getAdjustLanternScoreMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adjustLanternScore>>, TError,AdjustLanternScoreMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adjustLanternScore>>, TError,AdjustLanternScoreMutationVariables, TContext> => {
+
+const mutationKey = getAdjustLanternScoreMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adjustLanternScore>>, AdjustLanternScoreMutationVariables> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  adjustLanternScore(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdjustLanternScoreMutationResult = NonNullable<Awaited<ReturnType<typeof adjustLanternScore>>>
+    export type AdjustLanternScoreMutationBody = BodyType<LanternScoreAdjustments>
+    export type AdjustLanternScoreMutationError = ErrorType<unknown>
+    export type AdjustLanternScoreMutationVariables = {sessionId: string;data: BodyType<LanternScoreAdjustments>}
+
+    export const useAdjustLanternScore = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adjustLanternScore>>, TError,AdjustLanternScoreMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adjustLanternScore>>,
+        TError,
+        AdjustLanternScoreMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAdjustLanternScoreMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 

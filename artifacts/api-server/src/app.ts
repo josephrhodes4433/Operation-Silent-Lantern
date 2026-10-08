@@ -14,7 +14,7 @@ app.use(
         return {
           id: req.id,
           method: req.method,
-          url: req.url?.split("?")[0]?.replace(/(\/ctf\/(?:progress|instructor\/submissions)\/)[^/]+/g, "$1[private]"),
+          url: req.url?.split("?")[0]?.replace(/(\/(?:ctf|lantern)\/(?:progress|instructor\/submissions)\/)[^/]+/g, "$1[private]"),
         };
       },
       res(res) {
