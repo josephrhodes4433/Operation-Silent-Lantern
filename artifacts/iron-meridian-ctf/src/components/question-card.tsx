@@ -12,7 +12,10 @@ const ser = (v: Val) => JSON.stringify(v);
 
 export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion; sessionId: string; saved?: CtfAnswer; isFinal: boolean }) {
   const qc = useQueryClient();
-  const save = useSaveCtfAnswer();
+  // Drafts already live in localStorage. Attempt the request even when the
+  // browser reports offline so failures surface as Retry instead of leaving
+  // the per-question queue paused indefinitely.
+  const save = useSaveCtfAnswer({ mutation: { networkMode: 'always', retry: false } });
   const mutateRef = useRef(save.mutateAsync);
   mutateRef.current = save.mutateAsync;
 

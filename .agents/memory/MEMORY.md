@@ -1,3 +1,4 @@
 - [Email delivery decision](email-delivery.md) — user declined the email integration; do not silently add a provider or imply a draft was delivered.
 - [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions, and a separate Replit project rather than a second website in IRON MERIDIAN.
 - [Orval external YAML references](orval-yaml-references.md) — avoid YAML aliases sharing $ref objects across external paths; the resolver mutates shared nodes.
+- [Classroom test isolation](classroom-test-isolation.md) — browser regressions must not replace shared dataset keys or use the real instructor credential.
