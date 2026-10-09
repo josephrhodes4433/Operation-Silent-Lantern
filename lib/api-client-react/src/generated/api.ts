@@ -50,7 +50,8 @@ import type {
   LanternProgressInput,
   LanternReviewInput,
   LanternScoreAdjustments,
-  LanternSubmissionSummary
+  LanternSubmissionSummary,
+  LanternWrittenHistoryEntry
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1072,6 +1073,82 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getReviewLanternWrittenAnswerMutationOptions(options));
     }
+
+export const getGetLanternWrittenHistoryUrl = (sessionId: string,
+    questionId: number,) => {
+
+
+
+
+  return `/api/lantern/instructor/submissions/${sessionId}/history/${questionId}`
+}
+
+export const getLanternWrittenHistory = async (sessionId: string,
+    questionId: number, options?: Parameters<typeof customFetch>[1]): Promise<LanternWrittenHistoryEntry[]> => {
+
+  return customFetch<LanternWrittenHistoryEntry[]>(getGetLanternWrittenHistoryUrl(sessionId,questionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternWrittenHistoryQueryKey = (sessionId: string,
+    questionId: number,) => {
+    return [
+    `/api/lantern/instructor/submissions/${sessionId}/history/${questionId}`
+    ] as const;
+    }
+
+
+export const getGetLanternWrittenHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getLanternWrittenHistory>>, TError = ErrorType<void>>(sessionId: string,
+    questionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternWrittenHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternWrittenHistoryQueryKey(sessionId,questionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternWrittenHistory>>> = ({ signal }) => getLanternWrittenHistory(sessionId,questionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined && questionId !== null && questionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternWrittenHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternWrittenHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternWrittenHistory>>>
+export type GetLanternWrittenHistoryQueryError = ErrorType<void>
+
+
+
+export function useGetLanternWrittenHistory<TData = Awaited<ReturnType<typeof getLanternWrittenHistory>>, TError = ErrorType<void>>(
+ sessionId: string,
+    questionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternWrittenHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternWrittenHistoryQueryOptions(sessionId,questionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGrantLanternAuthorizationUrl = (sessionId: string,) => {
 

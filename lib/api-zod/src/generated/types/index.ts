@@ -62,3 +62,6 @@ export * from './lanternScoreAdjustments';
 export * from './lanternScoreAdjustmentsSpeedBonus';
 export * from './lanternSection';
 export * from './lanternSubmissionSummary';
+export * from './lanternWrittenHistoryEntry';
+export * from './lanternWrittenHistoryEntryDecision';
+export * from './lanternWrittenHistoryEntryEvent';

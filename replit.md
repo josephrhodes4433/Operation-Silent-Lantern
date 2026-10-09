@@ -11,6 +11,8 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
 - `pnpm --filter @workspace/api-server run test:questions` — isolated question-authoring endpoint and grading regression checks (no classroom writes)
+- `pnpm --filter @workspace/db run migrate:lantern-history` — repeatable additive written-history migration. Apply before running updated SILENT LANTERN against an existing database, including production via its normal migration process. Existing latest written responses are labeled imported; overwritten attempts cannot be recovered.
+- `pnpm --filter @workspace/api-server run test:lantern-history` — synthetic endpoint/transaction history regression checks; never connects to classroom data or uses saved instructor credentials.
 - Before running updated IRON MERIDIAN code against an existing database, apply the Drizzle schema addition for `ctf_questions`. Development schema was applied; production requires its normal deployment schema migration.
 
 ## Stack

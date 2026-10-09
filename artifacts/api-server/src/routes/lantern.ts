@@ -5,11 +5,13 @@ import {
   UseLanternHintParams, RequestLanternAuthorizationBody, VerifyLanternInstructorBody,
   SetLanternInstructorKeyParams, SetLanternInstructorKeyBody, ReviewLanternWrittenAnswerParams,
   ReviewLanternWrittenAnswerBody, GrantLanternAuthorizationBody, AdjustLanternScoreBody,
+  GetLanternWrittenHistoryParams, GetLanternWrittenHistoryResponse,
 } from "@workspace/api-zod";
 import { ClassroomError, requireInstructor } from "../lib/instructor-access";
 import { evaluateLantern, flagFormatValid, hasLanternResponse, lanternQuestions, missionFlagIds, publicLanternActivity } from "../lib/lantern-activity";
 import { changeLantern, getLanternRow, lanternProgress, loadLanternKeys, type LanternRow } from "../lib/lantern-progress";
 import { requireWrittenApproval, reviewLanternResponse, sameLanternResponse } from "../lib/lantern-review";
+import { getLanternHistory } from "../lib/lantern-history";
 
 const router: IRouter = Router();
 function input<T>(schema: { parse: (data: unknown) => T }, data: unknown) {
@@ -47,7 +49,7 @@ router.put("/lantern/progress/:sessionId/answers/:questionId", async (req, res) 
     throw new ClassroomError(400, "Use the question’s expected response type and keep responses below 24,000 characters.");
   }
   let grade!: ReturnType<typeof evaluateLantern>;
-  const progress = await changeLantern(sessionId, (row, keys) => {
+  const progress = await changeLantern(sessionId, async (row, keys, record) => {
     unlocked(row, keys, question.section);
     requireWrittenApproval(row, questionId);
     if ((question.id === 14 || question.id === 15) && !row.authorization_granted) throw new ClassroomError(403, "Your instructor must authorize the preserved iOS workflow before this response.");
@@ -66,12 +68,14 @@ router.put("/lantern/progress/:sessionId/answers/:questionId", async (req, res) 
       throw new ClassroomError(409, "Revise your denied response before resubmitting. An unchanged response cannot be approved.");
     }
     row.answers[String(questionId)] = {
-      value, correct: grade.correct, earnedPoints: grade.earnedPoints, status: grade.status, updatedAt: new Date(),
+      value, correct: grade.correct, earnedPoints: grade.earnedPoints, status: grade.status,
+      updatedAt: new Date(Math.max(Date.now(), previous ? new Date(previous.updatedAt).getTime() + 1 : 0)),
       instructorPoints: sameResponse ? previous.instructorPoints : null,
       instructorNote: sameResponse ? previous.instructorNote : null,
       ...(question.manualReview ? { reviewStatus: sameResponse ? previous.reviewStatus ?? "pending" : "pending" as const } : {}),
     };
     if (!sameResponse) row.submitted_at = null;
+    if (question.manualReview) await record(questionId, "submitted");
   });
   const saved = progress.answers[String(questionId)];
   res.json({ questionId, ...grade, correct: saved.correct, status: saved.status, earnedPoints: saved.earnedPoints, totalPoints: progress.totalPoints });
@@ -143,12 +147,21 @@ router.get("/lantern/instructor/submissions", async (_req, res) => {
 router.get("/lantern/instructor/submissions/:sessionId", async (req, res) => {
   res.json(lanternProgress(await getLanternRow(session(req.params)), await loadLanternKeys()));
 });
+router.get("/lantern/instructor/submissions/:sessionId/history/:questionId", async (req, res) => {
+  const { sessionId, questionId } = input(GetLanternWrittenHistoryParams, req.params);
+  if (!lanternQuestions.find(q => q.id === questionId)?.manualReview) throw new ClassroomError(404, "Written question not found.");
+  await getLanternRow(sessionId);
+  res.json(GetLanternWrittenHistoryResponse.parse(await getLanternHistory(pool, sessionId, questionId)));
+});
 router.put("/lantern/instructor/submissions/:sessionId/review/:questionId", async (req, res) => {
   const { sessionId, questionId } = input(ReviewLanternWrittenAnswerParams, req.params);
   const { points, note, decision, responseUpdatedAt } = input(ReviewLanternWrittenAnswerBody, req.body);
   const question = lanternQuestions.find(q => q.id === questionId);
   if (!question?.manualReview || points > question.points) throw new ClassroomError(400, "Only written responses can be reviewed, within the question’s point limit.");
-  res.json(await changeLantern(sessionId, row => reviewLanternResponse(row, questionId, decision, points, note, responseUpdatedAt)));
+  res.json(await changeLantern(sessionId, async (row, _keys, record) => {
+    reviewLanternResponse(row, questionId, decision, points, note, responseUpdatedAt);
+    await record(questionId, "reviewed");
+  }));
 });
 router.put("/lantern/instructor/submissions/:sessionId/authorization", async (req, res) => {
   const { granted } = input(GrantLanternAuthorizationBody, req.body);

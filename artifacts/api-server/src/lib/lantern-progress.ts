@@ -3,6 +3,7 @@ import { GetLanternProgressResponse } from "@workspace/api-zod";
 import { ClassroomError } from "./instructor-access";
 import { evaluateLantern, hasLanternResponse, hintTexts, lanternQuestions, missionFlagIds } from "./lantern-activity";
 import { reviewGate } from "./lantern-review";
+import { appendLanternHistory } from "./lantern-history";
 
 export type Progress = ReturnType<typeof GetLanternProgressResponse.parse>;
 export interface LanternRow {
@@ -69,7 +70,7 @@ export async function getLanternRow(sessionId: string) {
 }
 // Serialize all session writes so autosaves, hint debits and instructor reviews
 // cannot overwrite each other's JSON responses or administrative changes.
-export async function changeLantern(sessionId: string, action: (row: LanternRow, keys: Map<number, string[]>) => void | Promise<void>) {
+export async function changeLantern(sessionId: string, action: (row: LanternRow, keys: Map<number, string[]>, record: (questionId: number, event: "submitted" | "reviewed") => Promise<void>) => void | Promise<void>) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -77,7 +78,7 @@ export async function changeLantern(sessionId: string, action: (row: LanternRow,
     const row = result.rows[0];
     if (!row) throw new ClassroomError(404, "Saved session not found.");
     const keys = await loadLanternKeys(client);
-    await action(row, keys);
+    await action(row, keys, (questionId, event) => appendLanternHistory(client, row, questionId, event));
     const updated = await client.query<LanternRow>(
       `UPDATE lantern_progress SET answers=$2::jsonb,authorization_notes=$3,authorization_granted=$4,hints=$5::jsonb,speed_bonus=$6,tradecraft_bonus=$7,submitted_at=$8,saved_at=now() WHERE session_id=$1 RETURNING *`,
       [sessionId, JSON.stringify(row.answers), row.authorization_notes, row.authorization_granted, JSON.stringify(row.hints), row.speed_bonus, row.tradecraft_bonus, row.submitted_at],

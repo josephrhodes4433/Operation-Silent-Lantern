@@ -55,6 +55,7 @@ export const createLanternProgressBodyOneInstructorEmailMax = 254;
 export const createLanternProgressBodyTwoTeamNumberMax = 999;
 
 
+
 export const CreateLanternProgressBody = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string().min(1).max(createLanternProgressBodyOneNameMax),
@@ -148,6 +149,7 @@ export const GetLanternProgressResponse = zod.object({
 export const saveLanternAnswerPathQuestionIdMax = 18;
 
 
+
 export const SaveLanternAnswerParams = zod.object({
   "sessionId": zod.coerce.string().uuid(),
   "questionId": zod.coerce.number().int().min(1).max(saveLanternAnswerPathQuestionIdMax)
@@ -212,6 +214,7 @@ export const SubmitLanternProgressResponse = zod.object({
 export const useLanternHintPathMissionIdMax = 6;
 
 
+
 export const UseLanternHintParams = zod.object({
   "sessionId": zod.coerce.string().uuid(),
   "missionId": zod.coerce.number().int().min(1).max(useLanternHintPathMissionIdMax)
@@ -262,6 +265,7 @@ export const RequestLanternAuthorizationParams = zod.object({
 export const requestLanternAuthorizationBodyNotesMax = 12000;
 
 
+
 export const RequestLanternAuthorizationBody = zod.object({
   "notes": zod.string().min(1).max(requestLanternAuthorizationBodyNotesMax)
 })
@@ -307,6 +311,7 @@ export const RequestLanternAuthorizationResponse = zod.object({
 export const verifyLanternInstructorBodyCodeMax = 256;
 
 
+
 export const VerifyLanternInstructorBody = zod.object({
   "code": zod.string().min(1).max(verifyLanternInstructorBodyCodeMax)
 })
@@ -330,6 +335,7 @@ export const GetLanternInstructorKeysResponse = zod.array(GetLanternInstructorKe
 export const setLanternInstructorKeyPathQuestionIdMax = 18;
 
 
+
 export const SetLanternInstructorKeyParams = zod.object({
   "questionId": zod.coerce.number().int().min(1).max(setLanternInstructorKeyPathQuestionIdMax)
 })
@@ -341,6 +347,7 @@ export const SetLanternInstructorKeyHeader = zod.object({
 export const setLanternInstructorKeyBodyAcceptedAnswersItemMax = 2000;
 
 export const setLanternInstructorKeyBodyAcceptedAnswersMax = 50;
+
 
 
 export const SetLanternInstructorKeyBody = zod.object({
@@ -423,6 +430,7 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
 export const reviewLanternWrittenAnswerPathQuestionIdMax = 18;
 
 
+
 export const ReviewLanternWrittenAnswerParams = zod.object({
   "sessionId": zod.coerce.string().uuid(),
   "questionId": zod.coerce.number().int().min(1).max(reviewLanternWrittenAnswerPathQuestionIdMax)
@@ -435,6 +443,7 @@ export const ReviewLanternWrittenAnswerHeader = zod.object({
 export const reviewLanternWrittenAnswerBodyPointsMin = 0;
 
 export const reviewLanternWrittenAnswerBodyNoteMax = 2000;
+
 
 
 export const ReviewLanternWrittenAnswerBody = zod.object({
@@ -480,6 +489,37 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
   "speedBonus": zod.number().int(),
   "tradecraftBonus": zod.number().int()
 }))
+
+
+export const getLanternWrittenHistoryPathQuestionIdMax = 18;
+
+
+
+export const GetLanternWrittenHistoryParams = zod.object({
+  "sessionId": zod.coerce.string().uuid(),
+  "questionId": zod.coerce.number().int().min(1).max(getLanternWrittenHistoryPathQuestionIdMax)
+})
+
+export const GetLanternWrittenHistoryHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+
+
+
+export const GetLanternWrittenHistoryResponseItem = zod.object({
+  "id": zod.number().int(),
+  "questionId": zod.number().int(),
+  "version": zod.number().int().min(1),
+  "event": zod.enum(['submitted', 'reviewed', 'imported']),
+  "value": zod.string(),
+  "decision": zod.enum(['pending', 'approved', 'denied']),
+  "feedback": zod.string().nullable(),
+  "points": zod.number().int().nullable(),
+  "responseUpdatedAt": zod.coerce.date(),
+  "recordedAt": zod.coerce.date()
+})
+export const GetLanternWrittenHistoryResponse = zod.array(GetLanternWrittenHistoryResponseItem)
 
 
 export const GrantLanternAuthorizationParams = zod.object({
@@ -634,6 +674,7 @@ export const createCtfProgressBodyEmailMax = 254;
 export const createCtfProgressBodyInstructorEmailMax = 254;
 
 
+
 export const CreateCtfProgressBody = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string().min(1).max(createCtfProgressBodyNameMax),
@@ -694,6 +735,7 @@ export const GetCtfProgressResponse = zod.object({
  * @summary Save and validate one learner answer
  */
 export const saveCtfAnswerPathQuestionIdMax = 120;
+
 
 
 export const SaveCtfAnswerParams = zod.object({
@@ -768,6 +810,7 @@ export const getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersIte
 export const getCtfInstructorQuestionsResponseQuestionsItemOneAcceptedAnswersMax = 50;
 
 
+
 export const GetCtfInstructorQuestionsResponse = zod.object({
   "questions": zod.array(zod.object({
   "prompt": zod.string().min(1).max(getCtfInstructorQuestionsResponseQuestionsItemOnePromptMax),
@@ -795,6 +838,7 @@ export const GetCtfInstructorQuestionsResponse = zod.object({
 export const setCtfInstructorQuestionPathQuestionIdMax = 120;
 
 
+
 export const SetCtfInstructorQuestionParams = zod.object({
   "questionId": zod.coerce.number().int().min(1).max(setCtfInstructorQuestionPathQuestionIdMax)
 })
@@ -819,6 +863,7 @@ export const setCtfInstructorQuestionBodyValidationMethodMax = 12000;
 export const setCtfInstructorQuestionBodyAcceptedAnswersItemMax = 12000;
 
 export const setCtfInstructorQuestionBodyAcceptedAnswersMax = 50;
+
 
 
 export const SetCtfInstructorQuestionBody = zod.object({
@@ -850,6 +895,7 @@ export const setCtfInstructorQuestionResponseOneAcceptedAnswersItemMax = 12000;
 export const setCtfInstructorQuestionResponseOneAcceptedAnswersMax = 50;
 
 
+
 export const SetCtfInstructorQuestionResponse = zod.object({
   "prompt": zod.string().min(1).max(setCtfInstructorQuestionResponseOnePromptMax),
   "kind": zod.enum(['single', 'multiple', 'short', 'number', 'long']),
@@ -872,6 +918,7 @@ export const SetCtfInstructorQuestionResponse = zod.object({
  * @summary Verify instructor access code
  */
 export const verifyCtfInstructorBodyCodeMax = 256;
+
 
 
 export const VerifyCtfInstructorBody = zod.object({
@@ -903,6 +950,7 @@ export const GetCtfInstructorKeysResponse = zod.array(GetCtfInstructorKeysRespon
 export const setCtfInstructorKeyPathQuestionIdMax = 120;
 
 
+
 export const SetCtfInstructorKeyParams = zod.object({
   "questionId": zod.coerce.number().int().min(1).max(setCtfInstructorKeyPathQuestionIdMax)
 })
@@ -910,6 +958,8 @@ export const SetCtfInstructorKeyParams = zod.object({
 export const SetCtfInstructorKeyHeader = zod.object({
   "x-instructor-code": zod.string()
 })
+
+
 
 
 export const SetCtfInstructorKeyBody = zod.object({
@@ -980,6 +1030,7 @@ export const GetCtfInstructorSubmissionResponse = zod.object({
 export const reviewCtfWrittenAnswerPathQuestionIdMax = 120;
 
 
+
 export const ReviewCtfWrittenAnswerParams = zod.object({
   "sessionId": zod.coerce.string().uuid(),
   "questionId": zod.coerce.number().int().min(1).max(reviewCtfWrittenAnswerPathQuestionIdMax)
@@ -992,6 +1043,7 @@ export const ReviewCtfWrittenAnswerHeader = zod.object({
 export const reviewCtfWrittenAnswerBodyPointsMin = 0;
 
 export const reviewCtfWrittenAnswerBodyNoteMax = 2000;
+
 
 
 export const ReviewCtfWrittenAnswerBody = zod.object({
@@ -1018,4 +1070,5 @@ export const ReviewCtfWrittenAnswerResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 })
+
 

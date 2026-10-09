@@ -55,11 +55,13 @@ def verify_server(stage):
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
-    # Inherit runtime configuration for this local check only; none is written
-    # into the export. These checks do not read or modify database records.
+    # Never inherit classroom database credentials, even for a health check.
+    # The dummy connection is not opened: these checks need no database.
     server = subprocess.Popen(
         ["node", "artifacts/api-server/dist/index.mjs"], cwd=stage,
-        env={**os.environ, "PORT": str(port), "NODE_ENV": "production"},
+        env={"PATH": os.environ["PATH"], "PORT": str(port), "NODE_ENV": "production",
+             "DATABASE_URL": "postgresql://fixture:fixture@127.0.0.1:1/unused",
+             "CTF_INSTRUCTOR_CODE": "standalone-export-test-only"},
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
     base = f"http://127.0.0.1:{port}"
@@ -111,11 +113,12 @@ def export(destination):
             copy(stage, relative)
 
         api_files = [
-            "build.mjs", "package.json", "tsconfig.json", "src/app.ts",
+            "build.mjs", "package.json", "tsconfig.json", "run-lantern-history-tests.mjs", "src/app.ts",
             "src/index.ts", "src/lib/logger.ts", "src/lib/instructor-access.ts",
             "src/lib/lantern-activity.ts", "src/lib/lantern-progress.ts", "src/lib/lantern-review.ts",
+            "src/lib/lantern-history.ts",
             "src/routes/health.ts", "src/routes/lantern.ts",
-            "src/tests/lantern.test.ts",
+            "src/tests/lantern-history.test.ts",
         ]
         for relative in api_files:
             copy(stage, "artifacts/api-server/" + relative)
@@ -193,12 +196,13 @@ paths:
         ).strip()
         root_package.pop("dependencies", None)
         root_package["scripts"].update({
-            "dev": "pnpm --filter @workspace/db run push && pnpm run build && pnpm run start",
+            "dev": "pnpm --filter @workspace/db run push && pnpm run db:migrate-history && pnpm run build && pnpm run start",
             "build": "pnpm run typecheck && pnpm --filter @workspace/api-server run build && BASE_PATH=/ PORT=5000 pnpm --filter @workspace/silent-lantern-ctf run build",
             "start": "PORT=${PORT:-5000} node --enable-source-maps artifacts/api-server/dist/index.mjs",
             "typecheck": "pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck && pnpm --filter @workspace/silent-lantern-ctf exec tsc --noEmit",
             "codegen": "pnpm --filter @workspace/api-spec run codegen",
             "db:push": "pnpm --filter @workspace/db run push",
+            "db:migrate-history": "pnpm --filter @workspace/db run migrate:lantern-history",
         })
         write(stage, "package.json", json.dumps(root_package, indent=2) + "\n")
         write(stage, ".gitignore", """\
@@ -257,6 +261,7 @@ projects and their saved records have not been deleted or changed.
 - Three hint tokens, each deducting two points
 - Preserved-handling notes and instructor authorization for Mission 5
 - Written-answer review, optional speed and tradecraft bonuses
+- Protected per-question history of written submissions and instructor decisions
 - Downloadable results and provider-free email drafts
 
 Email opens the learner's mail app. It does not send automatically.
@@ -269,6 +274,8 @@ Email opens the learner's mail app. It does not send automatically.
 - `pnpm run start` — run the built website and API
 - `pnpm run codegen` — regenerate clients and validators after API changes
 - `pnpm run db:push` — apply the schema to the configured development database
+- `pnpm run db:migrate-history` — additive history migration; retains existing
+  latest responses as imported snapshots without inventing lost attempts or review times
 
 Production runs the built application; it does not run database schema
 changes at startup. Configure the new project's production database and

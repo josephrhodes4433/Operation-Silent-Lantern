@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const lanternProgressTable = pgTable("lantern_progress", {
   sessionId: text("session_id").primaryKey(),
@@ -19,3 +19,17 @@ export const lanternKeysTable = pgTable("lantern_keys", {
   questionId: integer("question_id").primaryKey(),
   acceptedAnswers: jsonb("accepted_answers").$type<string[]>().notNull(),
 });
+
+export const lanternWrittenHistoryTable = pgTable("lantern_written_history", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().references(() => lanternProgressTable.sessionId),
+  questionId: integer("question_id").notNull(),
+  version: integer("version").notNull(),
+  event: text("event").$type<"submitted" | "reviewed" | "imported">().notNull(),
+  value: text("value").notNull(),
+  decision: text("decision").$type<"pending" | "approved" | "denied">().notNull(),
+  feedback: text("feedback"),
+  points: integer("points"),
+  responseUpdatedAt: timestamp("response_updated_at", { withTimezone: true }).notNull(),
+  recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [index("lantern_written_history_question_idx").on(table.sessionId, table.questionId, table.id)]);

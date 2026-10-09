@@ -4,6 +4,7 @@ import {
   getGetLanternActivityQueryKey, getGetLanternInstructorKeysQueryKey, getGetLanternInstructorSubmissionQueryKey, getListLanternSubmissionsQueryKey,
   useAdjustLanternScore, useGetLanternActivity, useGetLanternInstructorKeys, useGetLanternInstructorSubmission, useGrantLanternAuthorization,
   useListLanternSubmissions, useReviewLanternWrittenAnswer, useSetLanternInstructorKey, useVerifyLanternInstructor,
+  useGetLanternWrittenHistory, getGetLanternWrittenHistoryQueryKey,
 } from '@workspace/api-client-react';
 import type { LanternQuestion } from '@workspace/api-client-react';
 import { Lock } from 'lucide-react';
@@ -13,8 +14,15 @@ import { asText, errMessage, errStatus } from '@/lib/ctf';
 type Headers = Record<string, string>;
 
 export default function Instructor() {
+  const qc = useQueryClient();
   const [code, setCode] = useState<string | null>(null); // memory only
-  return <Shell>{code ? <Console code={code} onLock={() => setCode(null)} /> : <Gate onOk={setCode} />}</Shell>;
+  const lock = () => {
+    setCode(null);
+    // Do not leave private submission/history data available to a later login.
+    qc.cancelQueries();
+    qc.clear();
+  };
+  return <Shell>{code ? <Console code={code} onLock={lock} /> : <Gate onOk={setCode} />}</Shell>;
 }
 
 function Gate({ onOk }: { onOk: (c: string) => void }) {
@@ -174,9 +182,40 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
             <p className="text-sm whitespace-pre-wrap bg-muted p-2">{an ? asText(an.value) : 'Not answered'}</p>
             {an && <p className="text-xs font-mono">Status: {q.manualReview ? an.reviewStatus ?? 'pending' : an.status} | earned {an.earnedPoints}</p>}
             {an && q.manualReview && <Review key={`${q.id}-${an.updatedAt}-${an.reviewStatus}`} sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? q.points} note={an.instructorNote ?? ''} updatedAt={an.updatedAt} />}
+            {q.manualReview && <WrittenHistory sid={sid} questionId={q.id} headers={headers} />}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function WrittenHistory({ sid, questionId, headers }: { sid: string; questionId: number; headers: Headers }) {
+  const [open, setOpen] = useState(false);
+  const history = useGetLanternWrittenHistory(sid, questionId, {
+    query: { enabled: open, queryKey: getGetLanternWrittenHistoryQueryKey(sid, questionId), refetchInterval: open ? 5000 : false, staleTime: 0 },
+    request: { headers },
+  });
+  return (
+    <div className="border-t border-border pt-3">
+      <button className={btnGhost} aria-expanded={open} aria-controls={`history-${questionId}`} onClick={() => setOpen(!open)} data-testid={`button-history-${questionId}`}>
+        {open ? 'Hide response history' : 'View response history'}
+      </button>
+      {open && <div id={`history-${questionId}`} className="mt-3 space-y-3" data-testid={`history-${questionId}`}>
+        {history.isLoading ? <p role="status" className="text-sm">Loading history...</p> : history.isError ? (
+          <ErrorPanel title="Could not load response history" onRetry={() => history.refetch()} />
+        ) : !history.data?.length ? <p className="text-sm text-muted-foreground">No written submissions recorded.</p> : (
+          <ol className="space-y-3">
+            {history.data.map(entry => <li key={entry.id} className="border border-border p-3 space-y-2">
+              <p className="text-xs font-mono">Version {entry.version} | {entry.event === 'imported' ? 'Imported latest snapshot' : entry.event === 'submitted' ? 'Learner submission' : 'Instructor decision'} | {entry.decision} | {entry.points === null ? 'not scored' : `${entry.points} pts`}</p>
+              <p className="text-sm whitespace-pre-wrap bg-muted p-2">{entry.value || '(Blank response)'}</p>
+              <p className="text-sm whitespace-pre-wrap">Feedback: {entry.feedback || 'None'}</p>
+              <p className="text-xs text-muted-foreground">Response saved: {new Date(entry.responseUpdatedAt).toLocaleString()} | Recorded: {new Date(entry.recordedAt).toLocaleString()}</p>
+              {entry.event === 'imported' && <p className="text-xs text-muted-foreground">Only the latest response and review state were available when history tracking began. Earlier attempts and the original decision time are unavailable.</p>}
+            </li>)}
+          </ol>
+        )}
+      </div>}
     </div>
   );
 }
@@ -192,7 +231,7 @@ function Review({ sid, q, headers, pts, note, updatedAt }: { sid: string; q: Lan
     sessionId: sid, questionId: q.id,
     data: { points: decision === 'denied' ? 0 : num, note: n, decision, responseUpdatedAt: updatedAt },
   }, {
-    onSuccess: () => { qc.invalidateQueries({ queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListLanternSubmissionsQueryKey() }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListLanternSubmissionsQueryKey() }); qc.invalidateQueries({ queryKey: getGetLanternWrittenHistoryQueryKey(sid, q.id) }); },
   });
   return (
     <div className="grid sm:grid-cols-[120px_1fr_auto] gap-2 items-end border-t border-border pt-3">

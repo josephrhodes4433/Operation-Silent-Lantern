@@ -41,6 +41,8 @@ paths:
     $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}"
   /lantern/instructor/submissions/{sessionId}/review/{questionId}:
     $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1review~1{questionId}"
+  /lantern/instructor/submissions/{sessionId}/history/{questionId}:
+    $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1history~1{questionId}"
   /lantern/instructor/submissions/{sessionId}/authorization:
     $ref: "./lantern.yaml#/paths/~1lantern~1instructor~1submissions~1{sessionId}~1authorization"
   /lantern/instructor/submissions/{sessionId}/adjustments:

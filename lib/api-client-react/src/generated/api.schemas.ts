@@ -239,6 +239,40 @@ export interface CtfSubmissionSummary {
   submittedAt: string | null;
 }
 
+export type LanternWrittenHistoryEntryEvent = typeof LanternWrittenHistoryEntryEvent[keyof typeof LanternWrittenHistoryEntryEvent];
+
+
+export const LanternWrittenHistoryEntryEvent = {
+  submitted: 'submitted',
+  reviewed: 'reviewed',
+  imported: 'imported',
+} as const;
+
+export type LanternWrittenHistoryEntryDecision = typeof LanternWrittenHistoryEntryDecision[keyof typeof LanternWrittenHistoryEntryDecision];
+
+
+export const LanternWrittenHistoryEntryDecision = {
+  pending: 'pending',
+  approved: 'approved',
+  denied: 'denied',
+} as const;
+
+export interface LanternWrittenHistoryEntry {
+  id: number;
+  questionId: number;
+  /** @minimum 1 */
+  version: number;
+  event: LanternWrittenHistoryEntryEvent;
+  value: string;
+  decision: LanternWrittenHistoryEntryDecision;
+  /** @nullable */
+  feedback: string | null;
+  /** @nullable */
+  points: number | null;
+  responseUpdatedAt: string;
+  recordedAt: string;
+}
+
 export type LanternQuestionKeyMode = typeof LanternQuestionKeyMode[keyof typeof LanternQuestionKeyMode];
 
 
@@ -509,3 +543,4 @@ export interface LanternReviewInput {
   decision: LanternReviewInputDecision;
   responseUpdatedAt: string;
 }
+

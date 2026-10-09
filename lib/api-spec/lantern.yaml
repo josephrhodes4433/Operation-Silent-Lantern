@@ -148,6 +148,18 @@ paths:
         - *instructorParam
         - *sessionParam
       responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
+  /lantern/instructor/submissions/{sessionId}/history/{questionId}:
+    get:
+      operationId: getLanternWrittenHistory
+      parameters: [*instructorParam, *sessionParam, *questionParam]
+      responses:
+        "200":
+          description: Protected chronological written-response snapshots and decisions
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/LanternWrittenHistoryEntry" } }
+        "401": { description: Instructor access required }
+        "404": { description: Session or written question not found }
   /lantern/instructor/submissions/{sessionId}/review/{questionId}:
     put:
       operationId: reviewLanternWrittenAnswer
@@ -180,6 +192,20 @@ paths:
       responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
 components:
   schemas:
+    LanternWrittenHistoryEntry:
+      type: object
+      required: [id, questionId, version, event, value, decision, feedback, points, responseUpdatedAt, recordedAt]
+      properties:
+        id: { type: integer }
+        questionId: { type: integer }
+        version: { type: integer, minimum: 1 }
+        event: { type: string, enum: [submitted, reviewed, imported] }
+        value: { type: string }
+        decision: { type: string, enum: [pending, approved, denied] }
+        feedback: { type: ["string", "null"] }
+        points: { type: ["integer", "null"] }
+        responseUpdatedAt: { type: string, format: date-time }
+        recordedAt: { type: string, format: date-time }
     LanternQuestion:
       allOf:
         - $ref: "#/components/schemas/LanternBaseQuestion"

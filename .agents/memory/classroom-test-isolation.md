@@ -44,3 +44,16 @@ temporary directory. Temporary files are not a reliable cross-agent transfer.
 **How to apply:** Use workspace paths or include fixture data in the delegation
 message. Transfer only synthetic learner data and test-owned keys. If a fixture is
 missing, fail closed rather than falling back to the live classroom API.
+
+Use disposable real PostgreSQL for checks that claim transaction rollback,
+durable review history, or concurrent session-write correctness.
+
+**Why:** An in-memory SQL adapter can validate endpoint contracts but cannot
+prove PostgreSQL transaction rollback or row-lock behavior. The workspace has
+PostgreSQL utilities available, so those stronger checks need not touch classroom
+data.
+
+**How to apply:** Own the temporary cluster for the entire test lifetime, pass an
+allowlisted subprocess environment with only fixture connection details, and
+stop and remove the cluster afterward. Keep browser-only contract checks clearly
+distinguished from real persistence checks.
