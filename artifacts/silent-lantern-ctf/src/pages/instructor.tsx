@@ -10,6 +10,7 @@ import type { LanternQuestion } from '@workspace/api-client-react';
 import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { asText, errMessage, errStatus } from '@/lib/ctf';
+import { WrittenComparison } from '@/components/written-comparison';
 
 type Headers = Record<string, string>;
 
@@ -205,6 +206,9 @@ function WrittenHistory({ sid, questionId, headers }: { sid: string; questionId:
         {history.isLoading ? <p role="status" className="text-sm">Loading history...</p> : history.isError ? (
           <ErrorPanel title="Could not load response history" onRetry={() => history.refetch()} />
         ) : !history.data?.length ? <p className="text-sm text-muted-foreground">No written submissions recorded.</p> : (
+          <>
+          <WrittenComparison entries={history.data} questionId={questionId} />
+          <h3 className="text-sm font-semibold">Chronological history — submissions and decisions</h3>
           <ol className="space-y-3">
             {history.data.map(entry => <li key={entry.id} className="border border-border p-3 space-y-2">
               <p className="text-xs font-mono">Version {entry.version} | {entry.event === 'imported' ? 'Imported latest snapshot' : entry.event === 'submitted' ? 'Learner submission' : 'Instructor decision'} | {entry.decision} | {entry.points === null ? 'not scored' : `${entry.points} pts`}</p>
@@ -214,6 +218,7 @@ function WrittenHistory({ sid, questionId, headers }: { sid: string; questionId:
               {entry.event === 'imported' && <p className="text-xs text-muted-foreground">Only the latest response and review state were available when history tracking began. Earlier attempts and the original decision time are unavailable.</p>}
             </li>)}
           </ol>
+          </>
         )}
       </div>}
     </div>
