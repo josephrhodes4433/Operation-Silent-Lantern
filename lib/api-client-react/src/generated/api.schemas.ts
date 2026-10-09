@@ -509,4 +509,3 @@ export interface LanternReviewInput {
   decision: LanternReviewInputDecision;
   responseUpdatedAt: string;
 }
-

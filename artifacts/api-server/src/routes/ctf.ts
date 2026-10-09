@@ -9,7 +9,7 @@ import {
   GetCtfInstructorKeysResponse, ListCtfSubmissionsResponse,
   SetCtfInstructorQuestionParams, SetCtfInstructorQuestionBody, SetCtfInstructorQuestionResponse,
 } from "@workspace/api-zod";
-import { evaluate, isManual, publicActivity, type Question } from "../lib/ctf-activity";
+import { evaluate, isManual, publicActivity, validationMode, type Question } from "../lib/ctf-activity";
 import { loadQuestions, questionCatalog, saveQuestion, validateQuestion } from "../lib/ctf-question-authoring";
 
 type Progress = ReturnType<typeof GetCtfProgressResponse.parse>;
@@ -168,6 +168,12 @@ router.put("/ctf/instructor/keys/:questionId", async (req, res): Promise<void> =
   if (!question || question.category !== "dataset" || isManual(question)) { res.status(400).json({ error: "Only shared dataset-dependent keys can be configured. Student-specific tasks require manual review." }); return; }
   const acceptedAnswers = input.data.acceptedAnswers.map(a => a.trim()).filter(Boolean);
   if (!acceptedAnswers.length || acceptedAnswers.length > 50 || acceptedAnswers.some(a => a.length > 12000)) { res.status(400).json({ error: "Enter a valid accepted answer." }); return; }
+  // Match numeric grading, including comma-formatted values. Validate the whole
+  // edit before either write path so an invalid alternative cannot replace a key.
+  if ((question.kind === "number" || validationMode(question) === "numeric") &&
+      acceptedAnswers.some(a => !Number.isFinite(Number(a.replace(/,/g, ""))))) {
+    res.status(400).json({ error: "Every accepted answer must be a finite number (for example, 1234 or 1,234). NaN, Infinity and non-numeric text are not allowed. No keys were changed." }); return;
+  }
   if (input.data.onlyIfUnset) {
     if (!question.facilitatorAnswers || JSON.stringify(acceptedAnswers) !== JSON.stringify(question.facilitatorAnswers)) {
       res.status(409).json({ error: "This question or guide reference changed. Refresh and review its current key before saving." }); return;

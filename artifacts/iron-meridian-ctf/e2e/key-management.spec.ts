@@ -12,6 +12,7 @@ test('isolated instructor keys regrade saved classroom answers and survive reloa
   const headers = { 'x-instructor-code': TEST_INSTRUCTOR_CODE };
   const keysUrl = `${api}/instructor/keys`;
   const keyUrl = `${keysUrl}/13`;
+  const malformedNumbers = ['NaN', 'Infinity', '-Infinity', '12oops', '1e309'];
   const activity = await (await request.get(`${api}/activity`)).json();
   const numeric = activity.questions.find((q: { id: number }) => q.id === 13);
   expect(numeric.kind).toBe('number');
@@ -111,7 +112,7 @@ test('isolated instructor keys regrade saved classroom answers and survive reloa
     await expect(page.getByTestId('button-save-key-13')).toBeDisabled();
     await page.getByTestId('input-key-13').fill('  \n ');
     await expect(page.getByTestId('button-save-key-13')).toBeDisabled();
-    for (const acceptedAnswers of [[], ['   ']]) {
+    for (const acceptedAnswers of [[], ['   '], ...malformedNumbers.map(value => [value])]) {
       expect((await request.put(keyUrl, { headers, data: { acceptedAnswers } })).status()).toBe(400);
     }
     expect((await request.put(`${keysUrl}/1`, { headers, data: { acceptedAnswers: ['not a dataset key'] } })).status()).toBe(400);
@@ -145,6 +146,39 @@ test('isolated instructor keys regrade saved classroom answers and survive reloa
     }
   });
 
+  await test.step('malformed numeric edits preserve the active key and every learner score', async () => {
+    const activeKeys = await (await request.get(keysUrl, { headers })).json();
+    const firstProgress = await progress(request, sid);
+    const secondProgress = await progress(request, second);
+    // A valid alternative must not make a mixed edit partially succeed.
+    for (const value of malformedNumbers) {
+      for (const acceptedAnswers of [[value], ['1235', value]]) {
+        const response = await request.put(keyUrl, { headers, data: { acceptedAnswers } });
+        expect(response.status()).toBe(400);
+        expect(await response.json()).toMatchObject({ error: expect.stringContaining('finite number') });
+        expect(await (await request.get(keysUrl, { headers })).json()).toEqual(activeKeys);
+        expect(await progress(request, sid)).toEqual(firstProgress);
+        expect(await progress(request, second)).toEqual(secondProgress);
+        await assertClassroom(true, false);
+      }
+    }
+
+    await page.getByTestId('input-key-13').fill('1235\nNaN');
+    const responsePromise = page.waitForResponse(r => r.url().endsWith('/instructor/keys/13') && r.request().method() === 'PUT');
+    await page.getByTestId('button-save-key-13').click();
+    expect((await responsePromise).status()).toBe(400);
+    const row = page.getByTestId('row-key-13');
+    await expect(row.getByRole('alert')).toContainText('Every accepted answer must be a finite number');
+    await expect(row.getByRole('alert')).toContainText('No keys were changed');
+    await expect(row.getByRole('status')).toHaveCount(0);
+    await expect(page.getByTestId('input-key-13')).toHaveValue('1235\nNaN');
+    expect(await (await request.get(keysUrl, { headers })).json()).toEqual(activeKeys);
+    await assertClassroom(true, false);
+    await page.reload();
+    await unlock(page);
+    await expect(page.getByTestId('input-key-13')).toHaveValue('1,234\n1234.0');
+  });
+
   const learnerContext = await browser.newContext({ baseURL: process.env.CTF_E2E_ISOLATED_URL });
   try {
     const learner = await learnerContext.newPage();
@@ -152,7 +186,8 @@ test('isolated instructor keys regrade saved classroom answers and survive reloa
     await expect(learner.getByTestId('banner-result')).toContainText('Correct. 10 points');
     await expect(learner.getByTestId('text-score')).toContainText('22');
     await test.step('replacing a key removes stale points and awards the other learner', async () => {
-      await saveKey('1235', ['1235']);
+      await saveKey(' 1,235 ', ['1,235']);
+      await expect(page.getByTestId('row-key-13').getByRole('alert')).toHaveCount(0);
       await assertClassroom(false, true);
       await learner.reload();
       await expect(learner.getByTestId('input-answer-13')).toHaveValue('1,234');
@@ -170,8 +205,8 @@ test('isolated instructor keys regrade saved classroom answers and survive reloa
       await page.reload();
       await expect(page.getByTestId('form-verify')).toBeVisible();
       await unlock(page);
-      await expect(page.getByTestId('input-key-13')).toHaveValue('1235');
-      expect(await (await request.get(keysUrl, { headers })).json()).toEqual([{ questionId: 13, acceptedAnswers: ['1235'] }]);
+      await expect(page.getByTestId('input-key-13')).toHaveValue('1,235');
+      expect(await (await request.get(keysUrl, { headers })).json()).toEqual([{ questionId: 13, acceptedAnswers: ['1,235'] }]);
       await assertClassroom(false, true);
       await page.getByTestId('tab-subs').click();
       await page.getByTestId(`button-sub-${sid}`).click();

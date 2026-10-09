@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetCtfInstructorKeysQueryKey, getGetCtfInstructorSubmissionQueryKey, getListCtfSubmissionsQueryKey,
@@ -112,7 +112,7 @@ function Keys({ code }: { code: string }) {
       <p className="text-xs text-muted-foreground">This regrades saved responses against the active keys. Existing instructor keys and custom question definitions are not replaced. You can instead review and save each key separately below.</p>
       {importMessage && <p role="status" className="text-sm">{importMessage}</p>}
     </section>
-    <ul className="space-y-3">{qs.map(q => <KeyRow key={`${q.id}:${(map.get(q.id) ?? []).join('|')}`} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>
+    <ul className="space-y-3">{qs.map(q => <KeyRow key={q.id} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>
   </div>;
 }
 
@@ -121,6 +121,9 @@ function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Re
   const set = useSetCtfInstructorKey({ request: { headers } });
   const [text, setText] = useState(initial.join('\n'));
   const [ok, setOk] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const initialText = initial.join('\n');
+  useEffect(() => { setText(initialText); }, [initialText]);
   const list = text.split('\n').map((s) => s.trim()).filter(Boolean);
   return (
     <li className="bg-card border border-border p-4 space-y-2" data-testid={`row-key-${q.id}`}>
@@ -129,17 +132,27 @@ function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Re
       {q.facilitatorNote && <p className="text-sm border-l-2 border-accent pl-3 text-muted-foreground">{q.facilitatorNote}</p>}
       {!!q.facilitatorAnswers?.length && <div className="space-y-2 text-sm">
         <p className="text-muted-foreground">Guide reference: {q.facilitatorAnswers.join(' / ')}</p>
-        <button type="button" className={btnGhost} onClick={() => { setText(q.facilitatorAnswers!.join('\n')); setOk(false); }} data-testid={`button-use-guide-key-${q.id}`}>Load reference for review</button>
+        <button type="button" className={btnGhost} onClick={() => { setText(q.facilitatorAnswers!.join('\n')); setOk(false); setSaveError(null); }} data-testid={`button-use-guide-key-${q.id}`}>Load reference for review</button>
       </div>}
       <label htmlFor={`k-${q.id}`} className="text-xs font-mono uppercase text-muted-foreground">Accepted answers, one per line {initial.length ? '' : '(not set)'}</label>
-      <textarea id={`k-${q.id}`} rows={3} className={field} value={text} onChange={(e) => { setText(e.target.value); setOk(false); }} data-testid={`input-key-${q.id}`} />
+      <textarea id={`k-${q.id}`} rows={3} className={field} value={text} onChange={(e) => { setText(e.target.value); setOk(false); setSaveError(null); }} data-testid={`input-key-${q.id}`} />
       <div className="flex items-center gap-3">
         <button className={btn} disabled={!list.length || set.isPending} data-testid={`button-save-key-${q.id}`}
-          onClick={() => set.mutate({ questionId: q.id, data: { acceptedAnswers: list } }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfInstructorQuestionsQueryKey() }); } })}>
+          onClick={() => {
+            setOk(false); setSaveError(null);
+            set.mutate({ questionId: q.id, data: { acceptedAnswers: list } }, {
+              onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: getGetCtfInstructorKeysQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfActivityQueryKey() }); qc.invalidateQueries({ queryKey: getGetCtfInstructorQuestionsQueryKey() }); },
+              onError: (error) => {
+                const data: unknown = error && typeof error === 'object' && 'data' in error ? error.data : null;
+                const message = data && typeof data === 'object' && 'error' in data && typeof data.error === 'string' ? data.error : null;
+                setSaveError(message ?? 'Save failed. Check the connection and retry.');
+              },
+            });
+          }}>
           {set.isPending ? 'Saving...' : 'Save verified key'}
         </button>
         {ok && <span role="status" className="text-sm text-[hsl(var(--ok))]">Key saved</span>}
-        {set.isError && <span role="alert" className="text-sm text-destructive">Save failed</span>}
+        {saveError && <span role="alert" className="text-sm text-destructive">{saveError}</span>}
       </div>
     </li>
   );
