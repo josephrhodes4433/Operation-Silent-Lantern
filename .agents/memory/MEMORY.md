@@ -6,3 +6,4 @@
 - [Written response progression](written-response-review.md) — explicit approval permits advancement; denial requires revision and another review.
 - [Learner check-in](learner-check-in.md) — first/last name and both email addresses are required at first-time Begin activity; reuse saved details.
 - [Merge integrity](merge-integrity.md) — inspect merged route handlers beyond conflict markers; structural merges can mix unrelated endpoint bodies.
+- [Publish migration failures](publish-migration-failures.md) — a failed publish can still leave production schema applied; inspect read-only before changing anything.
