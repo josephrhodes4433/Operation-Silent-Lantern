@@ -2,7 +2,7 @@ import type { LanternActivity, LanternProgress, LanternQuestion } from '@workspa
 import { rememberLearner } from './check-in';
 
 const KEY = 'silent-lantern-session';
-export interface Session { sessionId: string; name: string; email: string; instructorEmail: string; teamNumber?: number }
+export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number }
 
 export function loadSession(): Session | null {
   try {

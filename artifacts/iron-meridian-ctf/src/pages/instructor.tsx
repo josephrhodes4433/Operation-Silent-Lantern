@@ -172,6 +172,7 @@ function Subs({ code }: { code: string }) {
 
 function Detail({ sid, headers }: { sid: string; headers: Record<string, string> }) {
   const act = useGetCtfActivity();
+  const catalog = useGetCtfInstructorQuestions({ request: { headers } });
   const d = useGetCtfInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetCtfInstructorSubmissionQueryKey(sid) }, request: { headers } });
   if (d.isLoading || act.isLoading) return <PageSkeleton />;
   if (d.isError || !d.data || !act.data) return <ErrorPanel title="Could not load submission" onRetry={() => d.refetch()} />;
@@ -181,10 +182,12 @@ function Detail({ sid, headers }: { sid: string; headers: Record<string, string>
       <h2 className="font-display text-xl font-bold">{p.name} <span className="font-mono text-sm text-muted-foreground">{p.totalPoints} pts</span></h2>
       {[...act.data.questions].sort((a, b) => a.section - b.section || a.id - b.id).map((q) => {
         const an = p.answers[String(q.id)];
+        const guidance = q.manualReview ? catalog.data?.questions.find(item => item.id === q.id) : undefined;
         return (
           <div key={q.id} className="bg-card border border-border p-4 space-y-2" data-testid={`review-${q.id}`}>
             <p className="text-xs font-mono text-primary">Flag {q.id} | {q.points} pts{q.manualReview ? ' | written' : ''}</p>
             <p className="text-sm font-medium">{q.prompt}</p>
+            {guidance && <p className="text-xs whitespace-pre-wrap border-l-2 border-primary pl-3 text-muted-foreground"><strong>Review guidance: </strong>{guidance.facilitatorNote || guidance.validationMethod}</p>}
             <p className="text-sm whitespace-pre-wrap bg-muted p-2">{an ? asText(an.value) : 'Not answered'}</p>
             {an && <p className="text-xs font-mono">Status: {an.status} | earned {an.earnedPoints}</p>}
             {an && q.manualReview && <Review sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? 0} note={an.instructorNote ?? ''} />}

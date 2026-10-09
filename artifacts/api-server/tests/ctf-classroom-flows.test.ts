@@ -43,11 +43,12 @@ test("real HTTP written-review flow blocks bypasses and requires a revised denie
     assert.equal(revised.status, 200);
     const saved = await revised.json();
     assert.equal(saved.status, "manual");
-    assert.equal(saved.progress.answers["6"].reviewStatus, "pending");
-    assert.equal(saved.progress.reviewGateQuestionId, 6);
+    const revisedProgress = await (await fetch(`${base}/progress/${row.session_id}`)).json();
+    assert.equal(revisedProgress.answers["6"].reviewStatus, "pending");
+    assert.equal(revisedProgress.reviewGateQuestionId, 6);
     assert.equal((await request(`/progress/${row.session_id}/answers/7`, "PUT", { value: "Keyword and phone number" })).status, 403);
     assert.equal((await request(review, "PUT", body, true)).status, 409);
-    const approved = await request(review, "PUT", { ...body, responseUpdatedAt: saved.progress.answers["6"].updatedAt }, true);
+    const approved = await request(review, "PUT", { ...body, responseUpdatedAt: revisedProgress.answers["6"].updatedAt }, true);
     assert.equal(approved.status, 200);
     const approvedProgress = await approved.json();
     assert.equal(approvedProgress.answers["6"].reviewStatus, "approved");
@@ -74,7 +75,7 @@ test("verified guide imports are authenticated and never overwrite existing clas
   });
   try {
     assert.equal((await put(14, ["81"], false)).status, 401);
-    assert.equal((await put(14, ["wrong reference"])).status, 409);
+    assert.equal((await put(14, ["82"])).status, 409);
     const preserved = await put(13, ["8"]);
     assert.equal(preserved.status, 200);
     assert.deepEqual((await preserved.json()).acceptedAnswers, ["99"]);

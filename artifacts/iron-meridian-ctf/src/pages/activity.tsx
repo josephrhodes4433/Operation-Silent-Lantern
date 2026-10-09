@@ -20,26 +20,38 @@ function buildSteps(a: CtfActivity): Step[] {
 
 function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const create = useCreateCtfProgress();
-  const [f, setF] = useState({ name: '', email: '', instructorEmail: '' });
+  const [f, setF] = useState({ firstName: '', lastName: '', email: '', instructorEmail: '' });
+  const [identityError, setIdentityError] = useState('');
   const [resume, setResume] = useState('');
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const s: Session = { sessionId: crypto.randomUUID(), ...f, name: f.name.trim() };
-    create.mutate({ data: s }, { onSuccess: () => { storeSession(s); onDone(s); } });
+    const firstName = f.firstName.trim(), lastName = f.lastName.trim();
+    const name = `${firstName} ${lastName}`;
+    if (!firstName || !lastName || name.length > 140) {
+      setIdentityError('Enter both first and last name, using no more than 140 characters in total.');
+      return;
+    }
+    setIdentityError('');
+    const s: Session = { sessionId: crypto.randomUUID(), firstName, lastName, name, email: f.email.trim(), instructorEmail: f.instructorEmail.trim() };
+    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail } },
+      { onSuccess: () => { storeSession(s); onDone(s); } });
   };
   return (
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 max-w-4xl rise">
       <form onSubmit={submit} className="bg-card border border-border p-6 space-y-4" aria-labelledby="ob-h">
         <Eyebrow>Analyst onboarding</Eyebrow>
         <h1 id="ob-h" className="font-display text-3xl font-bold">Check in to the mission</h1>
-        {([['name', 'Your name', 'text'], ['email', 'Your email', 'email'], ['instructorEmail', 'Instructor email', 'email']] as const).map(([k, l, t]) => (
+        <p className="text-sm text-muted-foreground">Enter your details once before beginning. Returning learners can resume without entering them again.</p>
+        {([['firstName', 'First name', 'text'], ['lastName', 'Last name', 'text'], ['email', 'Learner email address', 'email'], ['instructorEmail', 'Instructor email address', 'email']] as const).map(([k, l, t]) => (
           <div key={k}>
             <label htmlFor={`f-${k}`} className="block text-sm font-medium mb-1">{l}</label>
-            <input id={`f-${k}`} required type={t} maxLength={k === 'name' ? 140 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
+            <input id={`f-${k}`} name={k} required type={t} maxLength={t === 'text' ? 70 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
+              autoComplete={k === 'firstName' ? 'given-name' : k === 'lastName' ? 'family-name' : k === 'email' ? 'email' : 'off'}
               onChange={(e) => setF({ ...f, [k]: e.target.value })} />
           </div>
         ))}
         <p className="text-xs text-muted-foreground">Your name, emails and responses are saved for instructor review. A private resume key is stored in this browser. Anyone holding your resume link can view and continue your session; keep it private.</p>
+        {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
         {create.isError && <ErrorPanel title="Could not start" message="The server rejected the details. Check the fields and retry." />}
         <button className={btn} disabled={create.isPending} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>

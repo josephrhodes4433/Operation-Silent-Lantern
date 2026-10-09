@@ -19,21 +19,30 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const [f, setF] = useState(loadCheckInDraft);
   const [editDetails, setEditDetails] = useState(() => {
     const p = loadLearnerProfile();
-    return !p || p.name !== f.name || p.email !== f.email || p.instructorEmail !== f.instructorEmail;
+    return !p || !f.firstName.trim() || !f.lastName.trim() || p.name !== f.name || p.email !== f.email || p.instructorEmail !== f.instructorEmail;
   });
-  const change = (next: CheckInDraft) => { setF(next); storeCheckInDraft(next); };
+  const [identityError, setIdentityError] = useState('');
+  const change = (next: CheckInDraft) => {
+    next = { ...next, name: `${next.firstName.trim()} ${next.lastName.trim()}`.trim() };
+    setF(next); storeCheckInDraft(next); setIdentityError('');
+  };
   const [roe, setRoe] = useState(false);
   const [resume, setResume] = useState('');
   const team = Number(f.team);
   const teamOk = Number.isInteger(team) && team >= 1 && team <= 999;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!f.firstName.trim() || !f.lastName.trim() || f.name.trim().length > 140) {
+      setIdentityError('Enter both first and last name, using no more than 140 characters in total.');
+      setEditDetails(true);
+      return;
+    }
     if (!teamOk || !roe) return;
     storeCheckInDraft(f);
-    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: team };
+    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: team };
     create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamNumber: team, roeAcknowledged: true } },
       { onSuccess: (p) => {
-        const saved: Session = { sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber };
+        const saved: Session = { ...s, sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber };
         storeSession(saved); clearCheckInDraft(); onDone(saved);
       } });
   };
@@ -49,11 +58,11 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
           <p className="text-xs text-muted-foreground break-all">Instructor: {f.instructorEmail}</p>
           <button type="button" className="text-sm text-primary underline" onClick={() => setEditDetails(true)} data-testid="button-edit-learner-details">Edit details / different learner</button>
         </div>}
-        {editDetails && ([['name', 'Your name', 'text'], ['email', 'Your email', 'email'], ['instructorEmail', 'Instructor email', 'email']] as const).map(([k, l, t]) => (
+        {editDetails && ([['firstName', 'First name', 'text'], ['lastName', 'Last name', 'text'], ['email', 'Learner email address', 'email'], ['instructorEmail', 'Instructor email address', 'email']] as const).map(([k, l, t]) => (
           <div key={k}>
             <label htmlFor={`f-${k}`} className="block text-sm font-medium mb-1">{l}</label>
-            <input id={`f-${k}`} required type={t} maxLength={k === 'name' ? 140 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
-              autoComplete={k === 'name' ? 'name' : k === 'email' ? 'email' : 'off'}
+            <input id={`f-${k}`} name={k} required type={t} maxLength={t === 'text' ? 70 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
+              autoComplete={k === 'firstName' ? 'given-name' : k === 'lastName' ? 'family-name' : k === 'email' ? 'email' : 'off'}
               onChange={(e) => change({ ...f, [k]: e.target.value })} />
           </div>
         ))}
@@ -66,6 +75,7 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
           <span>I have read the rules of engagement on the Mission page and agree to follow them.</span>
         </label>
         <p className="text-xs text-muted-foreground">Your details are remembered in this browser. Your name, emails and responses are saved for instructor review. On another device, use your private resume link instead of checking in again. Anyone holding that link can continue your session; keep it private.</p>
+        {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
         {create.isError && <ErrorPanel title="Could not start" message={errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
         <button className={btn} disabled={create.isPending || !roe || !teamOk} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>

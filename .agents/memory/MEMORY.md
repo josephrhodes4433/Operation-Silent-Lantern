@@ -2,3 +2,6 @@
 - [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions, and a separate Replit project rather than a second website in IRON MERIDIAN.
 - [Orval external YAML references](orval-yaml-references.md) — avoid YAML aliases sharing $ref objects across external paths; the resolver mutates shared nodes.
 - [Classroom test isolation](classroom-test-isolation.md) — browser regressions must not replace shared dataset keys or use the real instructor credential.
+- [IRON MERIDIAN sources](iron-meridian-source-policy.md) — keep eight sections; match supplementary guide keys by meaning and device, not ordinals.
+- [Written response progression](written-response-review.md) — explicit approval permits advancement; denial requires revision and another review.
+- [Learner check-in](learner-check-in.md) — first/last name and both email addresses are required at first-time Begin activity; reuse saved details.

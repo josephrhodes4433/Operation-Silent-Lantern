@@ -145,7 +145,7 @@ pendingRow.answers = Object.fromEntries(Object.entries(pendingRow.answers).filte
 pendingRow.answers["6"].reviewStatus = "pending";
 pendingRow.answers["6"].instructorPoints = null;
 const classKeys = new Map<number, string[]>([[13, ["99"]]]);
-writeFileSync("/tmp/classroom-ui-fixtures.json", JSON.stringify({
+writeFileSync("artifacts/api-server/tests/fixtures/classroom-ui-fixtures.json", JSON.stringify({
   ironActivity: publicActivity(classKeys),
   ironCatalog: questionCatalog(questions, classKeys),
   ironKeys: [{ questionId: 13, acceptedAnswers: ["99"] }],

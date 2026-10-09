@@ -1,7 +1,7 @@
 import type { CtfActivity, CtfProgress, CtfQuestion } from '@workspace/api-client-react';
 
 const KEY = 'iron-meridian-session';
-export interface Session { sessionId: string; name: string; email: string; instructorEmail: string }
+export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string }
 
 export function loadSession(): Session | null {
   try {

@@ -35,3 +35,12 @@ repointing a managed workflow exposes real classroom users to the fixture.
 subprocesses, inject only test-owned connection details and a public test code,
 and fail closed if the browser cannot verify that its target is the disposable
 server. Never accept a classroom target URL for key-mutating tests.
+
+Put cross-agent fixture files in the shared workspace, not only in `/tmp`.
+
+**Why:** A browser helper could not see a fixture created in the primary runtime's
+temporary directory. Temporary files are not a reliable cross-agent transfer.
+
+**How to apply:** Use workspace paths or include fixture data in the delegation
+message. Transfer only synthetic learner data and test-owned keys. If a fixture is
+missing, fail closed rather than falling back to the live classroom API.

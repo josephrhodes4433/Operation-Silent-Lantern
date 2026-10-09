@@ -32,7 +32,7 @@ let api = reload();
 assert.equal(api.loadLearnerProfile(), null);
 assert.equal(api.loadCheckInDraft().name, '');
 const draft = {
-  sessionId: uuid, name: 'Test Learner', email: 'learner@example.test',
+  sessionId: uuid, name: 'Test Learner', firstName: 'Test', lastName: 'Learner', email: 'learner@example.test',
   instructorEmail: 'instructor@example.test', team: '12',
 };
 api.storeCheckInDraft(draft);
@@ -45,6 +45,8 @@ api = reload();
 assert.equal(api.loadSession().sessionId, uuid, 'Refresh automatically resumes the same session');
 assert.equal(api.loadLearnerProfile().email, draft.email);
 assert.equal(api.loadCheckInDraft().name, draft.name, 'Future check-ins reuse the name');
+assert.equal(api.loadCheckInDraft().firstName, draft.firstName, 'First name is reused');
+assert.equal(api.loadCheckInDraft().lastName, draft.lastName, 'Last name is reused');
 assert.equal(api.loadCheckInDraft().instructorEmail, draft.instructorEmail);
 api.storeSession(null);
 api = reload();
@@ -60,7 +62,21 @@ values.set('silent-lantern-check-in', '{bad json');
 assert.equal(api.loadCheckInDraft().name, draft.name, 'A corrupt draft falls back to verified learner details');
 values.set('silent-lantern-learner-profile', '42');
 assert.equal(api.loadLearnerProfile(), null);
+values.set('silent-lantern-learner-profile', JSON.stringify({ name: 'Legacy Learner', email: draft.email, instructorEmail: draft.instructorEmail }));
+values.delete('silent-lantern-check-in');
+assert.equal(api.loadCheckInDraft().firstName, 'Legacy', 'Old combined names remain compatible');
+assert.equal(api.loadCheckInDraft().lastName, 'Learner');
+api.rememberLearner({ name: 'Mary Jane Learner', firstName: 'Mary Jane', lastName: 'Learner', email: draft.email, instructorEmail: draft.instructorEmail });
+assert.equal(api.loadCheckInDraft().firstName, 'Mary Jane', 'Multi-word first names retain their field boundary');
+api.rememberLearner({ name: 'Mary Jane Learner', email: draft.email, instructorEmail: draft.instructorEmail });
+assert.equal(api.loadCheckInDraft().firstName, 'Mary Jane', 'A server-hydrated full name does not erase the saved first-name boundary');
 const activity = readFileSync('artifacts/silent-lantern-ctf/src/pages/activity.tsx', 'utf8');
 assert.ok(activity.includes('sessionId: f.sessionId'), 'Create retries use the retained UUID');
 assert.ok(activity.includes('name: p.name, email: p.email'), 'Session identity comes from the saved server response');
+for (const artifact of ['iron-meridian-ctf', 'silent-lantern-ctf']) {
+  const page = readFileSync(`artifacts/${artifact}/src/pages/activity.tsx`, 'utf8');
+  for (const label of ['First name', 'Last name', 'Learner email address', 'Instructor email address']) assert.ok(page.includes(label), `${artifact} requires ${label}`);
+  assert.ok(page.includes('required type={t}'), 'Every identity field is required');
+  assert.ok(page.includes("!f.firstName.trim()") || page.includes('!firstName || !lastName'), 'Whitespace-only names are rejected');
+}
 console.log('Passed learner-detail persistence checks: refresh, resume, retry, recovery, edits and corrupt storage.');
