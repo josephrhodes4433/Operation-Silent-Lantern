@@ -5,7 +5,7 @@
     "types": ["node"],
     "resolveJsonModule": true
   },
-  "include": ["tests/dataset-e2e-server.ts"],
+  "include": ["tests/dataset-e2e-server.ts", "tests/lantern-history-e2e-server.ts"],
   "references": [
     { "path": "../../lib/db" },
     { "path": "../../lib/api-zod" }
