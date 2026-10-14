@@ -42,3 +42,31 @@ mtime_ms = 1791993493560
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/2bfa4833-2ad4-4749-b561-8e1f3fb4e2b9/65380068-d1ef-49da-87b3-a76ab7b98ae3"
 storage_version_token = "1791993500812562"
 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "EDNcTcD42HOGEmM8NnAeR"
+uri = "file://generated-artifacts/instructor-answer-keys/IRON_MERIDIAN_Simple_Answer_Guide.docx"
+type = "word_document"
+title = "IRON MERIDIAN — Simplified Answer Guide"
+description = "All 120 flags in order, with concise answers and 13 illustrative responses for written or evidence-based answers. No testing checklist."
+logical_id = "1aebd042-f1b2-4913-9186-9d4f75f002f2"
+content_hash = "sha256:176fcc81c8dcf0f06913fac5f260385b7b71868cbee357453095e6cf4b924725"
+size = 17460
+mtime_ms = 1791993686013
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/1aebd042-f1b2-4913-9186-9d4f75f002f2/a0c64f7f-b0cd-42ff-aa9d-b79e2c476177"
+storage_version_token = "1791993690787937"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "Vrs96ALLMo5Xie0uBeHYq"
+uri = "file://generated-artifacts/instructor-answer-keys/SILENT_LANTERN_Simple_Answer_Guide.docx"
+type = "word_document"
+title = "SILENT LANTERN — Simplified Answer Guide"
+description = "All 18 responses organized by mission, with concise answers and five illustrative open-ended sample responses. No testing checklist."
+logical_id = "6f91197a-d436-446b-b660-9c7a9eaeb848"
+content_hash = "sha256:73b3a3ec3770f80c7de4a65b50af9d7c9a1e07c6826a81901c3a0687ba9c7f32"
+size = 5510
+mtime_ms = 1791993686018
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/6f91197a-d436-446b-b660-9c7a9eaeb848/b265908b-41c0-445d-a2e2-36083051f388"
+storage_version_token = "1791993691252782"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
