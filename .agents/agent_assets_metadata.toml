@@ -14,3 +14,31 @@ mtime_ms = 1791505198926
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/5aa488bb-7ab7-4f96-a122-599b8879f245/132fffe9-448b-4d3c-81e3-527eae9c92b3"
 storage_version_token = "1791505639670130"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "2Sa1O6oANEyrmdeud4eRM"
+uri = "file://generated-artifacts/instructor-answer-keys/IRON_MERIDIAN_Instructor_Answer_Key.docx"
+type = "word_document"
+title = "IRON MERIDIAN — Instructor Answer Key"
+description = "Word document covering all 120 flags, baseline answers, facilitator reference values, review rubrics and instructor acceptance tests. Dataset references require classroom verification."
+logical_id = "d779ed39-0106-4f94-85af-a212f2f3d6dd"
+content_hash = "sha256:6042374172024119410397f138339d3e9b7a246ee9d56eeddb5ac54a89fe98b1"
+size = 23816
+mtime_ms = 1791993493556
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/d779ed39-0106-4f94-85af-a212f2f3d6dd/483c18c3-3c76-477a-b525-2a9bb2360033"
+storage_version_token = "1791993500202603"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "6clNOUUocFkwRKD6ZeYv2"
+uri = "file://generated-artifacts/instructor-answer-keys/SILENT_LANTERN_Instructor_Answer_Key.docx"
+type = "word_document"
+title = "SILENT LANTERN — Instructor Answer Key"
+description = "Word document covering all 18 responses across six UFED-only missions, flag formats, dataset-key worksheets, written-response rubrics and approval/reattempt tests."
+logical_id = "2bfa4833-2ad4-4749-b561-8e1f3fb4e2b9"
+content_hash = "sha256:d120670108d42fb83a39d59aae7b3373be89873ce6b39af5bfb2c04b8b2c3a6d"
+size = 7929
+mtime_ms = 1791993493560
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/2bfa4833-2ad4-4749-b561-8e1f3fb4e2b9/65380068-d1ef-49da-87b3-a76ab7b98ae3"
+storage_version_token = "1791993500812562"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
