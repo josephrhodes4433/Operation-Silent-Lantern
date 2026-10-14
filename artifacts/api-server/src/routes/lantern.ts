@@ -141,7 +141,11 @@ router.get("/lantern/instructor/submissions", async (_req, res) => {
   const [result, keys] = await Promise.all([pool.query<LanternRow>("SELECT * FROM lantern_progress ORDER BY saved_at DESC"), loadLanternKeys()]);
   res.json(result.rows.map(row => {
     const p = lanternProgress(row, keys);
-    return { sessionId: p.sessionId, name: p.name, email: p.email, totalPoints: p.totalPoints, answeredCount: p.answeredCount, savedAt: p.savedAt, submittedAt: p.submittedAt, teamNumber: p.teamNumber, unlockedMission: p.unlockedMission, authorizationRequested: !!p.authorizationNotes, authorizationGranted: p.authorizationGranted };
+    const pendingWrittenReviewCount = lanternQuestions.filter(question => {
+      const answer = p.answers[String(question.id)];
+      return question.manualReview && answer && hasLanternResponse(answer.value) && answer.reviewStatus === "pending";
+    }).length;
+    return { sessionId: p.sessionId, name: p.name, email: p.email, totalPoints: p.totalPoints, answeredCount: p.answeredCount, savedAt: p.savedAt, submittedAt: p.submittedAt, teamNumber: p.teamNumber, unlockedMission: p.unlockedMission, authorizationRequested: !!p.authorizationNotes, authorizationGranted: p.authorizationGranted, pendingWrittenReviewCount };
   }));
 });
 router.get("/lantern/instructor/submissions/:sessionId", async (req, res) => {

@@ -445,6 +445,11 @@ export type LanternSubmissionSummary = LanternBaseSubmissionSummary & {
   unlockedMission: number;
   authorizationRequested: boolean;
   authorizationGranted: boolean;
+  /**
+     * Nonblank latest written responses awaiting an instructor decision. Excludes approved or denied responses and all historical submissions and decision events.
+     * @minimum 0
+     */
+  pendingWrittenReviewCount: number;
 };
 
 export interface LanternAuthorizationNotes {

@@ -276,12 +276,16 @@ components:
       allOf:
         - $ref: "#/components/schemas/LanternBaseSubmissionSummary"
         - type: object
-          required: [teamNumber, unlockedMission, authorizationRequested, authorizationGranted]
+          required: [teamNumber, unlockedMission, authorizationRequested, authorizationGranted, pendingWrittenReviewCount]
           properties:
             teamNumber: { type: integer }
             unlockedMission: { type: integer }
             authorizationRequested: { type: boolean }
             authorizationGranted: { type: boolean }
+            pendingWrittenReviewCount:
+              type: integer
+              minimum: 0
+              description: Nonblank latest written responses awaiting an instructor decision. Excludes approved or denied responses and all historical submissions and decision events.
     LanternAuthorizationNotes:
       type: object
       required: [notes]

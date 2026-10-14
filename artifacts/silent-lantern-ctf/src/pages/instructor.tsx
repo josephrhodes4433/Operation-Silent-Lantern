@@ -116,25 +116,49 @@ function KeyRow({ q, headers, initial }: { q: LanternQuestion; headers: Headers;
 function Subs({ code }: { code: string }) {
   const headers = { 'x-instructor-code': code };
   const [sel, setSel] = useState<string | null>(null);
-  const list = useListLanternSubmissions({ query: { enabled: true, queryKey: getListLanternSubmissionsQueryKey() }, request: { headers } });
+  const [pendingOnly, setPendingOnly] = useState(false);
+  const list = useListLanternSubmissions({ query: { enabled: true, queryKey: getListLanternSubmissionsQueryKey(), refetchInterval: 5000, staleTime: 0 }, request: { headers } });
   if (list.isLoading) return <PageSkeleton />;
   if (list.isError) return <ErrorPanel title="Could not load submissions" onRetry={() => list.refetch()} />;
   if (!list.data?.length) return <div className="bg-card border border-dashed p-10 text-center" data-testid="panel-no-subs"><p className="font-display font-bold text-lg">No submissions yet</p><p className="text-sm text-muted-foreground">Analyst sessions appear here once they start saving answers.</p></div>;
+  const pendingTotal = list.data.reduce((total, s) => total + s.pendingWrittenReviewCount, 0);
+  const pendingLearners = list.data.filter(s => s.pendingWrittenReviewCount > 0).length;
+  const visible = pendingOnly ? list.data.filter(s => s.pendingWrittenReviewCount > 0) : list.data;
+  const selectedOutsideFilter = sel && pendingOnly && !visible.some(s => s.sessionId === sel);
   return (
+    <div className="space-y-4">
+      <div className="bg-card border border-border p-4 space-y-3">
+        <p role="status" className="text-sm font-semibold" data-testid="text-pending-review-total">
+          {pendingTotal} written {pendingTotal === 1 ? 'response' : 'responses'} awaiting review across {pendingLearners} {pendingLearners === 1 ? 'learner' : 'learners'}
+        </p>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={pendingOnly} onChange={e => setPendingOnly(e.target.checked)} className="accent-[hsl(var(--primary))]" data-testid="checkbox-pending-only" />
+          Only show learners awaiting written review
+        </label>
+        <p className="text-xs text-muted-foreground">Counts include only the latest nonblank written responses, not response history. Updates automatically every five seconds.</p>
+      </div>
     <div className="grid lg:grid-cols-[320px_1fr] gap-6">
       <ul className="space-y-2 self-start">
-        {list.data.map((s) => (
+        {!visible.length && <li className="bg-card border border-dashed p-6 text-sm" data-testid="panel-no-pending">No written responses awaiting review. Clear the filter to see all learners.</li>}
+        {visible.map((s) => (
           <li key={s.sessionId}>
             <button onClick={() => setSel(s.sessionId)} aria-pressed={sel === s.sessionId} data-testid={`button-sub-${s.sessionId}`}
               className={`w-full text-left bg-card border p-3 ${sel === s.sessionId ? 'border-primary' : 'border-border hover:bg-muted'}`}>
               <p className="font-semibold text-sm">{s.name} <span className="font-mono text-xs text-muted-foreground">Team {s.teamNumber}</span></p><p className="text-xs text-muted-foreground">{s.email}</p>
               <p className="font-mono text-xs mt-1">{s.totalPoints} pts | {s.answeredCount} answered | mission {Math.min(s.unlockedMission, 6)} | {s.submittedAt ? 'submitted' : 'in progress'}</p>
               <p className="font-mono text-xs">{s.authorizationGranted ? 'authorization granted' : s.authorizationRequested ? 'authorization requested' : 'no authorization request'}</p>
+              <p className={`text-xs font-semibold mt-2 ${s.pendingWrittenReviewCount > 0 ? 'text-primary' : 'text-muted-foreground'}`} data-testid={`text-pending-${s.sessionId}`}>
+                {s.pendingWrittenReviewCount} written {s.pendingWrittenReviewCount === 1 ? 'response' : 'responses'} awaiting review
+              </p>
             </button>
           </li>
         ))}
       </ul>
-      {sel ? <Detail key={sel} sid={sel} headers={headers} /> : <p className="text-muted-foreground p-6">Select a submission to review.</p>}
+      <div className="space-y-3">
+        {selectedOutsideFilter && <p className="text-sm border-l-4 border-accent bg-card p-3" data-testid="text-selected-outside-filter">The selected learner has no written responses awaiting review. Their details remain open; select another learner or clear the filter.</p>}
+        {sel ? <Detail key={sel} sid={sel} headers={headers} /> : <p className="text-muted-foreground p-6">Select a submission to review.</p>}
+      </div>
+    </div>
     </div>
   );
 }

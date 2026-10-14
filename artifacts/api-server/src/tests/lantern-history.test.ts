@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import express from "express";
 import { pool } from "@workspace/db";
 import router from "../routes/lantern";
-import { GetLanternProgressResponse, GetLanternWrittenHistoryResponse } from "@workspace/api-zod";
+import { GetLanternProgressResponse, GetLanternWrittenHistoryResponse, ListLanternSubmissionsResponse } from "@workspace/api-zod";
 
 // Only our test runner's Unix-socket cluster is accepted.
 const fixture = process.env.LANTERN_HISTORY_FIXTURE;
@@ -61,34 +61,69 @@ const historyPath = `/instructor/submissions/${sid}/history/6`;
 const history = async () => GetLanternWrittenHistoryResponse.parse(await call(historyPath, "GET", undefined, 200, true));
 const progress = async () => GetLanternProgressResponse.parse(await call(`/progress/${sid}`));
 const save = (value: string, status = 200) => call(`/progress/${sid}/answers/6`, "PUT", { value }, status);
+const summaries = async () => ListLanternSubmissionsResponse.parse(await call("/instructor/submissions", "GET", undefined, 200, true));
+async function pending(expected: number) {
+  const list = await summaries();
+  assert.equal(list.find(s => s.sessionId === sid)?.pendingWrittenReviewCount, expected);
+  assert.equal(list.find(s => s.sessionId === oldSid)?.pendingWrittenReviewCount, 0, "Imported denied responses are not pending");
+  assert.ok(list.every(s => !("history" in s) && !("answers" in s)));
+  const learner = await call(`/progress/${sid}`);
+  assert.ok(learner && typeof learner === "object");
+  assert.ok(!("pendingWrittenReviewCount" in learner) && !("history" in learner));
+}
 const review = (decision: string, responseUpdatedAt: Date, note = "", points = 4, status = 200) => call(
   `/instructor/submissions/${sid}/review/6`, "PUT", { decision, responseUpdatedAt, note, points }, status, true,
 );
 try {
+  await call("/instructor/submissions", "GET", undefined, 401);
+  await pending(0);
+  // Multiple latest responses count once each; missing legacy status is pending.
+  // Blank, automatic, approved, denied, and absent questions do not count.
+  const mixedSid = "00000000-0000-4000-8000-000000000003";
+  const written = (value: string, reviewStatus?: string) => ({
+    value, reviewStatus, instructorPoints: null, instructorNote: null, updatedAt: "2026-01-01T00:00:00Z",
+  });
+  await seed(mixedSid, {
+    "1": written("Automatic answer", "pending"),
+    "11": written("   ", "pending"),
+    "6": written("Legacy pending"),
+    "7": written("Latest pending", "pending"),
+    "17": written("Approved response", "approved"),
+    "18": written("Denied response", "denied"),
+  });
+  assert.equal((await summaries()).find(s => s.sessionId === mixedSid)?.pendingWrittenReviewCount, 2);
   await call(historyPath, "GET", undefined, 401);
   await call(historyPath.replace("/history/6", "/history/5"), "GET", undefined, 404, true);
   await call(historyPath.replace(sid, "not-a-uuid"), "GET", undefined, 400, true);
   await call(historyPath.replace(sid, "00000000-0000-4000-8000-000000000099"), "GET", undefined, 404, true);
   assert.deepEqual(await history(), []);
   await save("First indicator");
+  await pending(1);
   const first = (await progress()).answers["6"].updatedAt;
   assert.equal((await history())[0].version, 1);
   await review("denied", first, "", 0, 400);
+  await pending(1);
   await review("denied", first, "Add timestamp and source", 0);
+  await pending(0);
   await save("  First   indicator  ", 409);
   assert.equal((await history()).length, 2);
   await save("Second indicator with timestamp and source");
+  await pending(1);
   const second = (await progress()).answers["6"].updatedAt;
   assert.ok(new Date(second).getTime() > new Date(first).getTime());
   assert.equal((await progress()).answers["6"].instructorNote, null);
   await review("approved", first, "Stale approval", 5, 409);
+  await pending(1);
   assert.equal((await progress()).reviewGateQuestionId, 6);
   await call(`/progress/${sid}/answers/7`, "PUT", { value: "New mission" }, 403);
   await call(`/progress/${sid}/submit`, "POST", {}, 409);
   await review("approved", second, "Corroborated", 4);
+  await pending(0);
   await review("approved", second, "Adjusted points", 5);
+  await pending(0);
   assert.equal((await progress()).answers["6"].earnedPoints, 5);
   await save("Third revision");
+  await pending(1);
   assert.equal((await progress()).answers["6"].earnedPoints, 0);
   assert.equal((await progress()).reviewGateQuestionId, 6);
   const entries = await history();
@@ -107,6 +142,7 @@ try {
     BEGIN RAISE EXCEPTION 'synthetic update failure'; END; $$ LANGUAGE plpgsql;
     CREATE TRIGGER fixture_reject BEFORE UPDATE ON lantern_progress FOR EACH ROW EXECUTE FUNCTION fixture_reject_update();`);
   await save("Must roll back", 500);
+  await pending(1);
   assert.equal((await history()).length, 6);
   assert.equal((await progress()).answers["6"].value, "Third revision");
   await pool.query("DROP TRIGGER fixture_reject ON lantern_progress");
@@ -114,6 +150,7 @@ try {
   // Concurrent reviews cannot lose events; both reference the same version.
   const third = (await progress()).answers["6"].updatedAt;
   await Promise.all([review("approved", third, "Review A", 3), review("approved", third, "Review B", 4)]);
+  await pending(0);
   const concurrent = await history();
   assert.equal(concurrent.length, 8);
   assert.deepEqual(concurrent.slice(-2).map((e: { version: number }) => e.version), [3, 3]);

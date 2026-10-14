@@ -364,6 +364,10 @@ export const ListLanternSubmissionsHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const listLanternSubmissionsResponseTwoPendingWrittenReviewCountMin = 0;
+
+
+
 export const ListLanternSubmissionsResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
@@ -376,7 +380,8 @@ export const ListLanternSubmissionsResponseItem = zod.object({
   "teamNumber": zod.number().int(),
   "unlockedMission": zod.number().int(),
   "authorizationRequested": zod.boolean(),
-  "authorizationGranted": zod.boolean()
+  "authorizationGranted": zod.boolean(),
+  "pendingWrittenReviewCount": zod.number().int().min(listLanternSubmissionsResponseTwoPendingWrittenReviewCountMin).describe('Nonblank latest written responses awaiting an instructor decision. Excludes approved or denied responses and all historical submissions and decision events.')
 }))
 export const ListLanternSubmissionsResponse = zod.array(ListLanternSubmissionsResponseItem)
 
