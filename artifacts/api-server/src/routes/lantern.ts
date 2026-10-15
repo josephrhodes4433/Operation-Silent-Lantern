@@ -2,9 +2,9 @@ import { Router, type IRouter, type ErrorRequestHandler } from "express";
 import { pool } from "@workspace/db";
 import {
   CreateLanternProgressBody, GetLanternProgressParams, SaveLanternAnswerBody, SaveLanternAnswerParams,
-  UseLanternHintParams, RequestLanternAuthorizationBody, VerifyLanternInstructorBody,
+  UseLanternHintParams, VerifyLanternInstructorBody,
   SetLanternInstructorKeyParams, SetLanternInstructorKeyBody, ReviewLanternWrittenAnswerParams,
-  ReviewLanternWrittenAnswerBody, GrantLanternAuthorizationBody, AdjustLanternScoreBody,
+  ReviewLanternWrittenAnswerBody, AdjustLanternScoreBody,
   GetLanternWrittenHistoryParams, GetLanternWrittenHistoryResponse,
 } from "@workspace/api-zod";
 import { ClassroomError, requireInstructor } from "../lib/instructor-access";
@@ -52,16 +52,10 @@ router.put("/lantern/progress/:sessionId/answers/:questionId", async (req, res) 
   const progress = await changeLantern(sessionId, async (row, keys, record) => {
     unlocked(row, keys, question.section);
     requireWrittenApproval(row, questionId);
-    if ((question.id === 14 || question.id === 15) && !row.authorization_granted) throw new ClassroomError(403, "Your instructor must authorize the preserved iOS workflow before this response.");
-    grade = evaluateLantern(question, value, keys, row.team_number, row.authorization_granted);
-    if (question.id === 16 && grade.correct && typeof value === "string") {
-      const alias = String(row.answers["5"]?.value ?? "").split(":")[1];
-      const imsi = String(row.answers["10"]?.value ?? "").split(":")[1];
-      const parts = value.trim().split(":")[1].split("-");
-      if (!alias || !imsi || parts[0].toLowerCase() !== alias.toLowerCase() || parts[1] !== imsi.slice(-4)) {
-        grade = { correct: false, status: "incorrect", earnedPoints: 0, feedback: "The target package must corroborate your captured courier alias and the last four digits of the SIM IMSI." };
-      }
+    if (question.id === 117 && hasLanternResponse(value) && (typeof value !== "string" || !flagFormatValid(117, value.trim()))) {
+      throw new ClassroomError(400, "Use IMSI: followed by 10–18 digits from your own SIM.");
     }
+    grade = evaluateLantern(question, value, keys, row.team_number, row.authorization_granted, row.answers);
     const previous = row.answers[String(questionId)];
     const sameResponse = previous && (question.manualReview ? sameLanternResponse(previous.value, value) : JSON.stringify(previous.value) === JSON.stringify(value));
     if (question.manualReview && previous?.reviewStatus === "denied" && sameResponse) {
@@ -85,7 +79,7 @@ router.post("/lantern/progress/:sessionId/submit", async (req, res) => {
     const current = lanternProgress(row, keys);
     if (current.reviewGateQuestionId !== null) throw new ClassroomError(409, "Every written response must be approved before you can submit final results.");
     if (current.answeredCount !== lanternQuestions.length || missionFlagIds.some(id => current.answers[String(id)]?.correct !== true)) {
-      throw new ClassroomError(409, "Save all 18 responses and capture all six flags before submitting your final results.");
+      throw new ClassroomError(409, `Save all ${lanternQuestions.length} responses and capture all six flags before submitting your final results.`);
     }
     row.submitted_at = new Date();
   });
@@ -95,23 +89,15 @@ router.post("/lantern/progress/:sessionId/hints/:missionId", async (req, res) =>
   const { sessionId, missionId } = input(UseLanternHintParams, req.params);
   res.json(await changeLantern(sessionId, (row, keys) => {
     unlocked(row, keys, missionId);
-    if (row.hints.includes(missionId)) return;
-    if (row.hints.length >= 3) throw new ClassroomError(409, "All three hint tokens have been used.");
-    row.hints.push(missionId);
+    const hintId = missionId + 100;
+    if (row.hints.includes(hintId)) return;
+    if (row.hints.filter(id => id >= 101 && id <= 106).length >= 3) throw new ClassroomError(409, "All three hint tokens have been used.");
+    row.hints.push(hintId);
     row.submitted_at = null;
   }));
 });
-router.put("/lantern/progress/:sessionId/authorization", async (req, res) => {
-  const { notes } = input(RequestLanternAuthorizationBody, req.body);
-  if (!notes.trim()) throw new ClassroomError(400, "Document your preserved handling and why restricted handling is required.");
-  res.json(await changeLantern(session(req.params), (row, keys) => {
-    unlocked(row, keys, 5);
-    if (row.authorization_granted && row.authorization_notes !== notes.trim()) {
-      throw new ClassroomError(409, "Authorization notes are locked after instructor approval. Ask your instructor to revoke approval before revising them.");
-    }
-    row.authorization_notes = notes.trim();
-    row.submitted_at = null;
-  }));
+router.put("/lantern/progress/:sessionId/authorization", async () => {
+  throw new ClassroomError(410, "Preservation is now knowledge-based. Answer the Mission 1 questions; a live preserved extraction and training authorization token are not required.");
 });
 router.post("/lantern/instructor/verify", (req, res) => {
   const { code } = input(VerifyLanternInstructorBody, req.body);
@@ -130,10 +116,8 @@ router.put("/lantern/instructor/keys/:questionId", async (req, res) => {
   const question = lanternQuestions.find(q => q.id === questionId);
   if (!question || question.keyMode !== "dataset") throw new ClassroomError(400, "Only shared-dataset answers can be configured.");
   const acceptedAnswers = input(SetLanternInstructorKeyBody, req.body).acceptedAnswers.map(value => value.trim());
-  if (acceptedAnswers.some(value => !value || !flagFormatValid(questionId, value))) throw new ClassroomError(400, `Use the required format: ${question.format || "exact artifact title"}.`);
-  if (questionId === 14 && acceptedAnswers.some(value => value === process.env.CTF_INSTRUCTOR_CODE || value.slice(5) === process.env.CTF_INSTRUCTOR_CODE)) {
-    throw new ClassroomError(400, "The training AUTH token must be separate from the private instructor access code.");
-  }
+  if (questionId !== 124 && acceptedAnswers.some(value => !value || !flagFormatValid(questionId, value))) throw new ClassroomError(400, `Use the required format: ${question.format || "exact artifact title"}.`);
+  if (questionId === 124 && acceptedAnswers.some(value => !/^[A-Za-z0-9_-]+$/.test(value))) throw new ClassroomError(400, "For the final package, configure only the watchlist keyword—not a full TPL or a shared IMSI.");
   await pool.query("INSERT INTO lantern_keys(question_id,accepted_answers) VALUES($1,$2::jsonb) ON CONFLICT(question_id) DO UPDATE SET accepted_answers=excluded.accepted_answers", [questionId, JSON.stringify(acceptedAnswers)]);
   res.json({ questionId, acceptedAnswers });
 });
@@ -153,7 +137,7 @@ router.get("/lantern/instructor/submissions/:sessionId", async (req, res) => {
 });
 router.get("/lantern/instructor/submissions/:sessionId/history/:questionId", async (req, res) => {
   const { sessionId, questionId } = input(GetLanternWrittenHistoryParams, req.params);
-  if (!lanternQuestions.find(q => q.id === questionId)?.manualReview) throw new ClassroomError(404, "Written question not found.");
+    if (!lanternQuestions.find(q => q.id === questionId)?.manualReview && ![6, 7, 11, 17, 18].includes(questionId)) throw new ClassroomError(404, "Written question not found.");
   await getLanternRow(sessionId);
   res.json(GetLanternWrittenHistoryResponse.parse(await getLanternHistory(pool, sessionId, questionId)));
 });
@@ -163,21 +147,13 @@ router.put("/lantern/instructor/submissions/:sessionId/review/:questionId", asyn
   const question = lanternQuestions.find(q => q.id === questionId);
   if (!question?.manualReview || points > question.points) throw new ClassroomError(400, "Only written responses can be reviewed, within the question’s point limit.");
   res.json(await changeLantern(sessionId, async (row, _keys, record) => {
+    if (decision === "approved" && questionId === 117 && !flagFormatValid(117, String(row.answers["117"]?.value ?? "").trim())) throw new ClassroomError(400, "Review a valid individual IMSI before approving this flag.");
     reviewLanternResponse(row, questionId, decision, points, note, responseUpdatedAt);
     await record(questionId, "reviewed");
   }));
 });
-router.put("/lantern/instructor/submissions/:sessionId/authorization", async (req, res) => {
-  const { granted } = input(GrantLanternAuthorizationBody, req.body);
-  res.json(await changeLantern(session(req.params), (row, keys) => {
-    if (granted) {
-      unlocked(row, keys, 5);
-      if (!row.authorization_notes.trim()) throw new ClassroomError(409, "Review saved preserved handling notes before granting authorization.");
-      if (!keys.get(14)?.length) throw new ClassroomError(409, "Configure the separate training AUTH token in the dataset answer keys first.");
-    }
-    row.authorization_granted = granted;
-    if (!granted) row.submitted_at = null;
-  }));
+router.put("/lantern/instructor/submissions/:sessionId/authorization", async () => {
+  throw new ClassroomError(410, "Preservation is knowledge-based in Mission 1; authorization grants are retired.");
 });
 router.put("/lantern/instructor/submissions/:sessionId/adjustments", async (req, res) => {
   const { speedBonus, tradecraftBonus } = input(AdjustLanternScoreBody, req.body);

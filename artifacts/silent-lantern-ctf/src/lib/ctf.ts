@@ -55,8 +55,7 @@ export function hasUnsavedWork(a: LanternActivity, p: LanternProgress): boolean 
     const draft = loadDraft(p.sessionId, q.id);
     return draft !== undefined && JSON.stringify(draft) !== JSON.stringify(p.answers[String(q.id)]?.value);
   })) return true;
-  const notes = loadAuthDraft(p.sessionId);
-  return notes !== null && notes.trim() !== p.authorizationNotes.trim();
+  return false; // Retired preservation-note drafts must not block the revised activity.
 }
 export function queueSave<T>(key: string, work: () => Promise<T>): Promise<T> {
   const next = (queues.get(key) ?? Promise.resolve()).catch(() => undefined).then(work);
@@ -96,14 +95,18 @@ export function buildResultsText(a: LanternActivity, p: LanternProgress): string
     if (ans?.instructorNote) lines.push(`Instructor note: ${ans.instructorNote}`);
     lines.push('');
   }
-  if (p.authorizationNotes) lines.push('PRESERVED-HANDLING NOTES', p.authorizationNotes, '');
+  if (Object.keys(p.archivedAnswers ?? {}).length) {
+    lines.push('EARLIER CURRICULUM — READ-ONLY, NOT CURRENT SCORES', '');
+    for (const [id, answer] of Object.entries(p.archivedAnswers ?? {})) lines.push(`Earlier question ID ${id}: ${asText(answer.value)}`, `Review: ${answer.reviewStatus ?? answer.status}`, `Instructor: ${answer.instructorNote ?? ''}`, '');
+  }
+  if (p.authorizationNotes) lines.push('EARLIER CURRICULUM — PRESERVATION NOTES (READ-ONLY)', p.authorizationNotes, '');
   return lines.join('\n');
 }
 export function buildWrittenEmailBody(a: LanternActivity, p: LanternProgress): string {
   const written = orderedQuestions(a).filter((q) => q.manualReview || q.kind === 'long' || q.isFinalSummary);
   return [`Analyst: ${p.name}`, `Student email: ${p.email}`, `Team: ${p.teamNumber}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
     ...written.flatMap((q) => [`${q.code}: ${q.prompt}`, p.answers[String(q.id)] ? asText(p.answers[String(q.id)].value) : '(not answered)', '']),
-    ...(p.authorizationNotes ? ['PRESERVED-HANDLING NOTES', p.authorizationNotes, ''] : [])].join('\n');
+  ].join('\n');
 }
 export function buildMailto(a: LanternActivity, p: LanternProgress): string {
   const full = buildWrittenEmailBody(a, p);

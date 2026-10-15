@@ -23,7 +23,7 @@ SELECT p.session_id, a.key::integer, 1, 'imported', a.value->>'value',
   COALESCE(a.value->>'reviewStatus','pending'), a.value->>'instructorNote',
   (a.value->>'instructorPoints')::integer, (a.value->>'updatedAt')::timestamptz
 FROM lantern_progress p CROSS JOIN LATERAL jsonb_each(p.answers) a
-WHERE a.key IN ('6','7','11','17','18')
+WHERE a.key IN ('6','7','11','17','18','107','110','116','117','118','125','126')
   AND jsonb_typeof(a.value->'value') = 'string'
   AND NOT EXISTS (
     SELECT 1 FROM lantern_written_history h

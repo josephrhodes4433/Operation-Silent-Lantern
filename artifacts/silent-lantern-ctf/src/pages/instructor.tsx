@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetLanternActivityQueryKey, getGetLanternInstructorKeysQueryKey, getGetLanternInstructorSubmissionQueryKey, getListLanternSubmissionsQueryKey,
-  useAdjustLanternScore, useGetLanternActivity, useGetLanternInstructorKeys, useGetLanternInstructorSubmission, useGrantLanternAuthorization,
+  useAdjustLanternScore, useGetLanternActivity, useGetLanternInstructorKeys, useGetLanternInstructorSubmission,
   useListLanternSubmissions, useReviewLanternWrittenAnswer, useSetLanternInstructorKey, useVerifyLanternInstructor,
   useGetLanternWrittenHistory, getGetLanternWrittenHistoryQueryKey,
 } from '@workspace/api-client-react';
@@ -11,6 +11,7 @@ import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { asText, errMessage, errStatus } from '@/lib/ctf';
 import { WrittenComparison } from '@/components/written-comparison';
+import { ArchivedResponses } from '@/components/archived-responses';
 
 type Headers = Record<string, string>;
 
@@ -81,7 +82,7 @@ function Keys({ code }: { code: string }) {
   const map = new Map((keys.data ?? []).map((k) => [k.questionId, k.acceptedAnswers]));
   return (
     <div className="space-y-4">
-      <p role="note" className="text-sm border-l-4 border-accent bg-card p-4">Dataset flags must be prepared before class from your own prepared dataset. No values are supplied here and none are invented: enter each accepted answer exactly as it should be matched, one per line, following the stated format.</p>
+      <p role="note" className="text-sm border-l-4 border-accent bg-card p-4">Revised curriculum: configure the same-iPhone Major match and courier alias. For M6-FLAG06, enter only the watchlist keyword, one accepted variant per line—not a full TPL. Each learner's own SIM IMSI is reviewed individually, never configured as a class-wide key. Earlier keys are retained but are not reused for these revised questions.</p>
       {!qs.length ? <p className="bg-card border border-dashed p-8 text-center">No dataset-keyed questions in this activity.</p> :
         <ul className="space-y-3">{qs.map((q) => <KeyRow key={q.id} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>}
     </div>
@@ -98,7 +99,7 @@ function KeyRow({ q, headers, initial }: { q: LanternQuestion; headers: Headers;
     <li className="bg-card border border-border p-4 space-y-2" data-testid={`row-key-${q.id}`}>
       <p className="text-sm"><span className="font-mono text-xs text-primary">{q.code}</span> | {q.sectionTitle} | {q.points} pts</p>
       <p className="text-sm font-medium">{q.prompt}</p>
-      <p className="text-xs font-mono text-muted-foreground">Expected format: {q.format || 'not specified'}</p>
+      <p className="text-xs font-mono text-muted-foreground">Expected key format: {q.id === 124 ? 'Watchlist keyword only (letters, numbers, underscores, or hyphens)' : q.format || 'not specified'}</p>
       <label htmlFor={`k-${q.id}`} className="text-xs font-mono uppercase text-muted-foreground">Accepted answers, one per line {initial.length ? '' : '(not set)'}</label>
       <textarea id={`k-${q.id}`} rows={3} className={field} value={text} onChange={(e) => { setText(e.target.value); setOk(false); }} data-testid={`input-key-${q.id}`} />
       <div className="flex items-center gap-3">
@@ -146,7 +147,6 @@ function Subs({ code }: { code: string }) {
               className={`w-full text-left bg-card border p-3 ${sel === s.sessionId ? 'border-primary' : 'border-border hover:bg-muted'}`}>
               <p className="font-semibold text-sm">{s.name} <span className="font-mono text-xs text-muted-foreground">Team {s.teamNumber}</span></p><p className="text-xs text-muted-foreground">{s.email}</p>
               <p className="font-mono text-xs mt-1">{s.totalPoints} pts | {s.answeredCount} answered | mission {Math.min(s.unlockedMission, 6)} | {s.submittedAt ? 'submitted' : 'in progress'}</p>
-              <p className="font-mono text-xs">{s.authorizationGranted ? 'authorization granted' : s.authorizationRequested ? 'authorization requested' : 'no authorization request'}</p>
               <p className={`text-xs font-semibold mt-2 ${s.pendingWrittenReviewCount > 0 ? 'text-primary' : 'text-muted-foreground'}`} data-testid={`text-pending-${s.sessionId}`}>
                 {s.pendingWrittenReviewCount} written {s.pendingWrittenReviewCount === 1 ? 'response' : 'responses'} awaiting review
               </p>
@@ -167,7 +167,6 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
   const qc = useQueryClient();
   const act = useGetLanternActivity();
   const d = useGetLanternInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetLanternInstructorSubmissionQueryKey(sid), refetchInterval: 5000 }, request: { headers } });
-  const grant = useGrantLanternAuthorization({ request: { headers } });
   const adjust = useAdjustLanternScore({ request: { headers } });
   const [speed, setSpeed] = useState<number | null>(null);
   const [trade, setTrade] = useState<boolean | null>(null);
@@ -180,15 +179,8 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
   return (
     <div className="space-y-3">
       <h2 className="font-display text-xl font-bold">{p.name} <span className="font-mono text-sm text-muted-foreground">Team {p.teamNumber} | {p.totalPoints} pts</span></h2>
-      <div className="bg-card border border-border p-4 space-y-3" data-testid="panel-auth-review">
-        <p className="font-mono text-xs uppercase text-primary">Training authorization | {p.authorizationGranted ? 'granted' : 'not granted'}</p>
-        <p className="text-sm whitespace-pre-wrap bg-muted p-2" data-testid="text-auth-notes">{p.authorizationNotes || 'No preserved-handling notes submitted.'}</p>
-        <div className="flex flex-wrap gap-3 items-center">
-          <button className={btn} disabled={grant.isPending || p.authorizationGranted || !p.authorizationNotes} onClick={() => grant.mutate({ sessionId: sid, data: { granted: true } }, { onSuccess: refresh })} data-testid="button-grant-auth">Approve authorization</button>
-          <button className={btnGhost} disabled={grant.isPending || !p.authorizationGranted} onClick={() => grant.mutate({ sessionId: sid, data: { granted: false } }, { onSuccess: refresh })} data-testid="button-revoke-auth">Revoke</button>
-          {grant.isError && <span role="alert" className="text-sm text-destructive">{errMessage(grant.error, 'Update failed')}</span>}
-        </div>
-      </div>
+      <ArchivedResponses progress={p} history={id => <WrittenHistory sid={sid} questionId={id} headers={headers} />} />
+      <p className="text-sm text-muted-foreground">Preserved Extraction/SafeGuard is knowledge-based in Mission 1. Review each SIM IMSI against that learner's extraction; an empty SIM is a valid observation when supported by its summary.</p>
       <div className="bg-card border border-border p-4 grid sm:grid-cols-[1fr_1fr_auto] gap-3 items-end" data-testid="panel-bonuses">
         <div><label htmlFor="speed" className="text-xs font-mono">Speed bonus</label>
           <select id="speed" className={field} value={speedV} onChange={(e) => setSpeed(Number(e.target.value))} data-testid="select-speed">{[0, 1, 3, 5].map((n) => <option key={n} value={n}>{n}</option>)}</select></div>

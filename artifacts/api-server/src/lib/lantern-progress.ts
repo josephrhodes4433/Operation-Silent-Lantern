@@ -21,19 +21,9 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
   for (const [id, answer] of Object.entries(row.answers)) {
     const question = lanternQuestions.find(q => q.id === Number(id));
     if (!question) continue;
-    const grade = evaluateLantern(question, answer.value, keys, row.team_number, row.authorization_granted);
-    if (question.id === 16 && grade.correct && typeof answer.value === "string") {
-      const alias = String(row.answers["5"]?.value ?? "").split(":")[1];
-      const imsi = String(row.answers["10"]?.value ?? "").split(":")[1];
-      const parts = answer.value.trim().split(":")[1].split("-");
-      if (!alias || !imsi || parts[0].toLowerCase() !== alias.toLowerCase() || parts[1] !== imsi.slice(-4)) {
-        grade.correct = false;
-        grade.status = "incorrect";
-        grade.earnedPoints = 0;
-      }
-    }
+    const grade = evaluateLantern(question, answer.value, keys, row.team_number, row.authorization_granted, row.answers);
     if (question.manualReview) {
-      const approved = hasLanternResponse(answer.value) && answer.reviewStatus === "approved";
+      const approved = hasLanternResponse(answer.value) && answer.reviewStatus === "approved" && grade.status !== "incorrect";
       answers[id] = {
         ...answer, reviewStatus: answer.reviewStatus ?? "pending",
         correct: approved ? true : answer.reviewStatus === "denied" ? false : null,
@@ -51,16 +41,20 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
     unlockedMission++;
   }
   const rawPoints = Object.values(answers).reduce((sum, answer) => sum + answer.earnedPoints, 0);
-  const penaltyPoints = row.hints.length * 2;
+  const currentHints = row.hints.filter(id => id >= 101 && id <= 106);
+  const penaltyPoints = currentHints.length * 2;
   return GetLanternProgressResponse.parse({
     sessionId: row.session_id, name: row.name, email: row.email, instructorEmail: row.instructor_email, teamNumber: row.team_number,
+    archivedAnswers: Object.fromEntries(Object.entries(row.answers).filter(([id]) => Number(id) <= 18).map(([id, answer]) => [id, {
+      ...answer, correct: answer.correct ?? null, earnedPoints: answer.earnedPoints ?? 0, status: answer.status ?? "manual",
+    }])),
     roeAcknowledged: true, answers, rawPoints, penaltyPoints, speedBonus: row.speed_bonus, tradecraftBonus: row.tradecraft_bonus,
     totalPoints: Math.max(0, rawPoints - penaltyPoints + row.speed_bonus + row.tradecraft_bonus),
     answeredCount: Object.values(answers).filter(a => hasLanternResponse(a.value)).length,
-    unlockedMission, reviewGateQuestionId: reviewGate(answers), authorizationNotes: row.authorization_notes, authorizationGranted: row.authorization_granted,
-    trainingAuthorizationCode: row.authorization_granted && unlockedMission >= 5 ? keys.get(14)?.[0] ?? null : null,
-    hints: row.hints.map(missionId => ({ missionId, text: hintTexts[missionId - 1] })),
-    savedAt: row.saved_at, submittedAt: row.submitted_at,
+    unlockedMission, reviewGateQuestionId: reviewGate(answers), authorizationNotes: row.authorization_notes, authorizationGranted: false,
+    trainingAuthorizationCode: null,
+    hints: currentHints.map(id => ({ missionId: id - 100, text: hintTexts[id - 101] })),
+    savedAt: row.saved_at, submittedAt: unlockedMission === 7 && Object.keys(answers).length === lanternQuestions.length && reviewGate(answers) === null ? row.submitted_at : null,
   });
 }
 export async function getLanternRow(sessionId: string) {

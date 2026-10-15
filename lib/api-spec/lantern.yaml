@@ -43,7 +43,7 @@ paths:
           in: path
           name: questionId
           required: true
-          schema: { type: integer, minimum: 1, maximum: 18 }
+          schema: { type: integer, minimum: 1, maximum: 126 }
       requestBody:
         required: true
         content:
@@ -253,6 +253,10 @@ components:
         - type: object
           required: [teamNumber, roeAcknowledged, unlockedMission, authorizationNotes, authorizationGranted, trainingAuthorizationCode, hints, penaltyPoints, rawPoints, speedBonus, tradecraftBonus]
           properties:
+            archivedAnswers:
+              type: object
+              description: Read-only responses from the earlier curriculum; excluded from current grading.
+              additionalProperties: { $ref: "#/components/schemas/LanternAnswer" }
             teamNumber: { type: integer }
             roeAcknowledged: { type: boolean }
             unlockedMission: { type: integer }

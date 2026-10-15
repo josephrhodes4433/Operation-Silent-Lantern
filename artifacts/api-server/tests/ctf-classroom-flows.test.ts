@@ -13,9 +13,9 @@ const teacher = { "x-instructor-code": "isolated-fixture-only" };
 
 test("real HTTP written-review flow blocks bypasses and requires a revised denied answer", async () => {
   const row = fixtureRow();
-  row.answers = Object.fromEntries(Object.entries(row.answers).filter(([id]) => Number(id) <= 6));
-  row.answers["6"].reviewStatus = "pending";
-  row.answers["6"].instructorPoints = null;
+  row.answers = Object.fromEntries(Object.entries(row.answers).filter(([id]) => Number(id) <= 107));
+  row.answers["107"].reviewStatus = "pending";
+  row.answers["107"].instructorPoints = null;
   classroomFixture.rows.set(row.session_id, structuredClone(row));
   classroomFixture.lanternKeys = fixtureKeys;
   const app = express();
@@ -27,34 +27,34 @@ test("real HTTP written-review flow blocks bypasses and requires a revised denie
   async function request(path: string, method: string, data: unknown, instructor = false) {
     return fetch(base + path, { method, headers: { "Content-Type": "application/json", ...(instructor ? teacher : {}) }, body: JSON.stringify(data) });
   }
-  const review = `/instructor/submissions/${row.session_id}/review/6`;
-  const answer = `/progress/${row.session_id}/answers/6`;
-  const body = { decision: "approved", points: 5, note: "Sources checked.", responseUpdatedAt: row.answers["6"].updatedAt };
+  const review = `/instructor/submissions/${row.session_id}/review/107`;
+  const answer = `/progress/${row.session_id}/answers/107`;
+  const body = { decision: "approved", points: 5, note: "Sources checked.", responseUpdatedAt: row.answers["107"].updatedAt };
   try {
-    assert.equal((await request(`/progress/${row.session_id}/answers/7`, "PUT", { value: "Keyword and phone number" })).status, 403);
+    assert.equal((await request(`/progress/${row.session_id}/answers/108`, "PUT", { value: "CASE:JTF-0427-TEAM3" })).status, 403);
     assert.equal((await request(review, "PUT", body)).status, 401);
     assert.equal((await request(review, "PUT", { ...body, decision: "denied", note: "" }, true)).status, 400);
     assert.equal((await request(review, "PUT", { ...body, responseUpdatedAt: "2026-10-07T12:00:00Z" }, true)).status, 409);
     const denied = await request(review, "PUT", { ...body, decision: "denied", note: "Add a timestamp and location citation." }, true);
     assert.equal(denied.status, 200);
-    assert.equal((await request(answer, "PUT", { value: row.answers["6"].value })).status, 409);
+    assert.equal((await request(answer, "PUT", { value: row.answers["107"].value })).status, 409);
     assert.equal((await request(answer, "PUT", { value: " Evidence-backed  fixture response " })).status, 409);
     const revised = await request(answer, "PUT", { value: "Revised indicator: 12:00 UTC; source location record and message citation." });
     assert.equal(revised.status, 200);
     const saved = await revised.json();
     assert.equal(saved.status, "manual");
     const revisedProgress = await (await fetch(`${base}/progress/${row.session_id}`)).json();
-    assert.equal(revisedProgress.answers["6"].reviewStatus, "pending");
-    assert.equal(revisedProgress.reviewGateQuestionId, 6);
-    assert.equal((await request(`/progress/${row.session_id}/answers/7`, "PUT", { value: "Keyword and phone number" })).status, 403);
+    assert.equal(revisedProgress.answers["107"].reviewStatus, "pending");
+    assert.equal(revisedProgress.reviewGateQuestionId, 107);
+    assert.equal((await request(`/progress/${row.session_id}/answers/108`, "PUT", { value: "CASE:JTF-0427-TEAM3" })).status, 403);
     assert.equal((await request(review, "PUT", body, true)).status, 409);
-    const approved = await request(review, "PUT", { ...body, responseUpdatedAt: revisedProgress.answers["6"].updatedAt }, true);
+    const approved = await request(review, "PUT", { ...body, responseUpdatedAt: revisedProgress.answers["107"].updatedAt }, true);
     assert.equal(approved.status, 200);
     const approvedProgress = await approved.json();
-    assert.equal(approvedProgress.answers["6"].reviewStatus, "approved");
-    assert.equal(approvedProgress.reviewGateQuestionId, 7);
-    assert.equal(approvedProgress.unlockedMission, 3);
-    assert.equal((await request(`/progress/${row.session_id}/answers/7`, "PUT", { value: "Keyword and phone number" })).status, 200);
+    assert.equal(approvedProgress.answers["107"].reviewStatus, "approved");
+    assert.equal(approvedProgress.reviewGateQuestionId, 110);
+    assert.equal(approvedProgress.unlockedMission, 1);
+    assert.equal((await request(`/progress/${row.session_id}/answers/108`, "PUT", { value: "CASE:JTF-0427-TEAM3" })).status, 200);
     assert.equal((await request(`/progress/${row.session_id}/submit`, "POST", {})).status, 409);
   } finally {
     await new Promise<void>((resolve, reject) => server.close(e => e ? reject(e) : resolve()));

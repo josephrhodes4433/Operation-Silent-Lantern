@@ -53,6 +53,7 @@ export * from './lanternKeyInput';
 export * from './lanternKeys';
 export * from './lanternLearnerInput';
 export * from './lanternProgress';
+export * from './lanternProgressArchivedAnswers';
 export * from './lanternProgressInput';
 export * from './lanternQuestion';
 export * from './lanternQuestionKeyMode';

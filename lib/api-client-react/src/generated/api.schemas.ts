@@ -392,6 +392,11 @@ export interface LanternAnswer {
   reviewStatus?: LanternAnswerReviewStatus;
 }
 
+/**
+ * Read-only responses from the earlier curriculum; excluded from current grading.
+ */
+export type LanternProgressArchivedAnswers = {[key: string]: LanternAnswer};
+
 export type LanternBaseProgressAnswers = {[key: string]: LanternAnswer};
 
 export interface LanternBaseProgress {
@@ -415,6 +420,8 @@ export interface LanternHint {
 }
 
 export type LanternProgress = LanternBaseProgress & ({
+  /** Read-only responses from the earlier curriculum; excluded from current grading. */
+  archivedAnswers?: LanternProgressArchivedAnswers;
   teamNumber: number;
   roeAcknowledged: boolean;
   unlockedMission: number;

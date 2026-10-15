@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { ArchivedResponses } from '@/components/archived-responses';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetLanternProgressQueryKey, useGetLanternActivity, useGetLanternProgress, useSubmitLanternProgress } from '@workspace/api-client-react';
 import { Copy, Download, Mail, Send } from 'lucide-react';
@@ -55,6 +56,7 @@ export default function Results() {
   return (
     <Shell>
       <div className="space-y-8 rise">
+        <ArchivedResponses progress={p} />
         <div className="grid md:grid-cols-[1fr_auto] gap-6 items-end">
           <div><Eyebrow>Results | {p.name} | Team {p.teamNumber}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
           <div className="bg-secondary text-secondary-foreground px-6 py-4">

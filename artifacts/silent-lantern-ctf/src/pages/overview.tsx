@@ -48,7 +48,7 @@ export default function Overview() {
                 <ul className="space-y-2 text-sm" data-testid="list-evidence">{a.evidence.map((e, i) => <li key={i} className="border-l-2 border-accent pl-3 text-muted-foreground">{e}</li>)}</ul>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">All people, organisations, locations and events are fictitious. Three hint tokens are available for the whole exercise; each costs 2 points.</p>
+            <p className="text-xs text-muted-foreground">All people, organizations, locations, and events are fictitious. Three hint tokens are available for the whole exercise; each costs 2 points.</p>
           </section>
 
           <section aria-labelledby="sections">

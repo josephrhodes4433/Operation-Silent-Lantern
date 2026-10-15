@@ -8,8 +8,7 @@ import { lanternProgress, type LanternRow } from "../src/lib/lantern-progress";
 import { reviewLanternResponse, requireWrittenApproval, sameLanternResponse } from "../src/lib/lantern-review";
 
 export const fixtureKeys = new Map<number, string[]>([
-  [5, ["ALIAS:LANTERN"]], [8, ["MAJOR:keyword:VESPER"]], [10, ["IMSI:123456789012345"]],
-  [14, ["AUTH:training-fixture"]], [15, ["Planning manifest"]], [16, ["TPL:LANTERN-2345-VESPER"]],
+  [115, ["ALIAS:LANTERN"]], [112, ["MAJOR:IMEI:123456789012345"]], [124, ["VESPER"]],
 ]);
 const stamp = "2026-10-08T12:00:00.000Z";
 export function fixtureRow(): LanternRow {
@@ -20,8 +19,9 @@ export function fixtureRow(): LanternRow {
     hints: [], speed_bonus: 0, tradecraft_bonus: 0, saved_at: new Date(stamp), submitted_at: null,
   };
   for (const q of lanternQuestions) {
-    const value = q.manualReview ? "Evidence-backed fixture response"
-      : q.id === 2 ? "CASE:JTF-0427-TEAM3"
+    const value = q.id === 117 ? "IMSI:123456789012345" : q.manualReview ? "Evidence-backed fixture response"
+      : q.id === 108 ? "CASE:JTF-0427-TEAM3"
+      : q.id === 124 ? "TPL:LANTERN-2345-VESPER"
       : q.kind === "multiple" ? q.acceptedAnswers
       : q.acceptedAnswers[0] ?? fixtureKeys.get(q.id)![0];
     row.answers[String(q.id)] = {
@@ -91,59 +91,114 @@ test("dataset references require activation, preserve class keys and do not bind
   assert.deepEqual(catalog.questions.find(q => q.id === 14)!.facilitatorAnswers, ["81"]);
 });
 
-test("SILENT LANTERN remains six UFED-only missions with strict formats and optional media", () => {
+test("SILENT LANTERN feedback curriculum has six UFED-only missions, strict formats, and no Chats or optional media", () => {
   const activity = publicLanternActivity(fixtureKeys);
   assert.equal(activity.sections.length, 6);
-  assert.equal(activity.questions.length, 18);
+  assert.equal(activity.questions.length, 26);
   assert.equal(activity.questions.filter(q => q.isFlag).length, 6);
   assert.equal(activity.totalPoints, lanternQuestions.reduce((sum, q) => sum + q.points, 0));
   assert.ok(!JSON.stringify(activity).includes("AUTH:training-fixture"));
-  const content = lanternQuestions.find(q => q.id === 4)!;
-  assert.equal(evaluateLantern(content, [...content.acceptedAnswers, "Images", "Videos"], fixtureKeys, 3, false).correct, true);
+  const content = lanternQuestions.find(q => q.id === 114)!;
+  assert.equal(evaluateLantern(content, content.acceptedAnswers, fixtureKeys, 3, false).correct, true);
+  assert.equal(evaluateLantern(content, [...content.acceptedAnswers, "Images", "Videos"], fixtureKeys, 3, false).correct, false);
   assert.equal(evaluateLantern(content, ["Chats", "Locations"], fixtureKeys, 3, false).correct, false);
-  assert.equal(evaluateLantern(lanternQuestions[1], "CASE:JTF-0427-TEAM4", fixtureKeys, 3, false).correct, false);
+  assert.equal(evaluateLantern(lanternQuestions.find(q => q.id === 108)!, "CASE:JTF-0427-TEAM4", fixtureKeys, 3, false).correct, false);
 });
 
 test("written approval gates progression, denial requires feedback and stale reviews are rejected", () => {
   const row = fixtureRow();
-  row.answers["6"].reviewStatus = "pending";
+  row.answers["107"].reviewStatus = "pending";
   const pending = lanternProgress(row, fixtureKeys);
-  assert.equal(pending.reviewGateQuestionId, 6);
-  assert.equal(pending.unlockedMission, 2);
-  assert.equal(pending.answers["6"].earnedPoints, 0);
-  assert.throws(() => requireWrittenApproval(row, 7), /must be approved/);
-  assert.doesNotThrow(() => requireWrittenApproval(row, 6));
-  assert.throws(() => reviewLanternResponse(row, 6, "denied", 0, "", stamp), /Add feedback/);
-  assert.throws(() => reviewLanternResponse(row, 6, "approved", 5, "", "2026-10-08T11:00:00Z"), /changed this response/);
-  reviewLanternResponse(row, 6, "denied", 5, "Add the timestamp and source.", stamp);
-  assert.equal(lanternProgress(row, fixtureKeys).answers["6"].status, "incorrect");
-  assert.equal(row.answers["6"].instructorPoints, 0);
-  assert.throws(() => requireWrittenApproval(row, 7), /must be approved/);
+  assert.equal(pending.reviewGateQuestionId, 107);
+  assert.equal(pending.unlockedMission, 1);
+  assert.equal(pending.answers["107"].earnedPoints, 0);
+  assert.throws(() => requireWrittenApproval(row, 108), /must be approved/);
+  assert.doesNotThrow(() => requireWrittenApproval(row, 107));
+  assert.throws(() => reviewLanternResponse(row, 107, "denied", 0, "", stamp), /Add feedback/);
+  assert.throws(() => reviewLanternResponse(row, 107, "approved", 5, "", "2026-10-08T11:00:00Z"), /changed this response/);
+  reviewLanternResponse(row, 107, "denied", 5, "Add the timestamp and source.", stamp);
+  assert.equal(lanternProgress(row, fixtureKeys).answers["107"].status, "incorrect");
+  assert.equal(row.answers["107"].instructorPoints, 0);
+  assert.throws(() => requireWrittenApproval(row, 108), /must be approved/);
   assert.ok(sameLanternResponse("Evidence-backed  fixture response", " Evidence-backed fixture response "));
   assert.ok(!sameLanternResponse("Old response", "Revised response with a cited timestamp"));
-  reviewLanternResponse(row, 6, "approved", 5, "Evidence verified.", stamp);
+  reviewLanternResponse(row, 107, "approved", 5, "Evidence verified.", stamp);
   assert.equal(lanternProgress(row, fixtureKeys).reviewGateQuestionId, null);
   assert.equal(lanternProgress(row, fixtureKeys).unlockedMission, 7);
-  assert.equal(lanternProgress(row, fixtureKeys).totalPoints, 125);
-  assert.doesNotThrow(() => requireWrittenApproval(row, 7));
+  assert.equal(lanternProgress(row, fixtureKeys).totalPoints, 165);
+  assert.doesNotThrow(() => requireWrittenApproval(row, 108));
   row.submitted_at = new Date(stamp);
-  reviewLanternResponse(row, 6, "denied", 0, "Reattempt this question.", stamp);
+  reviewLanternResponse(row, 107, "denied", 0, "Reattempt this question.", stamp);
   assert.equal(row.submitted_at, null);
-  assert.equal(lanternProgress(row, fixtureKeys).unlockedMission, 2);
+  assert.equal(lanternProgress(row, fixtureKeys).unlockedMission, 1);
 });
 
 test("legacy numeric review points do not count as an explicit approval", () => {
   const row = fixtureRow();
-  delete row.answers["6"].reviewStatus;
-  assert.equal(lanternProgress(row, fixtureKeys).answers["6"].status, "manual");
-  assert.equal(lanternProgress(row, fixtureKeys).reviewGateQuestionId, 6);
+  delete row.answers["107"].reviewStatus;
+  assert.equal(lanternProgress(row, fixtureKeys).answers["107"].status, "manual");
+  assert.equal(lanternProgress(row, fixtureKeys).reviewGateQuestionId, 107);
+});
+
+test("feedback items: order, single/multiple controls, revised prompts, Classic answers and individual IMSI", () => {
+  const get = (id: number) => lanternQuestions.find(q => q.id === id)!;
+  const activity = publicLanternActivity(fixtureKeys);
+  assert.equal(activity.totalPoints, 165);
+  assert.match(activity.sections[1].title, /Triage/);
+  assert.match(activity.sections[2].title, /Targeted/);
+  assert.match(activity.sections[4].title, /Classic/);
+  assert.equal(get(102).kind, "single");
+  assert.ok(get(102).options.includes(get(102).acceptedAnswers[0]));
+  assert.match(get(104).prompt, /multiple extractions/);
+  assert.ok(get(111).id < get(112).id);
+  assert.match(get(116).prompt, /timestamp\/source/);
+  assert.match(get(118).prompt, /if neither is present/);
+  assert.match(get(119).prompt, /TurboLink is not required/);
+  assert.equal(get(117).keyMode, "manual");
+  assert.equal(get(126).keyMode, "manual");
+  assert.match(get(126).prompt, /next steps/);
+  assert.ok(!get(125).prompt.includes("Who / What / Where / When / So-what / Next step"));
+  for (const id of [101, 102, 103, 104, 105, 106, 109, 111, 113, 114, 119, 120, 121, 122, 123]) {
+    const question = get(id);
+    assert.equal(evaluateLantern(question, question.kind === "multiple" ? question.acceptedAnswers : question.acceptedAnswers[0], fixtureKeys, 3, false).correct, true, `Fixed ${id}`);
+    assert.equal(evaluateLantern(question, question.kind === "multiple" ? ["WRONG"] : "WRONG", fixtureKeys, 3, false).correct, false, `Wrong ${id}`);
+  }
+  assert.deepEqual(get(121).acceptedAnswers, ["Enable Developer Options", "Enable Stay Awake", "Enable USB Debugging", "Enable MTP"]);
+  assert.deepEqual(get(122).acceptedAnswers, ["Advanced Logical", "File System", "Physical"]);
+  assert.deepEqual(get(123).acceptedAnswers, ["MSM8909"]);
+  const row = fixtureRow();
+  assert.equal(evaluateLantern(get(124), "TPL:LANTERN-2345-VESPER", fixtureKeys, 3, false, row.answers).correct, true);
+  row.answers["117"].value = "IMSI:987654321098765";
+  assert.equal(evaluateLantern(get(124), "TPL:LANTERN-8765-VESPER", fixtureKeys, 3, false, row.answers).correct, true);
+  assert.equal(evaluateLantern(get(124), "TPL:LANTERN-2345-VESPER", fixtureKeys, 3, false, row.answers).correct, false);
+  row.answers["117"].reviewStatus = "pending";
+  assert.equal(evaluateLantern(get(124), "TPL:LANTERN-8765-VESPER", fixtureKeys, 3, false, row.answers).status, "unkeyed");
+  assert.equal(evaluateLantern(get(117), "IMSI:123", fixtureKeys, 3, false).correct, false);
+  assert.equal(evaluateLantern(get(117), "IMSI:123456789012345", fixtureKeys, 3, false).status, "manual");
+});
+
+test("old responses, keys and hints are retained without becoming new answers or scores", () => {
+  const row = fixtureRow();
+  row.answers = { "6": { ...row.answers["107"], value: "Earlier learner text", reviewStatus: "approved" } };
+  row.hints = [1, 2, 3];
+  row.submitted_at = new Date(stamp);
+  const p = lanternProgress(row, new Map([[5, ["ALIAS:OLD"]], [14, ["AUTH:old-training"]]]));
+  assert.equal(p.archivedAnswers?.["6"].value, "Earlier learner text");
+  assert.deepEqual(p.answers, {});
+  assert.equal(p.answeredCount, 0);
+  assert.equal(p.unlockedMission, 1);
+  assert.equal(p.penaltyPoints, 0);
+  assert.equal(p.submittedAt, null);
+  assert.equal(p.trainingAuthorizationCode, null);
+  assert.equal(p.authorizationGranted, false);
+  assert.ok(!JSON.stringify(publicLanternActivity(fixtureKeys)).includes("acceptedAnswers"));
 });
 
 // Browser verification uses intercepted fixtures, never classroom keys or the real access code.
 const pendingRow = fixtureRow();
-pendingRow.answers = Object.fromEntries(Object.entries(pendingRow.answers).filter(([id]) => Number(id) <= 6));
-pendingRow.answers["6"].reviewStatus = "pending";
-pendingRow.answers["6"].instructorPoints = null;
+pendingRow.answers = Object.fromEntries(Object.entries(pendingRow.answers).filter(([id]) => Number(id) <= 107));
+pendingRow.answers["107"].reviewStatus = "pending";
+pendingRow.answers["107"].instructorPoints = null;
 const classKeys = new Map<number, string[]>([[13, ["99"]]]);
 writeFileSync("artifacts/api-server/tests/fixtures/classroom-ui-fixtures.json", JSON.stringify({
   ironActivity: publicActivity(classKeys),

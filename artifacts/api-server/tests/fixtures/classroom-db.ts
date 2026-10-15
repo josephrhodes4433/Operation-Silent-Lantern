@@ -4,12 +4,18 @@ export const classroomFixture = {
   rows: new Map<string, LanternRow>(),
   lanternKeys: new Map<number, string[]>(),
   ironKeys: new Map<number, string[]>(),
+  history: new Map<string, number>(),
 };
 async function query<T = unknown>(sql: string, values: unknown[] = []): Promise<{ rows: T[] }> {
   let rows: unknown[] = [];
   if (/^(BEGIN|COMMIT|ROLLBACK)$/.test(sql)) return { rows: [] };
   if (sql.includes("FROM ctf_questions")) return { rows: [] };
-  if (sql.includes("FROM lantern_keys")) {
+  if (sql.startsWith("SELECT version FROM lantern_written_history")) {
+    const version = classroomFixture.history.get(`${values[0]}:${values[1]}`);
+    rows = version === undefined ? [] : [{ version }];
+  } else if (sql.trimStart().startsWith("INSERT INTO lantern_written_history")) {
+    classroomFixture.history.set(`${values[0]}:${values[1]}`, Number(values[2]));
+  } else if (sql.includes("FROM lantern_keys")) {
     rows = [...classroomFixture.lanternKeys].map(([question_id, accepted_answers]) => ({ question_id, accepted_answers }));
   } else if (sql.startsWith("SELECT * FROM lantern_progress WHERE")) {
     const row = classroomFixture.rows.get(String(values[0]));

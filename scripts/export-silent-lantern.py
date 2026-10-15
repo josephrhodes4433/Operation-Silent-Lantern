@@ -245,8 +245,9 @@ The website runs at `/`, with its own instructor console at `/instructor`.
    No secret values have been copied from the original project.
 5. Click **Run**. Dependencies install, development tables are created,
    and the website builds and starts on one port.
-6. In **Instructor**, configure the six dataset-dependent answers, including
-   a training `AUTH:` token distinct from the instructor access code.
+6. In **Instructor**, configure the iPhone Major match, courier alias, and final
+   watchlist keyword. Enter only the keyword for the final TPL key. Review each
+   learner's SIM IMSI individually. No preserved extraction or AUTH token is required.
 
 Learner records, instructor dataset keys and existing resume sessions are
 NOT included. The new project starts with a fresh database. The original
@@ -254,12 +255,14 @@ projects and their saved records have not been deleted or changed.
 
 ## Features
 
-- Six UFED-only missions, 18 responses, 125 base points
+- Six UFED-only missions, 26 responses, 165 base points
 - Names, team numbers, learner email and instructor email
 - Saved responses and private resume links
 - Self-validation, strict flag formats and server-enforced mission unlocks
 - Three hint tokens, each deducting two points
-- Preserved-handling notes and instructor authorization for Mission 5
+- Knowledge-based Preserved/SafeGuard questions, iPhone Triage before targeted
+  collection, individual SIM review, and UFED Classic ZTE Mission 5
+- Read-only archived responses from the earlier curriculum; original records are retained
 - Written-answer review, optional speed and tradecraft bonuses
 - Protected per-question history of written submissions and instructor decisions
 - Downloadable results and provider-free email drafts
@@ -283,14 +286,18 @@ schema through Replit's publishing/database setup before using it live.
 
 ## Source of truth
 
-Use the UFED-only learner packet and Microsoft Forms blueprint in `resources/`.
-The canonical structure is six missions. Do not add PA/Streamline workflows
+Use the feedback workbook and feedback DOCX in `resources/` as the latest
+curriculum changes; they supersede the older question order, preserved-device
+requirement, SIM assumptions, and Mission 5 in the original packets.
+The canonical structure remains six missions. Do not add PA/Streamline workflows
 or the conflicting eight-phase narrative as additional graded missions.
 """
         write(stage, "README.md", readme)
         write(stage, "replit.md", readme)
 
         resources = {
+            "CEDI_CTF_App_Recommendations-1_1792081365328.xlsx": "Latest_App_Recommendations.xlsx",
+            "CTF_Feedback_2_1792081451038.docx": "Latest_CTF_Feedback.docx",
             "Operation_SILENT_LANTERN_Learner_Mission_Packet_UFED_Only_1791498910901.pdf": "Learner_Mission_Packet_UFED_Only.pdf",
             "Operation_SILENT_LANTERN_Microsoft_Forms_Blueprint_UFED_Only_1791498910902.md": "Microsoft_Forms_Blueprint_UFED_Only.md",
             "Operation_SILENT_LANTERN_Facilitator_Guide_UFED_Only_(2)_1791498910903.pdf": "Facilitator_Guide_UFED_Only.pdf",

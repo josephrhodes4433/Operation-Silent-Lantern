@@ -1,5 +1,11 @@
 # CTF source verification
 
+**Current curriculum update:** The uploaded feedback workbook and `CTF_Feedback_2`
+supersede earlier SILENT LANTERN question order, preserved-device requirements,
+SIM assumptions, and Mission 5. See [feedback implementation and validation](ctf-feedback-verification.md).
+The older source notes below remain historical context, not instructions to
+restore the retired curriculum.
+
 ## IRON MERIDIAN
 
 - Keep the instructor-selected eight-section activity and existing flag IDs.

@@ -3,16 +3,15 @@ import { Link } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetLanternProgressQueryKey, useCreateLanternProgress, useGetLanternActivity, useGetLanternProgress,
-  useRequestLanternAuthorization, useUseLanternHint,
+  useUseLanternHint,
 } from '@workspace/api-client-react';
 import type { LanternProgress } from '@workspace/api-client-react';
 import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionCard } from '@/components/question-card';
-import { type Session, clearAuthDraft, errMessage, hasResponse, loadAuthDraft, loadSession, orderedQuestions, storeAuthDraft, storeSession } from '@/lib/ctf';
+import { ArchivedResponses } from '@/components/archived-responses';
+import { type Session, errMessage, hasResponse, loadSession, orderedQuestions, storeSession } from '@/lib/ctf';
 import { clearCheckInDraft, loadCheckInDraft, loadLearnerProfile, storeCheckInDraft, type CheckInDraft } from '@/lib/check-in';
-
-const AUTH_QID = 15;
 
 function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const create = useCreateLanternProgress();
@@ -116,35 +115,6 @@ function HintPanel({ p, missionId }: { p: LanternProgress; missionId: number }) 
   );
 }
 
-function AuthPanel({ p }: { p: LanternProgress }) {
-  const qc = useQueryClient();
-  const req = useRequestLanternAuthorization();
-  const [notes, setNotes] = useState(() => loadAuthDraft(p.sessionId) ?? p.authorizationNotes ?? '');
-  const requested = !!p.authorizationNotes;
-  const send = () => req.mutate({ sessionId: p.sessionId, data: { notes: notes.trim() } }, {
-    onSuccess: (np) => { clearAuthDraft(p.sessionId, np.authorizationNotes); qc.setQueryData(getGetLanternProgressQueryKey(p.sessionId), np); },
-  });
-  return (
-    <section className="bg-card border border-border p-5 space-y-3" aria-labelledby="auth-h" data-testid="panel-authorization">
-      <h2 id="auth-h" className="font-display font-bold text-lg">Preserved-handling notes and training authorization</h2>
-      <p className="text-sm text-muted-foreground">Explain how the evidence was preserved and handled. Your instructor reviews these notes and, if satisfied, grants a training authorization code. The code is not shown before the grant.</p>
-      <label htmlFor="auth-notes" className="sr-only">Handling explanation</label>
-      <textarea id="auth-notes" rows={6} maxLength={12000} className={field} value={notes} data-testid="input-auth-notes"
-        onChange={(e) => { setNotes(e.target.value); storeAuthDraft(p.sessionId, e.target.value); }} />
-      <div className="flex flex-wrap items-center gap-3">
-        <button className={btn} disabled={!notes.trim() || req.isPending} onClick={send} data-testid="button-request-auth">{req.isPending ? 'Sending...' : requested ? 'Update notes and re-request' : 'Save notes and request authorization'}</button>
-        <span role="status" className="text-xs font-mono text-muted-foreground" data-testid="text-auth-status">
-          {p.authorizationGranted ? 'Authorization granted' : requested ? 'Waiting for instructor review' : 'Not requested'}
-        </span>
-      </div>
-      {req.isError && <p role="alert" className="text-sm text-destructive">{errMessage(req.error, 'Request failed. Try again.')}</p>}
-      {p.authorizationGranted && p.trainingAuthorizationCode && (
-        <p className="border-l-4 border-[hsl(var(--ok))] bg-muted/50 p-3 text-sm">Training authorization code: <code className="font-mono font-bold" data-testid="text-auth-code">{p.trainingAuthorizationCode}</code></p>
-      )}
-    </section>
-  );
-}
-
 export default function Activity() {
   const qc = useQueryClient();
   const [session, setSession] = useState<Session | null>(() => {
@@ -217,7 +187,7 @@ export default function Activity() {
   const missionLocked = (m: number) => m > unlocked || (p.reviewGateQuestionId !== null && (qs.find(q => q.section === m)?.id ?? 0) > p.reviewGateQuestionId);
   const qLocked = cur && p.reviewGateQuestionId !== null && cur.id > p.reviewGateQuestionId
     ? 'An earlier written response needs instructor approval before you can answer this question.'
-    : cur && (cur.id === 14 || cur.id === AUTH_QID) && !p.authorizationGranted ? 'Locked until your instructor grants training authorization from your preserved-handling notes (below).' : undefined;
+    : undefined;
 
   return (
     <Shell>
@@ -255,6 +225,7 @@ export default function Activity() {
         </aside>
 
         <div className="space-y-5 min-w-0">
+           <ArchivedResponses progress={p} />
           {section && (
             <div className="border-l-4 border-primary pl-4">
               <Eyebrow>Mission {section.id} | {section.time}</Eyebrow>
@@ -264,7 +235,6 @@ export default function Activity() {
           )}
           {cur && <HintPanel key={`h-${cur.section}-${p.hints.length}`} p={p} missionId={cur.section} />}
           {cur && <QuestionCard key={cur.id} q={cur} sessionId={p.sessionId} saved={p.answers[String(cur.id)]} locked={qLocked} />}
-          {cur?.section === 5 && <AuthPanel key={p.authorizationGranted ? 'g' : 'n'} p={p} />}
           <div className="flex justify-between gap-3">
             <button className={btnGhost} disabled={idx <= 0} onClick={() => setIdx(idx - 1)} data-testid="button-prev"><ArrowLeft size={16} /> Previous</button>
             {idx < qs.length - 1

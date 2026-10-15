@@ -6,7 +6,7 @@ import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost } from '@/compo
 const PIRS = [
   'Who are the persons of interest within the MERIDIAN network, and why?',
   'What is the MERIDIAN network’s area of operation and its primary operating hubs? Which can be confirmed to the standard required for physical action?',
-  'What additional collection opportunities exist beyond the seized devices — cloud accounts, associated handsets, backup hosts or partner-held data — that would extend coverage of the network?',
+  'What additional collection opportunities exist beyond the seized devices — cloud accounts, associated handsets, backup hosts, or partner-held data — that would extend coverage of the network?',
 ];
 
 export default function Overview() {
@@ -43,7 +43,7 @@ export default function Overview() {
           <section className="bg-card border border-border p-6 space-y-4" aria-labelledby="read-in">
             <Eyebrow>Scenario read-in</Eyebrow>
             <h2 id="read-in" className="font-display text-2xl font-bold">The warehouse on Meridian Road</h2>
-            <p className="text-muted-foreground">At 0410, a joint task force raids a freight consolidation yard linked to MERIDIAN, a compartmented network moving precision components through shell consignees. Your media exploitation cell receives the recovered extractions. You have an air-gapped workstation, Inseyets Physical Analyzer and the course software folder — but no second shift. The commander's targeting board needs findings that are hashed, independently validated and traceable to their source artifacts.</p>
+            <p className="text-muted-foreground">At 0410, a joint task force raids a freight consolidation yard linked to MERIDIAN, a compartmented network moving precision components through shell consignees. Your media exploitation cell receives the recovered extractions. You have an air-gapped workstation, Inseyets Physical Analyzer, and the course software folder — but no second shift. The commander's targeting board needs findings that are hashed, independently validated, and traceable to their source artifacts.</p>
             <dl className="grid md:grid-cols-3 gap-4">
               {[
                 ['ALPHA', 'Samsung Galaxy S21 5G', 'C — Drew Cheatham: File System Qualcomm Live 03 + Advanced Logical 01. Yard leaseholder / facilitator.'],
@@ -51,7 +51,7 @@ export default function Overview() {
                 ['CHARLIE', 'Apple iPhone 5S backup', 'F — Manual Trabajo: iTunes Backup Extraction. Foreign-language node; handset still at large.'],
               ].map(([call, device, description]) => <div key={call} className="border-l-2 border-accent pl-3"><dt className="font-mono text-sm font-bold">{call} / {device}</dt><dd className="text-sm text-muted-foreground mt-2">{description}</dd></div>)}
             </dl>
-            <p className="text-xs text-muted-foreground">All people, organisations, locations and events are fictitious. Use only the course Student Folder extractions and taught capabilities. The source schedule includes a 40-minute break.</p>
+            <p className="text-xs text-muted-foreground">All people, organizations, locations, and events are fictitious. Use only the course Student Folder extractions and taught capabilities. The source schedule includes a 40-minute break.</p>
           </section>
 
           <section aria-labelledby="pir" className="rise bg-secondary text-secondary-foreground p-6 sm:p-8">

@@ -7,8 +7,11 @@
  */
 import type { LanternBaseProgress } from './lanternBaseProgress';
 import type { LanternHint } from './lanternHint';
+import type { LanternProgressArchivedAnswers } from './lanternProgressArchivedAnswers';
 
 export type LanternProgress = LanternBaseProgress & ({
+  /** Read-only responses from the earlier curriculum; excluded from current grading. */
+  archivedAnswers?: LanternProgressArchivedAnswers;
   teamNumber: number;
   roeAcknowledged: boolean;
   unlockedMission: number;

@@ -42,7 +42,7 @@ test("authored grading modes and fixed section boundaries preserve original IDs"
     assert.equal(sectionForFlag(id).section, section);
   }
   const merged = mergeQuestions([q]);
-  assert.equal(merged.length, 78);
+  assert.equal(merged.length, 120);
   assert.equal(merged.find(x => x.id === 67)?.section, 5);
   assert.deepEqual(merged.find(x => x.id === 1), questions.find(x => x.id === 1));
 });
@@ -90,8 +90,8 @@ test("protected authoring persists independently of source and learner responses
     assert.equal((await request("/ctf/instructor/questions", "GET", undefined, false)).status, 401);
     assert.equal((await request("/ctf/instructor/questions/67", "PUT", input(), false)).status, 401);
     const catalog = await (await request("/ctf/instructor/questions")).json();
-    assert.equal(catalog.missingIds.length, 43);
-    assert.ok(catalog.missingIds.includes(67));
+    assert.equal(catalog.missingIds.length, 0);
+    assert.ok(catalog.questions.some((q: { id: number }) => q.id === 67));
     assert.equal((await request("/ctf/instructor/questions/121", "PUT", input())).status, 400);
     assert.equal((await request("/ctf/instructor/questions/67", "PUT", input({ prompt: " " }))).status, 400);
     const saved = await (await request("/ctf/instructor/questions/67", "PUT", { ...input(), id: 3, section: 1 })).json();
@@ -99,11 +99,11 @@ test("protected authoring persists independently of source and learner responses
     assert.equal(saved.section, 5);
     assert.deepEqual(saved.acceptedAnswers, ["Fixture KEY"]);
     const restored = await (await request("/ctf/instructor/questions")).json();
-    assert.equal(restored.missingIds.length, 42);
+    assert.equal(restored.missingIds.length, 0);
     assert.equal(restored.questions.find((q: { id: number }) => q.id === 67).prompt, input().prompt);
     const activity = await (await request("/ctf/activity")).json();
-    assert.equal(activity.totalFlags, 78);
-    assert.equal(activity.totalPoints, 842);
+    assert.equal(activity.totalFlags, 120);
+    assert.equal(activity.totalPoints, 1367); // Override Flag 67 from 10 to 7.
     assert.equal(JSON.stringify(activity).includes("Fixture KEY"), false);
     assert.equal(activity.questions.some((q: { acceptedAnswers?: unknown; validationMethod?: unknown }) => q.acceptedAnswers || q.validationMethod), false);
     const progress = await (await request(`/ctf/progress/${learner.session_id}`)).json();

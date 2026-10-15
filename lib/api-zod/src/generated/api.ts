@@ -87,6 +87,16 @@ export const CreateLanternProgressResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -129,6 +139,16 @@ export const GetLanternProgressResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -146,7 +166,7 @@ export const GetLanternProgressResponse = zod.object({
 }))
 
 
-export const saveLanternAnswerPathQuestionIdMax = 18;
+export const saveLanternAnswerPathQuestionIdMax = 126;
 
 
 
@@ -194,6 +214,16 @@ export const SubmitLanternProgressResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -241,6 +271,16 @@ export const UseLanternHintResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -291,6 +331,16 @@ export const RequestLanternAuthorizationResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -332,7 +382,7 @@ export const GetLanternInstructorKeysResponseItem = zod.object({
 export const GetLanternInstructorKeysResponse = zod.array(GetLanternInstructorKeysResponseItem)
 
 
-export const setLanternInstructorKeyPathQuestionIdMax = 18;
+export const setLanternInstructorKeyPathQuestionIdMax = 126;
 
 
 
@@ -415,6 +465,16 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -432,7 +492,7 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
 }))
 
 
-export const reviewLanternWrittenAnswerPathQuestionIdMax = 18;
+export const reviewLanternWrittenAnswerPathQuestionIdMax = 126;
 
 
 
@@ -479,6 +539,16 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -496,7 +566,7 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
 }))
 
 
-export const getLanternWrittenHistoryPathQuestionIdMax = 18;
+export const getLanternWrittenHistoryPathQuestionIdMax = 126;
 
 
 
@@ -560,6 +630,16 @@ export const GrantLanternAuthorizationResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
@@ -611,6 +691,16 @@ export const AdjustLanternScoreResponse = zod.object({
   "savedAt": zod.coerce.date(),
   "submittedAt": zod.coerce.date().nullable()
 }).and(zod.object({
+  "archivedAnswers": zod.record(zod.string(), zod.object({
+  "value": zod.union([zod.string(),zod.array(zod.string())]),
+  "correct": zod.boolean().nullable(),
+  "earnedPoints": zod.number().int(),
+  "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
+  "updatedAt": zod.coerce.date(),
+  "instructorPoints": zod.number().int().nullish(),
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
+})).optional().describe('Read-only responses from the earlier curriculum; excluded from current grading.'),
   "teamNumber": zod.number().int(),
   "roeAcknowledged": zod.boolean(),
   "unlockedMission": zod.number().int(),
