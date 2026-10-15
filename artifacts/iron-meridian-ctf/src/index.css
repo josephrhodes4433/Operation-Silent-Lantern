@@ -458,3 +458,11 @@ body { background-image: linear-gradient(hsl(var(--border) / .35) 1px, transpare
 @keyframes sk { 50% { opacity: .5; } }
 .skel { background: hsl(var(--muted)); animation: sk 1.4s infinite; border-radius: 2px; }
 @media (prefers-reduced-motion: reduce) { .rise, .skel { animation: none; } * { scroll-behavior: auto !important; transition: none !important; } }
+
+@media print {
+  body:has(.answer-guide-print) * { visibility: hidden; }
+  .answer-guide-print, .answer-guide-print * { visibility: visible; }
+  .answer-guide-print { position: absolute; left: 0; top: 0; width: 100%; }
+  .print-hide { display: none !important; }
+  .print-only { display: block !important; }
+}

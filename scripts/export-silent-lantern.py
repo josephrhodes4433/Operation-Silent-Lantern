@@ -117,11 +117,19 @@ def export(destination):
             "src/index.ts", "src/lib/logger.ts", "src/lib/instructor-access.ts",
             "src/lib/lantern-activity.ts", "src/lib/lantern-progress.ts", "src/lib/lantern-review.ts",
             "src/lib/lantern-history.ts",
+            "src/lib/lantern-answer-guide.ts",
+            "src/lib/lantern-choice-feedback.ts",
             "src/routes/health.ts", "src/routes/lantern.ts",
             "src/tests/lantern-history.test.ts",
         ]
         for relative in api_files:
             copy(stage, "artifacts/api-server/" + relative)
+        api_package = json.loads((stage / "artifacts/api-server/package.json").read_text())
+        # These shared-workspace test suites import the other activity and are
+        # intentionally not shipped in the standalone application.
+        for command in ["test:questions", "test:answer-guides", "test:multiple-choice"]:
+            api_package["scripts"].pop(command, None)
+        write(stage, "artifacts/api-server/package.json", json.dumps(api_package, indent=2) + "\n")
 
         write(stage, "artifacts/api-server/src/routes/index.ts", """\
 import { Router, type IRouter } from "express";
@@ -162,6 +170,15 @@ app.get("/{*path}", (req, res) => {
 
         # A single, self-contained contract: no IRON MERIDIAN API or models.
         contract = (ROOT / "lib/api-spec/lantern.yaml").read_text()
+        # Carry the protected guide contract and its shared models into the
+        # self-contained export without including the other activity's API.
+        root_contract = (ROOT / "lib/api-spec/openapi.yaml").read_text()
+        guide_path = re.search(r"^  /lantern/instructor/answer-guide:\n.*?(?=^  /|\Z)", root_contract, re.M | re.S)
+        guide_schemas = re.findall(r"^    InstructorAnswerGuide(?:Entry)?:\n.*?(?=^    [A-Za-z]|\Z)", root_contract, re.M | re.S)
+        if not guide_path or len(guide_schemas) != 2:
+            raise RuntimeError("Instructor answer-guide contract changed; inspect before exporting.")
+        contract = contract.replace("paths:\n", "paths:\n" + guide_path.group(), 1)
+        contract = contract.replace("  schemas:\n", "  schemas:\n" + "".join(guide_schemas), 1)
         contract = contract.replace("paths:\n", """\
 paths:
   /healthz:
@@ -264,6 +281,7 @@ projects and their saved records have not been deleted or changed.
   collection, individual SIM review, and UFED Classic ZTE Mission 5
 - Read-only archived responses from the earlier curriculum; original records are retained
 - Written-answer review, optional speed and tradecraft bonuses
+- Instructor-only searchable answer guide with sample responses and print view
 - Protected per-question history of written submissions and instructor decisions
 - Downloadable results and provider-free email drafts
 

@@ -36,6 +36,7 @@ import type {
   CtfReviewInput,
   CtfSubmissionSummary,
   HealthStatus,
+  InstructorAnswerGuide,
   LanternActivity,
   LanternAnswerInput,
   LanternAnswerResult,
@@ -80,6 +81,148 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetCtfInstructorAnswerGuideUrl = () => {
+
+
+
+
+  return `/api/ctf/instructor/answer-guide`
+}
+
+export const getCtfInstructorAnswerGuide = async ( options?: Parameters<typeof customFetch>[1]): Promise<InstructorAnswerGuide> => {
+
+  return customFetch<InstructorAnswerGuide>(getGetCtfInstructorAnswerGuideUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfInstructorAnswerGuideQueryKey = () => {
+    return [
+    `/api/ctf/instructor/answer-guide`
+    ] as const;
+    }
+
+
+export const getGetCtfInstructorAnswerGuideQueryOptions = <TData = Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfInstructorAnswerGuideQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>> = ({ signal }) => getCtfInstructorAnswerGuide({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfInstructorAnswerGuideQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>>
+export type GetCtfInstructorAnswerGuideQueryError = ErrorType<void>
+
+
+
+export function useGetCtfInstructorAnswerGuide<TData = Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfInstructorAnswerGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfInstructorAnswerGuideQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternInstructorAnswerGuideUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/answer-guide`
+}
+
+export const getLanternInstructorAnswerGuide = async ( options?: Parameters<typeof customFetch>[1]): Promise<InstructorAnswerGuide> => {
+
+  return customFetch<InstructorAnswerGuide>(getGetLanternInstructorAnswerGuideUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternInstructorAnswerGuideQueryKey = () => {
+    return [
+    `/api/lantern/instructor/answer-guide`
+    ] as const;
+    }
+
+
+export const getGetLanternInstructorAnswerGuideQueryOptions = <TData = Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternInstructorAnswerGuideQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>> = ({ signal }) => getLanternInstructorAnswerGuide({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternInstructorAnswerGuideQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>>
+export type GetLanternInstructorAnswerGuideQueryError = ErrorType<void>
+
+
+
+export function useGetLanternInstructorAnswerGuide<TData = Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternInstructorAnswerGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternInstructorAnswerGuideQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetLanternActivityUrl = () => {
 

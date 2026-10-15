@@ -1,0 +1,25 @@
+export const lanternChoices: Record<number, string[]> = {
+  104: ["UFDR", "E01", "UFDX", "UFD"],
+  123: ["MSM8916", "MSM8909", "MT6737", "Exynos 8890"],
+};
+export const lanternIncorrectFeedback: Record<number, string> = {
+  101: "Review initial device-state preservation and the risk of remote changes. Do not confuse safe initial handling with examining content.",
+  102: "Compare which strategy produces relevant initial leads efficiently while allowing a more focused follow-up collection.",
+  103: "Distinguish a workflow for external storage from workflows for supported phones or ordinary desktop browsing.",
+  104: "Distinguish an extraction file, a multi-extraction evidence container, and an exported reader report. Check the collection output's role and extension.",
+  105: "Review the feature tied to the inactivity timer, rather than a network-isolation setting or a storage workflow.",
+  106: "Distinguish preserving data pending lawful authority from examining or disseminating it immediately.",
+  108: "Compare the required case pattern with the team number saved during your check-in.",
+  109: "Review the supported connection procedure and readiness indicator. Connecting cables alone is not the complete procedure.",
+  111: "Compare the profile's match-severity levels. Distinguish priority from the kind of artifact that matched.",
+  112: "Open the saved Triage report and distinguish the match's data type from its value. Check the requested severity and first matching item.",
+  113: "Compare the options actually offered in this UFED manual workflow, rather than options from a different collection stage or device workflow.",
+  114: "Review the requested collection scope and each available category. A partial selection is not the complete collection plan.",
+  115: "Use the message that explicitly names the courier. Do not substitute the device owner's name or an unrelated contact.",
+  119: "Match the accessory to the evidence being extracted. Requirements for collecting a phone do not automatically apply to a separate SIM.",
+  120: "Check the exact training model against UFED Classic's supported-device information rather than assuming all devices share the same support.",
+  121: "Compare the phone's current preparation and connection settings with the tool's extraction prerequisites. Check the complete set, not just one setting.",
+  122: "Review the complete list of supported collection workflows for this training phone. Do not assume one method covers every acquisition scope.",
+  123: "Read the chipset field in the Collection Summary Reports. Distinguish it from the manufacturer, model, or extraction method.",
+  124: "Re-check the device-linked alias, the last four digits of your own approved SIM response, and the classroom watchlist keyword. Another learner's SIM cannot verify your package.",
+};

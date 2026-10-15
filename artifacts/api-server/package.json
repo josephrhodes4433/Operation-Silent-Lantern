@@ -10,7 +10,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "test:lantern-history": "node run-lantern-history-tests.mjs",
-    "test:questions": "esbuild tests/ctf-question-authoring.test.ts --bundle --platform=node --format=cjs --external:pg-native --outfile=dist/ctf-question-authoring.test.cjs && node --test dist/ctf-question-authoring.test.cjs"
+    "test:questions": "esbuild tests/ctf-question-authoring.test.ts --bundle --platform=node --format=cjs --external:pg-native --outfile=dist/ctf-question-authoring.test.cjs && node --test dist/ctf-question-authoring.test.cjs",
+    "test:answer-guides": "esbuild tests/instructor-answer-guides.test.ts --bundle --platform=node --format=cjs --alias:@workspace/db=./tests/fixtures/classroom-db.ts --external:pg-native --outfile=dist/instructor-answer-guides.test.cjs && node --test dist/instructor-answer-guides.test.cjs",
+    "test:multiple-choice": "esbuild tests/ctf-multiple-choice.test.ts --bundle --platform=node --format=cjs --alias:@workspace/db=./tests/fixtures/classroom-db.ts --external:pg-native --outfile=dist/ctf-multiple-choice.test.cjs && node --test dist/ctf-multiple-choice.test.cjs"
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",

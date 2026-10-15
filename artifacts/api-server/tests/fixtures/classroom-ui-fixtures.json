@@ -128,8 +128,13 @@
         "section": 1,
         "sectionTitle": "Workstation Preparation and Case Build",
         "prompt": "The cell chief wants every analyst on IRON MERIDIAN running an identical build. You export your configuration so it can be pushed to the rest of the team. What file extension does an exported Inseyets.PA settings configuration file use? (Include the dot.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          ".cnf",
+          ".xml",
+          ".ufdr",
+          ".json"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.1, p.27",
         "correctAnswerAvailable": true,
@@ -140,8 +145,13 @@
         "section": 1,
         "sectionTitle": "Workstation Preparation and Case Build",
         "prompt": "Task force reporting policy states that no product may leave the cell without a mission number recorded. You add a custom report field named 'Mission Number' at Tools > Settings > Additional Report Fields. What must you set on that field so a report CANNOT be generated until the field is filled in?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Set Required to No",
+          "Add a default value without requiring completion",
+          "Set Visible to Yes",
+          "Set Required to Yes"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.1, pp.23-24; Lesson 6.1, p.436",
         "correctAnswerAvailable": true,
@@ -186,8 +196,13 @@
         "section": 1,
         "sectionTitle": "Workstation Preparation and Case Build",
         "prompt": "Enrichment engines cost processing time, so the cell applies most of them after ingest. Which single enrichment engine MUST be run during initial processing because it depends on raw file metadata and cannot be applied later?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyze Media Origins",
+          "Malware scan",
+          "Media classification",
+          "Watchlist keyword search"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.2, pp.50-51",
         "correctAnswerAvailable": true,
@@ -198,8 +213,13 @@
         "section": 1,
         "sectionTitle": "Workstation Preparation and Case Build",
         "prompt": "Build case ALPHA with BOTH provided extractions loaded (File System first, then add the Advanced Logical through Edit case > Add evidence > Load extraction). How many extractions are listed in the Extraction Summary area when you are finished?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "1",
+          "3",
+          "4",
+          "2"
+        ],
         "points": 10,
         "guideReference": "Activity 1.3, pp.34-38",
         "correctAnswerAvailable": true,
@@ -251,8 +271,13 @@
         "section": 2,
         "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
         "prompt": "The MERIDIAN network is known to use throwaway numbers that mass-dialling services flag automatically. Using the Call Log, how many INCOMING calls on ALPHA were identified as Suspected Spam? Tag each one as Evidence with a description.",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "100",
+          "101",
+          "98",
+          "99"
+        ],
         "points": 10,
         "guideReference": "Activity 6.3 Q4, p.467; tagging p.100",
         "correctAnswerAvailable": true,
@@ -335,8 +360,13 @@
         "section": 2,
         "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
         "prompt": "Build a watch list named MERIDIAN-NARC containing the keywords Narcotics, Pharmaceuticals, Oxycodone, Oxycontin and Cash, then run it against ALPHA. Where in the Project Tree do the results appear? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Insights > WatchList > Keywords",
+          "Analyzed Data > Instant Messages > Keywords",
+          "File Systems > WatchList > Keywords",
+          "Insights > Media Classification"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.4, pp.101-102, 111-112",
         "correctAnswerAvailable": true,
@@ -427,8 +457,13 @@
         "section": 2,
         "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
         "prompt": "MERIDIAN has previously pushed implants to facilitator handsets. Before scanning ALPHA you must update the malware signatures. Which anti-malware engine does Inseyets.PA use?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ClamAV",
+          "Sophos",
+          "BitDefender",
+          "Microsoft Defender"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.4, pp.107, 118-119",
         "correctAnswerAvailable": true,
@@ -439,8 +474,13 @@
         "section": 2,
         "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
         "prompt": "Your exploitation workstation is air-gapped, so signatures must be updated from a donor file. What is the file name of the definitions file you load?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "signatures.db",
+          "definitions64.msd",
+          "malware_rules.xml",
+          "definitions32.msd"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.4, pp.118-119",
         "correctAnswerAvailable": true,
@@ -463,8 +503,13 @@
         "section": 2,
         "sectionTitle": "ALPHA Triage: Pattern of Life and Network",
         "prompt": "The cell has standardised its tag set for IRON MERIDIAN. Which menu path lets you rename tags, assign hotkeys and create new tags such as Leads?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Report settings",
+          "Tools > Settings > Additional Report Fields",
+          "View > Manage Projects",
+          "Tools > Manage Tags"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.4, pp.143, 145",
         "correctAnswerAvailable": true,
@@ -492,8 +537,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "In Analyzed Data > Images on BRAVO, locate Img_0003.HEIC. What is its byte size?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "14598860",
+          "1459886",
+          "145988",
+          "1459986"
+        ],
         "points": 10,
         "guideReference": "Activity 1.8, p.134",
         "correctAnswerAvailable": true,
@@ -516,8 +566,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "Open Analyzed Data > Messages/Chats > Native Messages on BRAVO and find the thread with the contact Rigoberto (15202229283). How many messages does that thread contain?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "6",
+          "14",
+          "8",
+          "7"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.405",
         "correctAnswerAvailable": true,
@@ -528,8 +583,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "To prove the tool decoded that thread correctly you go to the raw database. Using the All Projects search, which database do you open to validate native iOS messages?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "sms.db",
+          "Calendar.sqlitedb",
+          "Photos.sqlite",
+          "AddressBook.sqlitedb"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.407",
         "correctAnswerAvailable": true,
@@ -540,8 +600,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "Inside sms.db, which table do you open in Database View to compare message bodies against the decoded output?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "chat",
+          "attachment",
+          "message",
+          "handle"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.407",
         "correctAnswerAvailable": true,
@@ -581,8 +646,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "MERIDIAN imagery is being cross-checked against a partner report, so the EXIF must be validated with a second tool. Save IMG_0041.HEIC from BRAVO and drop it onto ExifTool.exe. Which tab in Inseyets.PA do you open to compare the tool's EXIF output against ExifTool?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File Info",
+          "Table",
+          "Timeline",
+          "Hex"
+        ],
         "points": 10,
         "guideReference": "Activity 5.2, p.417",
         "correctAnswerAvailable": true,
@@ -622,8 +692,13 @@
         "section": 3,
         "sectionTitle": "BRAVO Verification and Validation",
         "prompt": "Three copies of IMG_0006 exist on BRAVO. To establish which one carries the true capture location you go to Photos.sqlite. Which TABLE holds ZLATITUDE and ZLONGITUDE - the accurate location of the original image when it was taken?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ZCLOUDMASTER",
+          "ZCLOUDRESOURCE",
+          "ZASSET",
+          "ZEXTENDEDATTRIBUTES"
+        ],
         "points": 15,
         "guideReference": "Activity 5.3, p.420",
         "correctAnswerAvailable": true,
@@ -663,8 +738,13 @@
         "section": 4,
         "sectionTitle": "CHARLIE: The Foreign-Language Node",
         "prompt": "CHARLIE arrived as an iTunes backup rather than a UFED extraction, so it must be opened through Open (Advanced). During ingest you are prompted for the backup password. What is it?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "manny",
+          "meridian",
+          "charlie",
+          "backup"
+        ],
         "points": 10,
         "guideReference": "Activity 3.2, p.240",
         "correctAnswerAvailable": true,
@@ -848,8 +928,13 @@
         "section": 4,
         "sectionTitle": "CHARLIE: The Foreign-Language Node",
         "prompt": "Imagery volume on CHARLIE is too large to review by hand, so you run the automated classifier. Give the full menu path used to run media classification after a case has already been ingested.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Enrichment engines > Media classification",
+          "Tools > Manage Tags > Classify media",
+          "File > Report > Media classification",
+          "Tools > Get more data (Carving) > Carve Images"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, pp.320-321",
         "correctAnswerAvailable": true,
@@ -860,8 +945,13 @@
         "section": 4,
         "sectionTitle": "CHARLIE: The Foreign-Language Node",
         "prompt": "Where do you go to review the results of media classification once processing completes? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyzed Data > Images > Classified",
+          "Insights > WatchList > Keywords",
+          "Insights > Media Classification",
+          "File Systems > Media Classification"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, p.322; Activity 3.12, p.327",
         "correctAnswerAvailable": true,
@@ -913,8 +1003,13 @@
         "section": 4,
         "sectionTitle": "CHARLIE: The Foreign-Language Node",
         "prompt": "Your workstation is air-gapped, so the map tiles will not load from the internet. What menu path installs the offline maps package?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Add external file > Map tiles",
+          "Tools > Offline maps > Install offline maps package",
+          "View > Maps > Download live tiles",
+          "Tools > Settings > Online maps"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, pp.294-295",
         "correctAnswerAvailable": true,
@@ -925,8 +1020,13 @@
         "section": 4,
         "sectionTitle": "CHARLIE: The Foreign-Language Node",
         "prompt": "In the Locations > Media table on CHARLIE, select several entries, right-click and choose Retrieve Address. Export the selected locations as a KML file. What EXPORT option do you choose, and what third-party application does the guide have you load the file into for comparison?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "KML (locations); Google Earth",
+          "CSV (table); Hasher",
+          "GPX (tracks); Notepad",
+          "UFDR (report); SQLite Wizard"
+        ],
         "points": 10,
         "guideReference": "Activity 3.8, pp.296-297",
         "correctAnswerAvailable": true,
@@ -966,8 +1066,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "DELTA's imagery is the crux of the collection requirement, but the tool's decoded view does not carry the file paths the targeting cell needs. Open Photos.sqlite and launch the wizard. Give the two menu routes that open the SQLite Wizard.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Plug-ins > Chain Manager; or open the Table view and select Chain Manager",
+          "Tools > SQLite Wizard; or open the Table view for the database and select the SQLite Wizard icon",
+          "Tools > Manage Tags; or open the Table view and select Manage Tags",
+          "File > Add external file; or open the Hex view and select File Info"
+        ],
         "points": 10,
         "guideReference": "Lesson 4.3, p.367",
         "correctAnswerAvailable": true,
@@ -1013,8 +1118,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "Drag ZCLOUDMASTER into the Work area and select ZORIGINALFILENAME, ZCREATIONDATE and ZIMPORTDATE. According to the database schema (sqlite_master), what is the PRIMARY KEY of the ZCLOUDMASTER table?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Z_PK",
+          "ZIMPORTDATE",
+          "ZCREATIONDATE",
+          "ZORIGINALFILENAME"
+        ],
         "points": 15,
         "guideReference": "Activity 4.1, p.380",
         "correctAnswerAvailable": true,
@@ -1042,8 +1152,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "Your preview is returning only a handful of rows and you know the table is larger. What is the DEFAULT value of the Max results field that you must increase?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "20",
+          "5",
+          "10",
+          "100"
+        ],
         "points": 5,
         "guideReference": "Activity 4.1, pp.379-380",
         "correctAnswerAvailable": true,
@@ -1054,8 +1169,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "Select ZFILESIZE and ZFILEPATH from ZCLOUDRESOURCE, map the query using the generic model, and drop a Timestamp field type onto ZCREATIONDATE and ZIMPORTDATE. After you select Run, in which Analyzed Data location do the new records appear? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyzed Data > Images",
+          "File Systems > Raw Data",
+          "Insights > WatchList",
+          "Analyzed Data > Manual Data Collection"
+        ],
         "points": 15,
         "guideReference": "Activity 4.1, p.386",
         "correctAnswerAvailable": true,
@@ -1078,8 +1198,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "A MERIDIAN chat application is unsupported. One table holds the message body in ZBODY with an author reference in ZUSER; a second table holds Z_PK and ZUSERNAME. Write the chain of attributes that must be linked to produce a readable table of messages with author names.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ZBODY > Z_PK > ZUSER > ZUSERNAME",
+          "ZBODY > ZUSER > ZUSERNAME > Z_PK",
+          "ZUSERNAME > Z_PK > ZUSER > ZBODY",
+          "ZUSERNAME > ZUSER > Z_PK > ZBODY"
+        ],
         "points": 15,
         "guideReference": "Lesson 4.2, pp.361-362",
         "correctAnswerAvailable": true,
@@ -1126,8 +1251,13 @@
         "section": 5,
         "sectionTitle": "DELTA: Database Exploitation",
         "prompt": "Export the generic model table as an Excel spreadsheet named PhotosDatabaseSpreadsheet, rename the generic column headers to their database descriptors, then bring the spreadsheet back into the case so it can be included in the report. Which menu path adds it back?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Add external file",
+          "Tools > Manage Tags",
+          "Edit case > Remove evidence",
+          "File > Open extraction"
+        ],
         "points": 10,
         "guideReference": "Activity 4.1, pp.387-390",
         "correctAnswerAvailable": true,
@@ -1150,8 +1280,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "ECHO is a legacy feature phone recovered from a weapons cache. Its SMS records are not fully decoded, so you must benchmark the message structure by hand in the MCU [6MB] memory image. What ASCII marker sits between each SMS message on this device?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "DEADBEEF",
+          "CAFEBABE",
+          "FEEDFACE",
+          "BAADF00D"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.267",
         "correctAnswerAvailable": true,
@@ -1162,8 +1297,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "You want to find every one of those markers. What HEX value do you enter in Find > Bytes > Hex to search for that ASCII string?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "DEADBEEF",
+          "44454144424545",
+          "4445414442454547",
+          "4445414442454546"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, pp.268-270",
         "correctAnswerAvailable": true,
@@ -1174,8 +1314,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "Counting from the end of that marker, how many bytes forward does the SMS message body begin?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "40",
+          "76",
+          "38",
+          "36"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.267",
         "correctAnswerAvailable": true,
@@ -1186,8 +1331,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "What is the maximum size, in bytes, of the SMS body on this device?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "70",
+          "140",
+          "280",
+          "160"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.267",
         "correctAnswerAvailable": true,
@@ -1198,8 +1348,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "While highlighting the body you hit a long run of a repeating byte. What hex value is used as padding, which you should NOT include in your selection?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "0xFF",
+          "0x20",
+          "0x00",
+          "0xFE"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.271",
         "correctAnswerAvailable": true,
@@ -1210,8 +1365,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "The party identifier for one recovered message reads 0B917106696041F8. Decode it to a telephone number in international format.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "+17106960418",
+          "+17609606184",
+          "+1760960614",
+          "+17609606148"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.268",
         "correctAnswerAvailable": true,
@@ -1239,8 +1399,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "Decode the party identifier 0B917106992681F5 using the same method.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "+1760996218",
+          "+17609962185",
+          "+17106992618",
+          "+17609962815"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.268",
         "correctAnswerAvailable": true,
@@ -1251,8 +1416,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "You have highlighted the non-null bytes of a recovered SMS body. Give the exact path in the Values view that decodes it to readable text.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Strings > 7 Bit > Reversed > 0 bits offset",
+          "Strings > 8 Bit > Normal > 0 bits offset",
+          "Strings > 7 Bit > Normal > 0 bits offset",
+          "Date & Time > Generic > PDU SMS time"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.271",
         "correctAnswerAvailable": true,
@@ -1263,8 +1433,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "Give the exact path in the Values view that decodes the recovered message's timestamp.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Date & Time > Unix > Seconds",
+          "Date & Time > Apple > Absolute Time",
+          "Strings > 7 Bit > Normal > 0 bits offset",
+          "Date & Time > Generic > PDU SMS time"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.271",
         "correctAnswerAvailable": true,
@@ -1304,8 +1479,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "The decoded Deputyjorge message in the Instant Messages content area carries what date and time?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "14 July 2014 at 0020 (12:20 AM)",
+          "14 July 2014 at 1202 (12:02 PM)",
+          "14 July 2014 at 1220 (12:20 PM)",
+          "14 June 2014 at 1220 (12:20 PM)"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10 walkthrough, p.313",
         "correctAnswerAvailable": true,
@@ -1316,8 +1496,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "Imagery was deleted from ECHO before capture. Give the menu path that runs automated image carving.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Enrichment engines > Media classification",
+          "Tools > Manage Tags > Images",
+          "File > Add external file",
+          "Tools > Get more data (Carving) > Carve Images"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10, pp.305-306",
         "correctAnswerAvailable": true,
@@ -1362,8 +1547,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "Where do carved image results appear once carving completes? (Give the section of Analyzed Data.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Manual Evidence",
+          "Images > Classified Media",
+          "Insights > WatchList",
+          "Deleted Files"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10, p.306",
         "correctAnswerAvailable": true,
@@ -1374,8 +1564,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "You now carve by hand. What HEX value do you search for in Find > Bytes > Hex to locate image file markers, and what does it translate to in ASCII?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "47494638 = GIF8",
+          "504B0304 = ZIP",
+          "89504E47 = PNG",
+          "4A464946 = JFIF"
+        ],
         "points": 15,
         "guideReference": "Activity 3.10 manual carving, p.311",
         "correctAnswerAvailable": true,
@@ -1398,8 +1593,13 @@
         "section": 6,
         "sectionTitle": "ECHO and FOXTROT: Legacy Handsets and Hex-Level Recovery",
         "prompt": "FOXTROT was taken from a detainee who will not give his name. The lead wants any email address in the memory image. Navigate to File Systems > Memory Images > Flex and open Find > RegEx (GREP). Write the regular expression the guide provides for locating email addresses.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "[0-9]+@[0-9]+",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._%+-]+\\.[a-zA-Z]{2,4}",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\[0-9]{2,4}",
+          "[a-zA-Z0-9._%+-]+#[a-zA-Z0-9.-]+"
+        ],
         "points": 20,
         "guideReference": "Activity 3.7 regex activity, pp.276-279",
         "correctAnswerAvailable": true,
@@ -1451,8 +1651,13 @@
         "section": 7,
         "sectionTitle": "GOLF: The Unsupported Device",
         "prompt": "GOLF is a binary dump from a handset Inseyets.PA does not recognise. Give the menu path that opens the tool used to review and build plug-in chains.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Manage Tags",
+          "Plug-ins > Chain Manager",
+          "Tools > Enrichment engines",
+          "File > Report settings"
+        ],
         "points": 10,
         "guideReference": "Activity 3.3, p.251",
         "correctAnswerAvailable": true,
@@ -1480,8 +1685,13 @@
         "section": 7,
         "sectionTitle": "GOLF: The Unsupported Device",
         "prompt": "Rebuild the case, select Switch Chain, and search for the correct chain for this MCU binary dump. What is the exact name of the chain that successfully decodes it?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Samsung MCU v1 - Contacts Only",
+          "Generic Android - Logical",
+          "Apple iOS - File System",
+          "Samsung MCU v2 - All Content"
+        ],
         "points": 20,
         "guideReference": "Activity 3.3, p.253",
         "correctAnswerAvailable": true,
@@ -1568,8 +1778,13 @@
         "section": 8,
         "sectionTitle": "Dissemination and the Commander's Brief",
         "prompt": "UFDR protection encrypts the report file to protect the raw extracted data it contains. What encryption standard is used?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "SHA-256",
+          "AES",
+          "RSA",
+          "DES"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.433; Lesson 1.1, p.25",
         "correctAnswerAvailable": true,
@@ -1597,8 +1812,13 @@
         "section": 8,
         "sectionTitle": "Dissemination and the Commander's Brief",
         "prompt": "The analytical cell wants to ingest your product into an advanced link-analysis tool. Which Cellebrite analytic tool does the guide name as the destination for UFDR and XML reports?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "UFED Reader",
+          "ExifTool",
+          "Hasher",
+          "Pathfinder"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.429, 431",
         "correctAnswerAvailable": true,
@@ -1609,8 +1829,13 @@
         "section": 8,
         "sectionTitle": "Dissemination and the Commander's Brief",
         "prompt": "The field team needs something in the next ten minutes covering device attributes and account identifiers only. Which Inseyets.PA report type meets that requirement?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Preliminary Device Report",
+          "Full UFDR Report",
+          "Excel Table Export",
+          "Tags Only PDF"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.438-439; Mini-mission 6.2, pp.461-463",
         "correctAnswerAvailable": true,
@@ -1771,8 +1996,13 @@
       },
       {
         "prompt": "The cell chief wants every analyst on IRON MERIDIAN running an identical build. You export your configuration so it can be pushed to the rest of the team. What file extension does an exported Inseyets.PA settings configuration file use? (Include the dot.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          ".cnf",
+          ".xml",
+          ".ufdr",
+          ".json"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.1, p.27",
         "validationMethod": "Tools > Settings > Export saves an Inseyets.PA Settings Configuration file (*.cnf).",
@@ -1786,8 +2016,13 @@
       },
       {
         "prompt": "Task force reporting policy states that no product may leave the cell without a mission number recorded. You add a custom report field named 'Mission Number' at Tools > Settings > Additional Report Fields. What must you set on that field so a report CANNOT be generated until the field is filled in?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Set Required to No",
+          "Add a default value without requiring completion",
+          "Set Visible to Yes",
+          "Set Required to Yes"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.1, pp.23-24; Lesson 6.1, p.436",
         "validationMethod": "Additional Report Fields > Add New > set Required = Yes.",
@@ -1846,8 +2081,13 @@
       },
       {
         "prompt": "Enrichment engines cost processing time, so the cell applies most of them after ingest. Which single enrichment engine MUST be run during initial processing because it depends on raw file metadata and cannot be applied later?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyze Media Origins",
+          "Malware scan",
+          "Media classification",
+          "Watchlist keyword search"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.2, pp.50-51",
         "validationMethod": "All other enrichment engines can be applied after initial processing and opening.",
@@ -1861,8 +2101,13 @@
       },
       {
         "prompt": "Build case ALPHA with BOTH provided extractions loaded (File System first, then add the Advanced Logical through Edit case > Add evidence > Load extraction). How many extractions are listed in the Extraction Summary area when you are finished?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "1",
+          "3",
+          "4",
+          "2"
+        ],
         "points": 10,
         "guideReference": "Activity 1.3, pp.34-38",
         "validationMethod": "Close the case, three-dot menu > Edit case, add the second extraction; both appear in Extraction Summary.",
@@ -2044,8 +2289,13 @@
       },
       {
         "prompt": "Build a watch list named MERIDIAN-NARC containing the keywords Narcotics, Pharmaceuticals, Oxycodone, Oxycontin and Cash, then run it against ALPHA. Where in the Project Tree do the results appear? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Insights > WatchList > Keywords",
+          "Analyzed Data > Instant Messages > Keywords",
+          "File Systems > WatchList > Keywords",
+          "Insights > Media Classification"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.4, pp.101-102, 111-112",
         "validationMethod": "Tools > WatchList > WatchList Editor to build; Tools > WatchList > Run WatchList to run.",
@@ -2158,8 +2408,13 @@
       },
       {
         "prompt": "MERIDIAN has previously pushed implants to facilitator handsets. Before scanning ALPHA you must update the malware signatures. Which anti-malware engine does Inseyets.PA use?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ClamAV",
+          "Sophos",
+          "BitDefender",
+          "Microsoft Defender"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.4, pp.107, 118-119",
         "validationMethod": "Tools > Malware Scanner > Update Signature Database > Update from file.",
@@ -2173,8 +2428,13 @@
       },
       {
         "prompt": "Your exploitation workstation is air-gapped, so signatures must be updated from a donor file. What is the file name of the definitions file you load?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "signatures.db",
+          "definitions64.msd",
+          "malware_rules.xml",
+          "definitions32.msd"
+        ],
         "points": 10,
         "guideReference": "Lesson 1.4, pp.118-119",
         "validationMethod": "Air-gapped systems need a donor copy of the BitDefender definitions file from a network-connected Inseyets.PA v10.7.",
@@ -2202,8 +2462,13 @@
       },
       {
         "prompt": "The cell has standardised its tag set for IRON MERIDIAN. Which menu path lets you rename tags, assign hotkeys and create new tags such as Leads?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Report settings",
+          "Tools > Settings > Additional Report Fields",
+          "View > Manage Projects",
+          "Tools > Manage Tags"
+        ],
         "points": 5,
         "guideReference": "Lesson 1.4, pp.143, 145",
         "validationMethod": "Tools > Manage Tags; tag sets can be exported for use in other cases or on other computers.",
@@ -2237,8 +2502,13 @@
       },
       {
         "prompt": "In Analyzed Data > Images on BRAVO, locate Img_0003.HEIC. What is its byte size?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "14598860",
+          "1459886",
+          "145988",
+          "1459986"
+        ],
         "points": 10,
         "guideReference": "Activity 1.8, p.134",
         "validationMethod": "Search the Images table for Img_0003.HEIC; the guide records byte size 1459886.",
@@ -2271,8 +2541,13 @@
       },
       {
         "prompt": "Open Analyzed Data > Messages/Chats > Native Messages on BRAVO and find the thread with the contact Rigoberto (15202229283). How many messages does that thread contain?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "6",
+          "14",
+          "8",
+          "7"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.405",
         "validationMethod": "The guide records seven messages sent between Jay Walker and Rigoberto.",
@@ -2286,8 +2561,13 @@
       },
       {
         "prompt": "To prove the tool decoded that thread correctly you go to the raw database. Using the All Projects search, which database do you open to validate native iOS messages?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "sms.db",
+          "Calendar.sqlitedb",
+          "Photos.sqlite",
+          "AddressBook.sqlitedb"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.407",
         "validationMethod": "All Projects search > type sms.db > Show All > select the sms.db entry.",
@@ -2301,8 +2581,13 @@
       },
       {
         "prompt": "Inside sms.db, which table do you open in Database View to compare message bodies against the decoded output?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "chat",
+          "attachment",
+          "message",
+          "handle"
+        ],
         "points": 10,
         "guideReference": "Activity 5.1, p.407",
         "validationMethod": "The guide directs you to the message (80) table.",
@@ -2355,8 +2640,13 @@
       },
       {
         "prompt": "MERIDIAN imagery is being cross-checked against a partner report, so the EXIF must be validated with a second tool. Save IMG_0041.HEIC from BRAVO and drop it onto ExifTool.exe. Which tab in Inseyets.PA do you open to compare the tool's EXIF output against ExifTool?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File Info",
+          "Table",
+          "Timeline",
+          "Hex"
+        ],
         "points": 10,
         "guideReference": "Activity 5.2, p.417",
         "validationMethod": "Analyzed Data > Media > Images; right-click > Save As; ExifTool is command-line based - drag the file onto ExifTool.exe rather than launching it.",
@@ -2411,8 +2701,13 @@
       },
       {
         "prompt": "Three copies of IMG_0006 exist on BRAVO. To establish which one carries the true capture location you go to Photos.sqlite. Which TABLE holds ZLATITUDE and ZLONGITUDE - the accurate location of the original image when it was taken?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ZCLOUDMASTER",
+          "ZCLOUDRESOURCE",
+          "ZASSET",
+          "ZEXTENDEDATTRIBUTES"
+        ],
         "points": 15,
         "guideReference": "Activity 5.3, p.420",
         "validationMethod": "The primary key is the photo number. Also explore ZASSET and ZCLOUDMASTERMEDIAMETADATA (ZDATA column, BPList serialized data).",
@@ -2464,8 +2759,13 @@
       },
       {
         "prompt": "CHARLIE arrived as an iTunes backup rather than a UFED extraction, so it must be opened through Open (Advanced). During ingest you are prompted for the backup password. What is it?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "manny",
+          "meridian",
+          "charlie",
+          "backup"
+        ],
         "points": 10,
         "guideReference": "Activity 3.2, p.240",
         "validationMethod": "+Add Evidence > Common Source > Backup > iTunes backup > Select Folder (select the entire folder, do not open it).",
@@ -2705,8 +3005,13 @@
       },
       {
         "prompt": "Imagery volume on CHARLIE is too large to review by hand, so you run the automated classifier. Give the full menu path used to run media classification after a case has already been ingested.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Enrichment engines > Media classification",
+          "Tools > Manage Tags > Classify media",
+          "File > Report > Media classification",
+          "Tools > Get more data (Carving) > Carve Images"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, pp.320-321",
         "validationMethod": "Choose the media type (Image and Video, Image, or Video) and the categories relevant to the mission.",
@@ -2720,8 +3025,13 @@
       },
       {
         "prompt": "Where do you go to review the results of media classification once processing completes? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyzed Data > Images > Classified",
+          "Insights > WatchList > Keywords",
+          "Insights > Media Classification",
+          "File Systems > Media Classification"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, p.322; Activity 3.12, p.327",
         "validationMethod": "You can also expand the Images and Videos categories under Analyzed Data.",
@@ -2788,8 +3098,13 @@
       },
       {
         "prompt": "Your workstation is air-gapped, so the map tiles will not load from the internet. What menu path installs the offline maps package?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Add external file > Map tiles",
+          "Tools > Offline maps > Install offline maps package",
+          "View > Maps > Download live tiles",
+          "Tools > Settings > Online maps"
+        ],
         "points": 10,
         "guideReference": "Lesson 3.4, pp.294-295",
         "validationMethod": "Map packs download from Community.Cellebrite.com > Products and Licensing > Physical Analyzer.",
@@ -2803,8 +3118,13 @@
       },
       {
         "prompt": "In the Locations > Media table on CHARLIE, select several entries, right-click and choose Retrieve Address. Export the selected locations as a KML file. What EXPORT option do you choose, and what third-party application does the guide have you load the file into for comparison?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "KML (locations); Google Earth",
+          "CSV (table); Hasher",
+          "GPX (tracks); Notepad",
+          "UFDR (report); SQLite Wizard"
+        ],
         "points": 10,
         "guideReference": "Activity 3.8, pp.296-297",
         "validationMethod": "Export > KML (locations); load the .KML into Google Earth and compare against Inseyets.PA.",
@@ -2856,8 +3176,13 @@
       },
       {
         "prompt": "DELTA's imagery is the crux of the collection requirement, but the tool's decoded view does not carry the file paths the targeting cell needs. Open Photos.sqlite and launch the wizard. Give the two menu routes that open the SQLite Wizard.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Plug-ins > Chain Manager; or open the Table view and select Chain Manager",
+          "Tools > SQLite Wizard; or open the Table view for the database and select the SQLite Wizard icon",
+          "Tools > Manage Tags; or open the Table view and select Manage Tags",
+          "File > Add external file; or open the Hex view and select File Info"
+        ],
         "points": 10,
         "guideReference": "Lesson 4.3, p.367",
         "validationMethod": "You can also choose Export to CSV or Open in DB Viewer from the same place.",
@@ -2918,8 +3243,13 @@
       },
       {
         "prompt": "Drag ZCLOUDMASTER into the Work area and select ZORIGINALFILENAME, ZCREATIONDATE and ZIMPORTDATE. According to the database schema (sqlite_master), what is the PRIMARY KEY of the ZCLOUDMASTER table?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Z_PK",
+          "ZIMPORTDATE",
+          "ZCREATIONDATE",
+          "ZORIGINALFILENAME"
+        ],
         "points": 15,
         "guideReference": "Activity 4.1, p.380",
         "validationMethod": "Read the schema in sqlite_master before building the join.",
@@ -2953,8 +3283,13 @@
       },
       {
         "prompt": "Your preview is returning only a handful of rows and you know the table is larger. What is the DEFAULT value of the Max results field that you must increase?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "20",
+          "5",
+          "10",
+          "100"
+        ],
         "points": 5,
         "guideReference": "Activity 4.1, pp.379-380",
         "validationMethod": "Cellebrite recommends setting Max results to the next value above the total record count.",
@@ -2968,8 +3303,13 @@
       },
       {
         "prompt": "Select ZFILESIZE and ZFILEPATH from ZCLOUDRESOURCE, map the query using the generic model, and drop a Timestamp field type onto ZCREATIONDATE and ZIMPORTDATE. After you select Run, in which Analyzed Data location do the new records appear? (Give the full path.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Analyzed Data > Images",
+          "File Systems > Raw Data",
+          "Insights > WatchList",
+          "Analyzed Data > Manual Data Collection"
+        ],
         "points": 15,
         "guideReference": "Activity 4.1, p.386",
         "validationMethod": "The new entries can then be reviewed, tagged and added to the report.",
@@ -2996,8 +3336,13 @@
       },
       {
         "prompt": "A MERIDIAN chat application is unsupported. One table holds the message body in ZBODY with an author reference in ZUSER; a second table holds Z_PK and ZUSERNAME. Write the chain of attributes that must be linked to produce a readable table of messages with author names.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "ZBODY > Z_PK > ZUSER > ZUSERNAME",
+          "ZBODY > ZUSER > ZUSERNAME > Z_PK",
+          "ZUSERNAME > Z_PK > ZUSER > ZBODY",
+          "ZUSERNAME > ZUSER > Z_PK > ZBODY"
+        ],
         "points": 15,
         "guideReference": "Lesson 4.2, pp.361-362",
         "validationMethod": "Links must exist between these attributes to map the artifacts into a readable table.",
@@ -3057,8 +3402,13 @@
       },
       {
         "prompt": "Export the generic model table as an Excel spreadsheet named PhotosDatabaseSpreadsheet, rename the generic column headers to their database descriptors, then bring the spreadsheet back into the case so it can be included in the report. Which menu path adds it back?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "File > Add external file",
+          "Tools > Manage Tags",
+          "Edit case > Remove evidence",
+          "File > Open extraction"
+        ],
         "points": 10,
         "guideReference": "Activity 4.1, pp.387-390",
         "validationMethod": "In the Additional Files window set File Name, Category and Notes, then Add to Project.",
@@ -3085,8 +3435,13 @@
       },
       {
         "prompt": "ECHO is a legacy feature phone recovered from a weapons cache. Its SMS records are not fully decoded, so you must benchmark the message structure by hand in the MCU [6MB] memory image. What ASCII marker sits between each SMS message on this device?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "DEADBEEF",
+          "CAFEBABE",
+          "FEEDFACE",
+          "BAADF00D"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.267",
         "validationMethod": "File Systems > Memory Images > MCU [6MB]; the marker is visible in the ASCII view.",
@@ -3100,8 +3455,13 @@
       },
       {
         "prompt": "You want to find every one of those markers. What HEX value do you enter in Find > Bytes > Hex to search for that ASCII string?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "DEADBEEF",
+          "44454144424545",
+          "4445414442454547",
+          "4445414442454546"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, pp.268-270",
         "validationMethod": "Highlight the marker in hex, right-click Copy, then Find > Bytes > Hex and paste.",
@@ -3115,8 +3475,13 @@
       },
       {
         "prompt": "Counting from the end of that marker, how many bytes forward does the SMS message body begin?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "40",
+          "76",
+          "38",
+          "36"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.267",
         "validationMethod": "Benchmarking result for this device: the SMS body starts 38 bytes after the marker.",
@@ -3130,8 +3495,13 @@
       },
       {
         "prompt": "What is the maximum size, in bytes, of the SMS body on this device?",
-        "kind": "number",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "70",
+          "140",
+          "280",
+          "160"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.267",
         "validationMethod": "140 bytes is the total space allotted for the body of an SMS message on this device.",
@@ -3145,8 +3515,13 @@
       },
       {
         "prompt": "While highlighting the body you hit a long run of a repeating byte. What hex value is used as padding, which you should NOT include in your selection?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "0xFF",
+          "0x20",
+          "0x00",
+          "0xFE"
+        ],
         "points": 10,
         "guideReference": "Activity 3.5, p.271",
         "validationMethod": "Highlight only non-null values; 0xFF is padding.",
@@ -3160,8 +3535,13 @@
       },
       {
         "prompt": "The party identifier for one recovered message reads 0B917106696041F8. Decode it to a telephone number in international format.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "+17106960418",
+          "+17609606184",
+          "+1760960614",
+          "+17609606148"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.268",
         "validationMethod": "Stored in nibble-reverse format with the trailing F removed as a null value.",
@@ -3195,8 +3575,13 @@
       },
       {
         "prompt": "Decode the party identifier 0B917106992681F5 using the same method.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "+1760996218",
+          "+17609962185",
+          "+17106992618",
+          "+17609962815"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.268",
         "validationMethod": "Nibble reverse, drop the trailing F.",
@@ -3210,8 +3595,13 @@
       },
       {
         "prompt": "You have highlighted the non-null bytes of a recovered SMS body. Give the exact path in the Values view that decodes it to readable text.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Strings > 7 Bit > Reversed > 0 bits offset",
+          "Strings > 8 Bit > Normal > 0 bits offset",
+          "Strings > 7 Bit > Normal > 0 bits offset",
+          "Date & Time > Generic > PDU SMS time"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.271",
         "validationMethod": "Then right-click the highlighted bytes > Add tags and label the hex tag, e.g. Recovered SMS Body.",
@@ -3226,8 +3616,13 @@
       },
       {
         "prompt": "Give the exact path in the Values view that decodes the recovered message's timestamp.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Date & Time > Unix > Seconds",
+          "Date & Time > Apple > Absolute Time",
+          "Strings > 7 Bit > Normal > 0 bits offset",
+          "Date & Time > Generic > PDU SMS time"
+        ],
         "points": 15,
         "guideReference": "Activity 3.5, p.271",
         "validationMethod": "The SMSC number is decoded at Numbers > SMS > SMSC Number.",
@@ -3276,8 +3671,13 @@
       },
       {
         "prompt": "The decoded Deputyjorge message in the Instant Messages content area carries what date and time?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "14 July 2014 at 0020 (12:20 AM)",
+          "14 July 2014 at 1202 (12:02 PM)",
+          "14 July 2014 at 1220 (12:20 PM)",
+          "14 June 2014 at 1220 (12:20 PM)"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10 walkthrough, p.313",
         "validationMethod": "Content area > Instant Messages > search Deputyjorge.",
@@ -3296,8 +3696,13 @@
       },
       {
         "prompt": "Imagery was deleted from ECHO before capture. Give the menu path that runs automated image carving.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Enrichment engines > Media classification",
+          "Tools > Manage Tags > Images",
+          "File > Add external file",
+          "Tools > Get more data (Carving) > Carve Images"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10, pp.305-306",
         "validationMethod": "Select Scan Type (Quick scan) and Carve From (Unallocated space).",
@@ -3351,8 +3756,13 @@
       },
       {
         "prompt": "Where do carved image results appear once carving completes? (Give the section of Analyzed Data.)",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Manual Evidence",
+          "Images > Classified Media",
+          "Insights > WatchList",
+          "Deleted Files"
+        ],
         "points": 10,
         "guideReference": "Activity 3.10, p.306",
         "validationMethod": "The number beside the image carving results is the total number of image files carved.",
@@ -3367,8 +3777,13 @@
       },
       {
         "prompt": "You now carve by hand. What HEX value do you search for in Find > Bytes > Hex to locate image file markers, and what does it translate to in ASCII?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "47494638 = GIF8",
+          "504B0304 = ZIP",
+          "89504E47 = PNG",
+          "4A464946 = JFIF"
+        ],
         "points": 15,
         "guideReference": "Activity 3.10 manual carving, p.311",
         "validationMethod": "The Offset column gives the location of each hit; the Source column links to the value in memory; the More column shows associated file paths and names.",
@@ -3397,8 +3812,13 @@
       },
       {
         "prompt": "FOXTROT was taken from a detainee who will not give his name. The lead wants any email address in the memory image. Navigate to File Systems > Memory Images > Flex and open Find > RegEx (GREP). Write the regular expression the guide provides for locating email addresses.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "[0-9]+@[0-9]+",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._%+-]+\\.[a-zA-Z]{2,4}",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\[0-9]{2,4}",
+          "[a-zA-Z0-9._%+-]+#[a-zA-Z0-9.-]+"
+        ],
         "points": 20,
         "guideReference": "Activity 3.7 regex activity, pp.276-279",
         "validationMethod": "Ensure there are no spaces in the expression. Select Add to save it to the library, then Save it to disk for reuse.",
@@ -3459,8 +3879,13 @@
       },
       {
         "prompt": "GOLF is a binary dump from a handset Inseyets.PA does not recognise. Give the menu path that opens the tool used to review and build plug-in chains.",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Tools > Manage Tags",
+          "Plug-ins > Chain Manager",
+          "Tools > Enrichment engines",
+          "File > Report settings"
+        ],
         "points": 10,
         "guideReference": "Activity 3.3, p.251",
         "validationMethod": "Select All Chains to review existing chains; My Chains to build your own.",
@@ -3495,8 +3920,13 @@
       },
       {
         "prompt": "Rebuild the case, select Switch Chain, and search for the correct chain for this MCU binary dump. What is the exact name of the chain that successfully decodes it?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Samsung MCU v1 - Contacts Only",
+          "Generic Android - Logical",
+          "Apple iOS - File System",
+          "Samsung MCU v2 - All Content"
+        ],
         "points": 20,
         "guideReference": "Activity 3.3, p.253",
         "validationMethod": "+Add Evidence > Open Advanced > Blank Project > Switch Chain > All Chains > search.",
@@ -3599,8 +4029,13 @@
       },
       {
         "prompt": "UFDR protection encrypts the report file to protect the raw extracted data it contains. What encryption standard is used?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "SHA-256",
+          "AES",
+          "RSA",
+          "DES"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.433; Lesson 1.1, p.25",
         "validationMethod": "UFDR reports are encrypted using AES encryption with CBC.",
@@ -3634,8 +4069,13 @@
       },
       {
         "prompt": "The analytical cell wants to ingest your product into an advanced link-analysis tool. Which Cellebrite analytic tool does the guide name as the destination for UFDR and XML reports?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "UFED Reader",
+          "ExifTool",
+          "Hasher",
+          "Pathfinder"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.429, 431",
         "validationMethod": "XML assists with Unicode-based languages and can be imported by other analysis tools.",
@@ -3649,8 +4089,13 @@
       },
       {
         "prompt": "The field team needs something in the next ten minutes covering device attributes and account identifiers only. Which Inseyets.PA report type meets that requirement?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "Preliminary Device Report",
+          "Full UFDR Report",
+          "Excel Table Export",
+          "Tags Only PDF"
+        ],
         "points": 10,
         "guideReference": "Lesson 6.1, pp.438-439; Mini-mission 6.2, pp.461-463",
         "validationMethod": "It gives a quick high-level summary of device and account information for analysts, operators and commanders.",
@@ -3904,8 +4349,13 @@
         "section": 1,
         "sectionTitle": "Collection Plan & Preservation Knowledge",
         "prompt": "What evidence container file type is generated at the end of multiple extractions?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "UFDR",
+          "E01",
+          "UFDX",
+          "UFD"
+        ],
         "points": 5,
         "guideReference": "CEDI feedback workbook + CTF Feedback 2 · M1-Q4",
         "correctAnswerAvailable": true,
@@ -4270,8 +4720,13 @@
         "section": 5,
         "sectionTitle": "UFED Classic Tools: ZTE",
         "prompt": "Review the Collection Summary Reports from the ZTE extractions. What was the device chipset?",
-        "kind": "short",
-        "options": [],
+        "kind": "single",
+        "options": [
+          "MSM8916",
+          "MSM8909",
+          "MT6737",
+          "Exynos 8890"
+        ],
         "points": 10,
         "guideReference": "CEDI feedback workbook + CTF Feedback 2 · M5-FLAG05",
         "correctAnswerAvailable": true,
@@ -4365,6 +4820,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },
@@ -4374,6 +4830,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },
@@ -4383,6 +4840,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },
@@ -4392,6 +4850,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },
@@ -4401,6 +4860,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },
@@ -4410,6 +4870,7 @@
         "earnedPoints": 5,
         "status": "correct",
         "updatedAt": "2026-10-08T12:00:00.000Z",
+        "feedback": "Validated. 5 points earned.",
         "instructorPoints": null,
         "instructorNote": null
       },

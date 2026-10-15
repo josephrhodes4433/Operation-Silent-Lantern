@@ -367,6 +367,7 @@ components:
         earnedPoints: { type: integer }
         status: { type: string, enum: [correct, incorrect, unkeyed, manual] }
         updatedAt: { type: string, format: date-time }
+        feedback: { type: string }
         instructorPoints: { type: ["integer", "null"] }
         instructorNote: { type: ["string", "null"] }
         reviewStatus: { type: string, enum: [pending, approved, denied] }

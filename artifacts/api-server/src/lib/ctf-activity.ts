@@ -1,5 +1,6 @@
 import sourceQuestions from "../data/questions.json";
 import { applyFacilitatorKey } from "./ctf-facilitator-key";
+import { withClassroomChoices, withObjectiveChoices } from "./iron-choice-questions";
 
 export interface Question {
   id: number;
@@ -16,9 +17,10 @@ export interface Question {
   validationMode?: "normalised" | "exact" | "numeric" | "manual" | "dataset";
   facilitatorAnswers?: string[];
   facilitatorNote?: string;
+  incorrectFeedback?: string;
 }
 
-export const questions = (sourceQuestions as Question[]).map(applyFacilitatorKey);
+export const questions = (sourceQuestions as Question[]).map(applyFacilitatorKey).map(withObjectiveChoices);
 export const isManual = (q: Question) => q.validationMode ? q.validationMode === "manual" : q.kind === "long" || [117, 118].includes(q.id);
 export const validationMode = (q: Question): NonNullable<Question["validationMode"]> =>
   q.validationMode ?? (isManual(q) ? "manual" : q.category === "dataset" ? "dataset" : q.kind === "number" ? "numeric" : q.id === 99 ? "exact" : "normalised");
@@ -47,6 +49,7 @@ export function mergeQuestions(overrides: Question[]) {
 }
 
 export function publicActivity(keys: Map<number, string[]>, activityQuestions = questions) {
+  activityQuestions = activityQuestions.map(q => withClassroomChoices(q, keys.get(q.id)));
   return {
     title: "OPERATION IRON MERIDIAN",
     course: "Cellebrite Analysis for Defense and Intelligence",
@@ -99,6 +102,6 @@ export function evaluate(q: Question, value: string | string[], datasetKeys: Map
   return {
     correct, earnedPoints: correct ? q.points : 0,
     status: correct ? "correct" as const : "incorrect" as const,
-    feedback: correct ? `Flag captured. ${q.points} points earned.` : `Not yet correct. Retry without penalty. Review ${q.guideReference}.`,
+    feedback: correct ? `Flag captured. ${q.points} points earned.` : `Not yet correct. ${q.incorrectFeedback ?? "Revisit the requested task and compare your response with the cited source evidence."} Retry without penalty.`,
   };
 }

@@ -15,6 +15,7 @@ export interface LanternAnswer {
   earnedPoints: number;
   status: LanternAnswerStatus;
   updatedAt: Date;
+  feedback?: string;
   /** @nullable */
   instructorPoints?: number | null;
   /** @nullable */

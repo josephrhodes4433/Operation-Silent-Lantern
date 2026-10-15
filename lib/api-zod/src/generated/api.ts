@@ -8,6 +8,58 @@
 import * as zod from 'zod';
 
 
+export const GetCtfInstructorAnswerGuideHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetCtfInstructorAnswerGuideResponse = zod.object({
+  "title": zod.string(),
+  "notice": zod.string(),
+  "entries": zod.array(zod.object({
+  "id": zod.number().int(),
+  "code": zod.string(),
+  "section": zod.number().int(),
+  "sectionTitle": zod.string(),
+  "prompt": zod.string(),
+  "points": zod.number().int(),
+  "kind": zod.string(),
+  "source": zod.enum(['fixed', 'classroom', 'reference', 'manual', 'unconfigured', 'format']),
+  "answers": zod.array(zod.string()),
+  "referenceAnswers": zod.array(zod.string()),
+  "guidance": zod.string(),
+  "sampleResponse": zod.string(),
+  "notes": zod.string(),
+  "format": zod.string()
+}))
+})
+
+
+export const GetLanternInstructorAnswerGuideHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetLanternInstructorAnswerGuideResponse = zod.object({
+  "title": zod.string(),
+  "notice": zod.string(),
+  "entries": zod.array(zod.object({
+  "id": zod.number().int(),
+  "code": zod.string(),
+  "section": zod.number().int(),
+  "sectionTitle": zod.string(),
+  "prompt": zod.string(),
+  "points": zod.number().int(),
+  "kind": zod.string(),
+  "source": zod.enum(['fixed', 'classroom', 'reference', 'manual', 'unconfigured', 'format']),
+  "answers": zod.array(zod.string()),
+  "referenceAnswers": zod.array(zod.string()),
+  "guidance": zod.string(),
+  "sampleResponse": zod.string(),
+  "notes": zod.string(),
+  "format": zod.string()
+}))
+})
+
+
 export const GetLanternActivityResponse = zod.object({
   "title": zod.string(),
   "course": zod.string(),
@@ -77,6 +129,7 @@ export const CreateLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -93,6 +146,7 @@ export const CreateLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -129,6 +183,7 @@ export const GetLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -145,6 +200,7 @@ export const GetLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -204,6 +260,7 @@ export const SubmitLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -220,6 +277,7 @@ export const SubmitLanternProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -261,6 +319,7 @@ export const UseLanternHintResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -277,6 +336,7 @@ export const UseLanternHintResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -321,6 +381,7 @@ export const RequestLanternAuthorizationResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -337,6 +398,7 @@ export const RequestLanternAuthorizationResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -455,6 +517,7 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -471,6 +534,7 @@ export const GetLanternInstructorSubmissionResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -529,6 +593,7 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -545,6 +610,7 @@ export const ReviewLanternWrittenAnswerResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -620,6 +686,7 @@ export const GrantLanternAuthorizationResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -636,6 +703,7 @@ export const GrantLanternAuthorizationResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -681,6 +749,7 @@ export const AdjustLanternScoreResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -697,6 +766,7 @@ export const AdjustLanternScoreResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish(),
   "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
@@ -788,6 +858,7 @@ export const CreateCtfProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish()
 })),
@@ -816,6 +887,7 @@ export const GetCtfProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish()
 })),
@@ -870,6 +942,7 @@ export const SubmitCtfProgressResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish()
 })),
@@ -1109,6 +1182,7 @@ export const GetCtfInstructorSubmissionResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish()
 })),
@@ -1157,6 +1231,7 @@ export const ReviewCtfWrittenAnswerResponse = zod.object({
   "earnedPoints": zod.number().int(),
   "status": zod.enum(['correct', 'incorrect', 'unkeyed', 'manual']),
   "updatedAt": zod.coerce.date(),
+  "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
   "instructorNote": zod.string().nullish()
 })),

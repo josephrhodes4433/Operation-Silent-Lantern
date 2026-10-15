@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { questions, evaluate, publicActivity, mergeQuestions, isManual } from "../src/lib/ctf-activity";
 import { questionCatalog } from "../src/lib/ctf-question-authoring";
 import { lanternQuestions, publicLanternActivity, evaluateLantern } from "../src/lib/lantern-activity";
@@ -200,7 +200,7 @@ pendingRow.answers = Object.fromEntries(Object.entries(pendingRow.answers).filte
 pendingRow.answers["107"].reviewStatus = "pending";
 pendingRow.answers["107"].instructorPoints = null;
 const classKeys = new Map<number, string[]>([[13, ["99"]]]);
-writeFileSync("artifacts/api-server/tests/fixtures/classroom-ui-fixtures.json", JSON.stringify({
+writeFileSync(`${existsSync("artifacts/api-server/tests/fixtures") ? "artifacts/api-server/" : ""}tests/fixtures/classroom-ui-fixtures.json`, JSON.stringify({
   ironActivity: publicActivity(classKeys),
   ironCatalog: questionCatalog(questions, classKeys),
   ironKeys: [{ questionId: 13, acceptedAnswers: ["99"] }],

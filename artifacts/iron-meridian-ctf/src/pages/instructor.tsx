@@ -5,8 +5,10 @@ import {
   getGetCtfActivityQueryKey, getGetCtfInstructorQuestionsQueryKey, useGetCtfInstructorQuestions,
   useGetCtfActivity, useGetCtfInstructorKeys, useGetCtfInstructorSubmission, useListCtfSubmissions,
   useReviewCtfWrittenAnswer, useSetCtfInstructorKey, useVerifyCtfInstructor,
+  useGetCtfInstructorAnswerGuide, getGetCtfInstructorAnswerGuideQueryKey,
 } from '@workspace/api-client-react';
 import type { CtfInstructorQuestion, CtfQuestion } from '@workspace/api-client-react';
+import { AnswerGuide } from '@/components/answer-guide';
 import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionAuthoring } from '@/components/question-authoring';
@@ -50,20 +52,20 @@ function Gate({ onOk }: { onOk: (c: string) => void }) {
 }
 
 function Console({ code, onLock }: { code: string; onLock: () => void }) {
-  const [tab, setTab] = useState<'keys' | 'subs' | 'author'>('keys');
+  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'author'>('guide');
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div><Eyebrow>Instructor console</Eyebrow><h1 className="font-display text-3xl font-bold">Questions, keys and submissions</h1></div>
         <button className={btnGhost} onClick={onLock} data-testid="button-lock">Lock</button>
       </div>
-      <div role="tablist" className="flex border-b border-border">
-        {([['author', 'Questions'], ['keys', 'Answer keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
+      <div role="tablist" className="flex flex-wrap border-b border-border">
+        {([['guide', 'Answer guide'], ['author', 'Questions'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}
             className={`px-4 py-2 text-sm font-semibold border-b-2 ${tab === k ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{l}</button>
         ))}
       </div>
-      {tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
+      {tab === 'guide' ? <Guide code={code} /> : tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
     </div>
   );
 }
@@ -232,4 +234,9 @@ function Review({ sid, q, headers, pts, note }: { sid: string; q: CtfQuestion; h
       {rev.isError && <p role="alert" className="text-xs text-destructive sm:col-span-3">Review failed to save.</p>}
     </div>
   );
+}
+
+function Guide({ code }: { code: string }) {
+  const query = useGetCtfInstructorAnswerGuide({ request: { headers: { 'x-instructor-code': code } }, query: { staleTime: 0, refetchOnWindowFocus: true, queryKey: getGetCtfInstructorAnswerGuideQueryKey() } });
+  return <AnswerGuide query={query} />;
 }

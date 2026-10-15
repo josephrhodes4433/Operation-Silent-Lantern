@@ -80,7 +80,7 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
   }, []);
 
   const status = dirty || isEmpty(value) ? undefined : q.manualReview ? saved?.status : result?.status ?? saved?.status;
-  const feedback = result?.feedback;
+  const feedback = result?.feedback ?? saved?.feedback;
   const earned = q.manualReview ? saved?.earnedPoints ?? 0 : result?.earnedPoints ?? saved?.earnedPoints ?? 0;
   const id = `q-${q.id}`;
 
@@ -92,6 +92,7 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
       </header>
       <div className="p-5 space-y-5">
         <p id={`${id}-p`} className="text-lg leading-snug font-medium">{q.prompt}</p>
+        {q.kind === 'single' && typeof value === 'string' && value && !q.options.includes(value) && <p className="text-sm bg-muted p-3 break-words" data-testid={`previous-answer-${q.id}`}>Previously saved response: {value}. It is retained and still graded. Choose an option if you want to update it.</p>}
         {q.format && <p className="text-sm text-muted-foreground font-mono" data-testid={`text-format-${q.id}`}>Format: {q.format}</p>}
         {q.isFinalSummary && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Write 6 to 8 sentences.</p>}
         {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Your draft is remembered in this browser. Submit it for instructor approval before moving on. Denied responses must be revised and resubmitted. Editing an approved response requires a new approval.</p>}

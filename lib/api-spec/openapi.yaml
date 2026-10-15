@@ -15,6 +15,38 @@ tags:
   - name: instructor
     description: Instructor-only answer-key and review operations
 paths:
+  /ctf/instructor/answer-guide:
+    get:
+      operationId: getCtfInstructorAnswerGuide
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Private question-by-question answer guide using current classroom keys
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InstructorAnswerGuide" }
+        "401": { description: Instructor access denied }
+        "503": { description: Instructor access is not configured }
+  /lantern/instructor/answer-guide:
+    get:
+      operationId: getLanternInstructorAnswerGuide
+      parameters:
+        - in: header
+          name: x-instructor-code
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Private guide for the revised six-mission activity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InstructorAnswerGuide" }
+        "401": { description: Instructor access denied }
+        "503": { description: Instructor access is not configured }
   /lantern/activity:
     $ref: "./lantern.yaml#/paths/~1lantern~1activity"
   /lantern/progress:
@@ -392,6 +424,35 @@ paths:
           description: Submission or question was not found
 components:
   schemas:
+    InstructorAnswerGuide:
+      type: object
+      required: [title, notice, entries]
+      properties:
+        title: { type: string }
+        notice: { type: string }
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/InstructorAnswerGuideEntry" }
+    InstructorAnswerGuideEntry:
+      type: object
+      required: [id, code, section, sectionTitle, prompt, points, kind, source, answers, referenceAnswers, guidance, sampleResponse, notes, format]
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        section: { type: integer }
+        sectionTitle: { type: string }
+        prompt: { type: string }
+        points: { type: integer }
+        kind: { type: string }
+        source:
+          type: string
+          enum: [fixed, classroom, reference, manual, unconfigured, format]
+        answers: { type: array, items: { type: string } }
+        referenceAnswers: { type: array, items: { type: string } }
+        guidance: { type: string }
+        sampleResponse: { type: string }
+        notes: { type: string }
+        format: { type: string }
     CtfQuestionInput:
       type: object
       required: [prompt, kind, options, points, guideReference, validationMethod, validationMode, acceptedAnswers]
@@ -503,6 +564,7 @@ components:
           type: string
           enum: [correct, incorrect, unkeyed, manual]
         updatedAt: { type: string, format: date-time }
+        feedback: { type: string }
         instructorPoints: { type: ["integer", "null"] }
         instructorNote: { type: ["string", "null"] }
     CtfProgressInput:

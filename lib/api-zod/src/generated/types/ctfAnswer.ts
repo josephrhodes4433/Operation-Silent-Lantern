@@ -14,6 +14,7 @@ export interface CtfAnswer {
   earnedPoints: number;
   status: CtfAnswerStatus;
   updatedAt: Date;
+  feedback?: string;
   /** @nullable */
   instructorPoints?: number | null;
   /** @nullable */

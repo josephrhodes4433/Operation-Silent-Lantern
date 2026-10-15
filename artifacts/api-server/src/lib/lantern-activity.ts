@@ -1,3 +1,4 @@
+import { lanternChoices, lanternIncorrectFeedback } from "./lantern-choice-feedback";
 import { GetLanternActivityResponse } from "@workspace/api-zod";
 
 type Question = ReturnType<typeof GetLanternActivityResponse.parse>["questions"][number] & { acceptedAnswers: string[] };
@@ -21,7 +22,8 @@ export const hintTexts = [
 ];
 function q(id: number, code: string, section: number, prompt: string, keyMode: Mode, points = 5, acceptedAnswers: string[] = [], format = "", kind: Kind = "short", options: string[] = []): Question {
   return {
-    id, code, section, sectionTitle: missions[section - 1][0], prompt, keyMode, points, acceptedAnswers, format, kind, options,
+    id, code, section, sectionTitle: missions[section - 1][0], prompt, keyMode, points, acceptedAnswers, format,
+    kind: keyMode === "fixed" && lanternChoices[id] ? "single" as const : kind, options: lanternChoices[id] ?? options,
     guideReference: `CEDI feedback workbook + CTF Feedback 2 · ${code}`,
     isFlag: code.includes("FLAG"), isFinalSummary: code === "M6-Q1",
     correctAnswerAvailable: keyMode === "fixed" || keyMode === "format", manualReview: keyMode === "manual",
@@ -116,5 +118,5 @@ export function evaluateLantern(question: Question, value: string | string[], ke
   } else if (question.isFlag) {
     correct = expected.some(answer => answer.toLowerCase() === value.trim().toLowerCase());
   } else correct = expected.some(answer => normalise(answer) === normalise(value));
-  return correct ? result("correct", `Validated. ${question.points} points earned.`) : result("incorrect", "Not yet correct. Re-check your UFED output and retry without penalty.");
+  return correct ? result("correct", `Validated. ${question.points} points earned.`) : result("incorrect", `Not yet correct. ${lanternIncorrectFeedback[question.id] ?? "Re-check the requested task against your UFED evidence."} Retry without penalty.`);
 }

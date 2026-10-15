@@ -11,6 +11,7 @@ import {
 } from "@workspace/api-zod";
 import { evaluate, isManual, publicActivity, validationMode, type Question } from "../lib/ctf-activity";
 import { loadQuestions, questionCatalog, saveQuestion, validateQuestion } from "../lib/ctf-question-authoring";
+import { ironAnswerGuide } from "../lib/iron-answer-guide";
 
 type Progress = ReturnType<typeof GetCtfProgressResponse.parse>;
 type Answers = Progress["answers"];
@@ -59,7 +60,7 @@ function toProgress(row: ProgressRow, keys: Map<number, string[]>, questions: Qu
     if (!question) continue;
     const grade = evaluate(question, answer.value, keys);
     answers[id] = {
-      ...answer, correct: grade.correct, status: grade.status,
+      ...answer, correct: grade.correct, status: grade.status, feedback: grade.feedback,
       earnedPoints: isManual(question) && answer.instructorPoints != null ? Math.min(answer.instructorPoints, question.points) : grade.earnedPoints,
     };
   }
@@ -129,6 +130,11 @@ router.post("/ctf/progress/:sessionId/submit", async (req, res): Promise<void> =
   const result = await pool.query<ProgressRow>("UPDATE ctf_progress SET submitted_at=now(),saved_at=now() WHERE session_id=$1 RETURNING *", [params.data.sessionId]);
   if (!result.rows[0]) { res.status(404).json({ error: "No progress found." }); return; }
   res.json(toProgress(result.rows[0], await loadKeys(), await loadQuestions()));
+});
+
+router.get("/ctf/instructor/answer-guide", async (req, res): Promise<void> => {
+  if (!instructorAllowed(req, res)) return;
+  res.set("Cache-Control", "no-store").json(ironAnswerGuide(await loadQuestions(), await loadKeys()));
 });
 
 router.get("/ctf/instructor/questions", async (req, res): Promise<void> => {

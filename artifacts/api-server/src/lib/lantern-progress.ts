@@ -31,7 +31,7 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
         earnedPoints: approved ? answer.instructorPoints ?? 0 : 0,
       };
     } else {
-      answers[id] = { ...answer, correct: grade.correct, status: grade.status, earnedPoints: grade.earnedPoints };
+      answers[id] = { ...answer, correct: grade.correct, status: grade.status, earnedPoints: grade.earnedPoints, feedback: grade.feedback };
     }
   }
   let unlockedMission = 1;

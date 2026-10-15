@@ -5,6 +5,41 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type InstructorAnswerGuideEntrySource = typeof InstructorAnswerGuideEntrySource[keyof typeof InstructorAnswerGuideEntrySource];
+
+
+export const InstructorAnswerGuideEntrySource = {
+  fixed: 'fixed',
+  classroom: 'classroom',
+  reference: 'reference',
+  manual: 'manual',
+  unconfigured: 'unconfigured',
+  format: 'format',
+} as const;
+
+export interface InstructorAnswerGuideEntry {
+  id: number;
+  code: string;
+  section: number;
+  sectionTitle: string;
+  prompt: string;
+  points: number;
+  kind: string;
+  source: InstructorAnswerGuideEntrySource;
+  answers: string[];
+  referenceAnswers: string[];
+  guidance: string;
+  sampleResponse: string;
+  notes: string;
+  format: string;
+}
+
+export interface InstructorAnswerGuide {
+  title: string;
+  notice: string;
+  entries: InstructorAnswerGuideEntry[];
+}
+
 export type CtfQuestionInputKind = typeof CtfQuestionInputKind[keyof typeof CtfQuestionInputKind];
 
 
@@ -137,6 +172,7 @@ export interface CtfAnswer {
   earnedPoints: number;
   status: CtfAnswerStatus;
   updatedAt: string;
+  feedback?: string;
   /** @nullable */
   instructorPoints?: number | null;
   /** @nullable */
@@ -385,6 +421,7 @@ export interface LanternAnswer {
   earnedPoints: number;
   status: LanternAnswerStatus;
   updatedAt: string;
+  feedback?: string;
   /** @nullable */
   instructorPoints?: number | null;
   /** @nullable */

@@ -72,7 +72,7 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
   }, []);
 
   const status = dirty || isEmpty(value) ? undefined : result?.status ?? saved?.status;
-  const feedback = result?.feedback;
+  const feedback = result?.feedback ?? saved?.feedback;
   const earned = result?.earnedPoints ?? saved?.earnedPoints ?? 0;
   const id = `q-${q.id}`;
 
@@ -84,6 +84,7 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
       </header>
       <div className="p-5 space-y-5">
         <p id={`${id}-p`} className="text-lg leading-snug font-medium">{q.prompt}</p>
+        {q.kind === 'single' && typeof value === 'string' && value && !q.options.includes(value) && <p className="text-sm bg-muted p-3 break-words" data-testid={`previous-answer-${q.id}`}>Previously saved response: {value}. It is retained and still graded. Choose an option if you want to update it.</p>}
         {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Saved for instructor review and scored manually.</p>}
         {!q.manualReview && !q.correctAnswerAvailable && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Answer key not yet configured. Your response will be saved and marked pending.</p>}
 

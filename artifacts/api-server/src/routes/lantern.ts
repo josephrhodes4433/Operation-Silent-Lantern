@@ -8,6 +8,7 @@ import {
   GetLanternWrittenHistoryParams, GetLanternWrittenHistoryResponse,
 } from "@workspace/api-zod";
 import { ClassroomError, requireInstructor } from "../lib/instructor-access";
+import { lanternAnswerGuide } from "../lib/lantern-answer-guide";
 import { evaluateLantern, flagFormatValid, hasLanternResponse, lanternQuestions, missionFlagIds, publicLanternActivity } from "../lib/lantern-activity";
 import { changeLantern, getLanternRow, lanternProgress, loadLanternKeys, type LanternRow } from "../lib/lantern-progress";
 import { requireWrittenApproval, reviewLanternResponse, sameLanternResponse } from "../lib/lantern-review";
@@ -107,6 +108,9 @@ router.post("/lantern/instructor/verify", (req, res) => {
 router.use("/lantern/instructor", (req, _res, next) => {
   requireInstructor(req);
   next();
+});
+router.get("/lantern/instructor/answer-guide", async (_req, res) => {
+  res.set("Cache-Control", "no-store").json(lanternAnswerGuide(await loadLanternKeys()));
 });
 router.get("/lantern/instructor/keys", async (_req, res) => {
   res.json([...await loadLanternKeys()].map(([questionId, acceptedAnswers]) => ({ questionId, acceptedAnswers })));
