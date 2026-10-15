@@ -1,0 +1,58 @@
+{
+  "iron": [
+    {
+      "title": "Instructor access and learner check-in",
+      "text": "Welcome to the Iron Meridian instructor walkthrough. This is AI narration over the actual website, using an isolated demonstration database. No real students or classroom keys are shown. Before class, test the learner link and prepare the assigned evidence and software. Students enter their first name, last name, email, and instructor email when they begin. Ask them to keep their private resume token and reuse their saved session. Open Instructor and unlock with your deployment's instructor code. Keep that code private; this recording uses a disposable test code."
+    },
+    {
+      "title": "Use the answer guide to coach",
+      "text": "The answer guide is your teaching reference for all eight sections. Filter by section or search a question, then read the answer, validation notes, and any illustrative written example. A sample response is not a universal evidence finding. During each station, ask students to show the source artifact, explain their filter or time range, and separate observation from inference. For an incorrect multiple choice answer, let them use the site's coaching and inspect their evidence again. Avoid announcing the correct option. Resolve a suspected dataset mismatch before treating it as a learner error."
+    },
+    {
+      "title": "Verify dataset grading keys before class",
+      "text": "Edit grading keys contains evidence-dependent answers. Compare every reference with the exact classroom extraction and software version before saving a verified key. The bulk reference import also requires that verification. Never import these demonstration values into a real class. A key change can regrade saved responses, so agree on keys before learners start and explain any later correction. Here I save an unchanged synthetic key to demonstrate the confirmation. Questions has curriculum editing controls; avoid changing question definitions while a class is working unless you have planned and communicated the change."
+    },
+    {
+      "title": "Monitor students during the activity",
+      "text": "Submissions includes saved sessions, not only finished activities. Select the student by name and email, then inspect answered counts, points, responses, and the in-progress or submitted state. This demonstration learner has only a few sample answers. Iron Meridian does not have Silent Lantern's five-second pending-review queue. Reopen the submissions tab when you need updated information. Circulate through the eight stations, check that learners are saving, and investigate repeated errors by asking for their evidence source rather than simply supplying an answer."
+    },
+    {
+      "title": "Review and return written work",
+      "text": "Open a written response and read the review guidance alongside the student's explanation. Assess evidence support, reproducibility, scope, and limitations. Enter points within the question's maximum and a specific note, then choose Save review. I first return this demonstration answer with zero points and feedback asking for a source and limitation. After an illustrative student revision, I reopen the record, read the revised text, and save a supported score. Confirm that the saved status and earned points change. Iron Meridian uses points and notes here, not explicit Approve and Deny buttons or Silent Lantern's mission approval gate."
+    },
+    {
+      "title": "Debrief, submission, and privacy",
+      "text": "At the end, ask students to save their final answers and submit their results. Check the submitted state and review outstanding written work; answered does not mean fully correct or fully reviewed. Debrief by comparing methods, evidence quality, and uncertainty, not just total scores. Email delivery depends on a configured mail service, so do not promise an inbox receipt: verify delivery separately and use the console to confirm saved results. Lock the instructor console before leaving the device. Reloading also clears its access code. This demonstration did not email anyone or alter classroom data."
+    }
+  ],
+  "lantern": [
+    {
+      "title": "Instructor access and classroom briefing",
+      "text": "Welcome to the Silent Lantern instructor walkthrough. This is AI narration over the actual website with disposable demonstration data. Before class, prepare the assigned UFED evidence and explain the six-mission, UFED-only scope and classroom rules. Learners enter their first name, last name, email, instructor email, and team number once, then reuse their saved session and private resume token. Tell them that written responses require explicit instructor approval before they can advance. Open Instructor and unlock with your private deployment code. The masked code used here is only a disposable test code."
+    },
+    {
+      "title": "Prepare the answer guide and grading keys",
+      "text": "Use the answer guide to prepare each mission's questions and review criteria. Illustrative written examples guide assessment; they are not findings to copy. In Edit grading keys, verify the same-iPhone Major match and courier alias against your assigned evidence. For the final template flag, configure only the watchlist keyword, not the complete template. Each learner's own SIM IMSI is reviewed individually, never entered as a class-wide key. An empty SIM can be a valid observation if supported by its summary. The values shown here are synthetic, not classroom answers."
+    },
+    {
+      "title": "Monitor the pending review queue",
+      "text": "Open Submissions while learners are working. The console shows saved sessions, their team, points, answered count, and current mission. Pending counts and the selected record refresh every five seconds. Use Only show learners awaiting written review to focus your attention. Select the right learner and read the latest response before deciding. Plan frequent review check-ins so students are not left waiting at mission gates. Coach by asking them to identify their UFED source and explain their method, rather than telling them the expected flag."
+    },
+    {
+      "title": "Deny with actionable feedback",
+      "text": "This demonstration response is too vague to justify approval. In the written response panel, enter feedback explaining what is missing. I ask for the evidence source, the observation, and a limitation. Choose Deny slash reattempt. Denial requires a feedback note and awards zero points. Confirm that the status actually changes to denied; a failed save is not a decision. The learner must revise and submit the answer again. Do not use a points entry alone as approval, and do not tell the student to bypass the mission gate."
+    },
+    {
+      "title": "Review a revision and explicitly approve",
+      "text": "The demonstration student now revises the response. A revised answer returns to pending review; the previous decision does not automatically approve it. Read the newest wording and check the actual evidence before awarding points. Use View response history to compare submissions and see earlier feedback. Enter a score within the allowed maximum, add a useful note, and choose Approve. Confirm the approved status and saved points. Approval clears this written requirement, but the learner still needs every other requirement in that mission. Ask them to refresh their learner page if they are waiting on a recent decision."
+    },
+    {
+      "title": "Use history and bonuses consistently",
+      "text": "Response history records submissions and instructor decisions. Use it to explain why a revision improved, rather than judging only the latest score. Older imported snapshots may not contain every earlier attempt; the page identifies that limitation. Where the activity permits bonuses, choose the speed bonus and tradecraft setting according to a consistent classroom rubric, then save and confirm them. The console separates raw points, hint penalties, and bonuses. Discuss hint use as a learning choice. Apply the same standards across teams and do not change a student's evidence-specific answer to make it match another team's extraction."
+    },
+    {
+      "title": "Finish the activity and debrief",
+      "text": "Before closing, check the pending queue again, complete necessary reviews, and have learners save and submit their final results. Confirm the submitted state rather than assuming an answered count means completion. Debrief the six missions by asking students to explain their extraction choices, identifier checks, limitations, and final template derivation. Email needs a configured delivery service; verify delivery separately and use the console as your saved-results check. Lock instructor access when finished. This walkthrough used synthetic records and made no real email deliveries. Keep answer guides, access codes, and student information off a shared classroom projector."
+    }
+  ]
+}

@@ -14,3 +14,9 @@ Use the actual file path returned by speech generation and dispatch generation i
 **Why:** A replacement speech clip was saved with a suffixed filename despite the requested path; a large simultaneous burst also encountered per-project rate limits.
 
 **How to apply:** Keep successful clips, retry only failed generations, and record returned paths in the narration plan instead of assuming the requested filename was overwritten.
+
+Keep completed recordings durable independently of the disposable classroom fixture.
+
+**Why:** Temporary recording storage and the workspace can be on different filesystems. A completed instructor capture was lost when an atomic move failed and fixture cleanup removed the temporary recording.
+
+**How to apply:** Copy and verify completed media into the ignored artifact directory before tearing down a fixture. Keep successful captures and speech when a later export or another activity fails; retry only the incomplete stage.

@@ -24,6 +24,8 @@ if (!["both", "iron", "lantern"].includes(mode)) throw new Error("CTF_RECORDING_
 const baseEnv = Object.fromEntries(["PATH", "HOME", "USER", "LANG"].filter(k => process.env[k]).map(k => [k, process.env[k]]));
 const childEnv = { ...baseEnv, HOME: work, TMPDIR: work, PLAYWRIGHT_BROWSERS_PATH: "/tmp/ctf-video-tools" };
 let pgStarted = false, fixture, active, closing = false, runSucceeded = false;
+// Playwright resolves its ffmpeg cache when imported, not from Chromium's env.
+process.env.PLAYWRIGHT_BROWSERS_PATH = childEnv.PLAYWRIGHT_BROWSERS_PATH;
 const require = createRequire(import.meta.url);
 const { chromium } = require("../artifacts/iron-meridian-ctf/node_modules/@playwright/test");
 
@@ -386,15 +388,21 @@ try {
   if (proof.marker !== "ctf-recording-fixture-only" || proof.runId !== runId) throw new Error("Fixture marker/run ID mismatch; refusing to record.");
   console.log("Verified isolated fixture", proof);
   const recordings = [];
-  if (mode !== "lantern") {
+  if (process.env.CTF_RECORDING_INSTRUCTOR === "1") {
+    const { captureInstructor } = await import("./src/record-instructor.mjs");
+    for (const lanternMode of mode === "iron" ? [false] : mode === "lantern" ? [true] : [false, true]) {
+      const recording = await captureInstructor({ base, lanternMode, createContext, outputDir, testCode });
+      recordings.push(recording);
+    }
+  } else if (mode !== "lantern") {
     const iron = await captureApp({ base, title: "IRON MERIDIAN | STUDENT WALKTHROUGH", lanternMode: false });
     console.log("IRON MERIDIAN recorded", iron); recordings.push(iron);
   }
-  if (mode !== "iron") {
+  if (process.env.CTF_RECORDING_INSTRUCTOR !== "1" && mode !== "iron") {
     const lantern = await captureApp({ base, title: "SILENT LANTERN | STUDENT WALKTHROUGH", lanternMode: true });
     console.log("SILENT LANTERN recorded", lantern); recordings.push(lantern);
   }
-  const manifestPath = path.join(outputDir, "walkthrough-manifest.json");
+  const manifestPath = path.join(outputDir, process.env.CTF_RECORDING_INSTRUCTOR === "1" ? "instructor-walkthrough-manifest.json" : "walkthrough-manifest.json");
   let prior = [];
   if (mode !== "both" && existsSync(manifestPath)) {
     try { prior = JSON.parse(readFileSync(manifestPath, "utf8")).recordings ?? []; } catch {}
