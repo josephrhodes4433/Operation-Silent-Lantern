@@ -70,3 +70,17 @@ mtime_ms = 1791993686018
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/6f91197a-d436-446b-b660-9c7a9eaeb848/b265908b-41c0-445d-a2e2-36083051f388"
 storage_version_token = "1791993691252782"
 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "BaeSlFlV34nrfmLWGytAq"
+uri = "file://generated-artifacts/ctf-walkthroughs/SILENT-LANTERN-Student-Walkthrough.mp4"
+type = "video"
+title = "SILENT LANTERN — Student Walkthrough"
+description = "Downloadable MP4, approximately 3 minutes, covering all 26 questions, written-response approvals and final submission. Includes chapter markers. Silent screen recording of the real website using isolated demo data; evidence values and written responses are illustrative."
+logical_id = "f2e40ac6-464e-4c09-888a-d4ce807b416e"
+content_hash = "sha256:ca9de3b49cf2cbfcc7d5c2954bb5e426ed74e38a87ac919a04bfb82464472d96"
+size = 12395816
+mtime_ms = 1792085656640
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/f2e40ac6-464e-4c09-888a-d4ce807b416e/4c4a4092-480f-47b5-9b85-1a5af5c73219"
+storage_version_token = "1792085668721330"
+content_type = "video/mp4"
