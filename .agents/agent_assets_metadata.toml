@@ -84,3 +84,167 @@ mtime_ms = 1792085656640
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/f2e40ac6-464e-4c09-888a-d4ce807b416e/4c4a4092-480f-47b5-9b85-1a5af5c73219"
 storage_version_token = "1792085668721330"
 content_type = "video/mp4"
+
+[[outputs]]
+id = "rIvBAOhTztouSc_SkjFtr"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-2.mp3"
+type = "audio"
+title = "silent-lantern section-2 walkthrough narration"
+description = "Text-to-speech audio: Mission two covers iPhone triage and a Major match. I answer the connection and severity questions, then submit my written triage criteria. The flag combines the required severi…"
+logical_id = "bdeb2378-32f7-43be-b0ea-ee72f7c39ba1"
+
+[[outputs]]
+id = "lZsW0i2vkNL9wqTrqdIrS"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-intro.mp3"
+type = "audio"
+title = "iron-meridian intro walkthrough narration"
+description = "Text-to-speech audio: Welcome to this AI-narrated student walkthrough of Iron Meridian. This is the real activity website, recorded with an isolated demonstration account. Evidence values and written…"
+logical_id = "87c1dbc2-95a1-402f-ad84-07a3baa91a7f"
+
+[[outputs]]
+id = "STzIoG5FdJNVc0KmTh-WF"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-7.mp3"
+type = "audio"
+title = "iron-meridian section-7 walkthrough narration"
+description = "Text-to-speech audio: Golf addresses the unsupported device. I answer questions about choosing an appropriate analysis workflow and documenting what the available tools can establish. A device being …"
+logical_id = "6aa874fb-3dd1-49a0-a12d-77890ae34927"
+
+[[outputs]]
+id = "oqCX-dRX7v3-SMJuZuRuz"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-1.mp3"
+type = "audio"
+title = "silent-lantern section-1 walkthrough narration"
+description = "Text-to-speech audio: Mission one covers collection planning and preservation knowledge. I select answers about safe handling, collection strategy, and the purpose of the relevant U F E D workflows. …"
+logical_id = "b05484bf-8ff0-4f78-a4ac-a94684c7a931"
+
+[[outputs]]
+id = "v-17VE2QL02ruleb81CpV"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-3.mp3"
+type = "audio"
+title = "iron-meridian section-3 walkthrough narration"
+description = "Text-to-speech audio: The Bravo section focuses on verification and validation. Here I answer questions about the extraction and the underlying artifacts that support a finding. I distinguish what th…"
+logical_id = "5e602766-b14b-4969-8e10-c7f5e50c16aa"
+
+[[outputs]]
+id = "R4CEPhlSCpxw3I8VnqFbl"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-1.mp3"
+type = "audio"
+title = "iron-meridian section-1 walkthrough narration"
+description = "Text-to-speech audio: In the first section, I answer the workstation preparation and case-building questions. The activity asks about settings, processing, and building a repeatable case before revie…"
+logical_id = "daca636a-c983-483b-8a0e-fe0aa7999eb2"
+
+[[outputs]]
+id = "6XH81tEnS24VOmgPEIr2a"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-5.mp3"
+type = "audio"
+title = "iron-meridian section-5 walkthrough narration"
+description = "Text-to-speech audio: Delta is the database exploitation section. The questions distinguish database structure, records, and the relationships needed to explain a finding. I pay attention to whether …"
+logical_id = "925bea61-105b-437c-9f39-92093253a3a5"
+
+[[outputs]]
+id = "rSD6ZFxbSZ4KPQ3mE3XFZ"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-8.mp3"
+type = "audio"
+title = "iron-meridian section-8 walkthrough narration"
+description = "Text-to-speech audio: The final section moves from analysis to dissemination and the commander's brief. I answer the reporting questions, then save the requested written products. A useful brief sepa…"
+logical_id = "8d12de7a-4325-4127-9285-5250ae8f8386"
+
+[[outputs]]
+id = "IVWwvDJ7sbFknYlGzonMr"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-2.mp3"
+type = "audio"
+title = "iron-meridian section-2 walkthrough narration"
+description = "Text-to-speech audio: Now I move into Alpha triage: pattern of life and the network. These questions ask me to interpret findings from the supplied extraction rather than guess from the scenario alon…"
+logical_id = "375bac80-baea-4d70-abbc-5a8beca45a70"
+
+[[outputs]]
+id = "XGnTyI6WkERvHl2HgIxuY"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-4.mp3"
+type = "audio"
+title = "iron-meridian section-4 walkthrough narration"
+description = "Text-to-speech audio: Charlie introduces the foreign-language node. I continue through the questions about the backup, communications, and the interpretation of recovered content. The important disti…"
+logical_id = "51c1127f-8ec2-433a-bd1b-8a17c1c065f7"
+
+[[outputs]]
+id = "W0LmLEtaHv0fg82vd9JHm"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/iron-meridian-section-6.mp3"
+type = "audio"
+title = "iron-meridian section-6 walkthrough narration"
+description = "Text-to-speech audio: Echo and Foxtrot cover legacy handsets and hex-level recovery. I work through questions about locating data, interpreting encoded content, and checking recovered artifacts. The …"
+logical_id = "0645aae7-98ea-457f-9810-a6c4db6f7239"
+
+[[outputs]]
+id = "ffMY0zWaTS_5ngBRWsi5c"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-intro.mp3"
+type = "audio"
+title = "silent-lantern intro walkthrough narration"
+description = "Text-to-speech audio: Welcome to this AI-narrated Silent Lantern walkthrough. I use the real website with an isolated demo account. Evidence values are illustrative. I enter my student details, team …"
+logical_id = "f6ad6ae2-c62a-431f-ab7d-517ded5f944f"
+
+[[outputs]]
+id = "IyCOE9d9z8bKIjae9tvw-"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-4.mp3"
+type = "audio"
+title = "silent-lantern section-4 walkthrough narration"
+description = "Text-to-speech audio: Mission four is the individual SIM examination. I submit my own I M S I and explain the relevant SIM finding or absence. Both require review. The demo approval represents the in…"
+logical_id = "78c0f92a-1515-4df7-b1c0-1e967890a5a2"
+
+[[outputs]]
+id = "3wjJDkuBGMx7HtuvjZzJt"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-5.mp3"
+type = "audio"
+title = "silent-lantern section-5 walkthrough narration"
+description = "Text-to-speech audio: Mission five uses U F E D Classic with the training Z T E phone. I answer questions about supported preparation and extraction methods, then identify the chipset from the collec…"
+logical_id = "1996c4a8-94f1-4541-a8bb-243295015d67"
+
+[[outputs]]
+id = "XKDAUG40WO1ndtLoIuA-f"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-3.mp3"
+type = "audio"
+title = "silent-lantern section-3 walkthrough narration"
+description = "Text-to-speech audio: Mission three focuses on targeted collection and the courier alias. Multiple-selection questions require the complete requested set, without extra choices. I save the alias flag…"
+logical_id = "18ae08f1-e6cd-4a93-86b8-671e084cf1b3"
+
+[[outputs]]
+id = "MulWQq_D2WJeTm_EDKYAj"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-section-6.mp3"
+type = "audio"
+title = "silent-lantern section-6 walkthrough narration"
+description = "Text-to-speech audio: Mission six combines the findings. The final flag uses the courier alias, the last four digits of my own approved I M S I, and the configured watchlist keyword. I then save an e…"
+logical_id = "8167dca8-0fd5-43f1-aadf-b4364839c250"
+
+[[outputs]]
+id = "dsstIDfKURP_sAGnRHNjd"
+uri = "file://generated-artifacts/ctf-walkthroughs/narration/silent-lantern-intro_2.mp3"
+type = "audio"
+title = "Silent Lantern concise introduction"
+description = "Text-to-speech audio: This AI-narrated Silent Lantern walkthrough uses an isolated demo account. I enter my student details and instructor email. Evidence values are illustrative."
+logical_id = "6db80efc-af23-4667-9ff4-e252e8d02457"
+
+[[outputs]]
+id = "WsJ8HxVpbcaSTvuSbUCys"
+uri = "file://generated-artifacts/ctf-walkthroughs/IRON-MERIDIAN-Narrated-Student-Walkthrough.mp4"
+type = "video"
+title = "IRON MERIDIAN — Narrated Student Walkthrough"
+description = "10 minutes 19 seconds. Downloadable MP4 screen recording covering all 120 questions, with AI narration explaining all eight sections, answer validation, saved responses and instructor review. Includes section chapters. Uses isolated demo data and illustrative evidence values."
+logical_id = "4e0c071e-0859-487b-8c67-0f5ad9f04563"
+content_hash = "sha256:bfd990356c80010478567c88c91b7364b677d77b629e44795e490a75072bea8b"
+size = 57625866
+mtime_ms = 1792087341728
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/4e0c071e-0859-487b-8c67-0f5ad9f04563/422d58e1-7b7b-46b2-98f2-dcf41987dde1"
+storage_version_token = "1792087413318114"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "Z_G0tj2vbTjjF5Pfy7Pf1"
+uri = "file://generated-artifacts/ctf-walkthroughs/SILENT-LANTERN-Narrated-Student-Walkthrough.mp4"
+type = "video"
+title = "SILENT LANTERN — Narrated Student Walkthrough"
+description = "2 minutes 58 seconds. Downloadable MP4 screen recording covering all 26 questions, with AI narration explaining all six missions, validation, written-response approvals and final submission. Includes mission chapters. Uses isolated demo data and illustrative evidence values."
+logical_id = "c6a9ac3d-d1cb-4574-9d2b-c213c0b65b28"
+content_hash = "sha256:fc2e2ce4e564444af1a176c77126c8607003e061b5fcab56aed6b54a850d0ea1"
+size = 15770292
+mtime_ms = 1792087355397
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/c6a9ac3d-d1cb-4574-9d2b-c213c0b65b28/f56fb1ca-3176-41d6-904f-70ffe7c464ec"
+storage_version_token = "1792087414041235"
+content_type = "video/mp4"

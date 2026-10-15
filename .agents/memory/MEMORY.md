@@ -8,3 +8,4 @@
 - [Merge integrity](merge-integrity.md) — inspect merged route handlers beyond conflict markers; structural merges can mix unrelated endpoint bodies.
 - [Publish migration failures](publish-migration-failures.md) — a failed publish can still leave production schema applied; inspect read-only before changing anything.
 - [Assessment policy](assessment-policy.md) — prefer self-checking choices, non-revealing coaching, and readable instructor-only answer guides with open-ended examples.
+- [Walkthrough media](walkthrough-media.md) — validate audible final narration and actual footage timing; use returned speech paths and small generation batches.
