@@ -9,6 +9,8 @@
 export interface CtfSubmissionSummary {
   sessionId: string;
   name: string;
+  /** @nullable */
+  teamNumber?: number | null;
   email: string;
   totalPoints: number;
   answeredCount: number;

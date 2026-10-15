@@ -8,6 +8,130 @@
 import * as zod from 'zod';
 
 
+export const getCtfLeaderboardResponsePercentageMin = 0;
+export const getCtfLeaderboardResponsePercentageMax = 100;
+
+
+
+export const GetCtfLeaderboardResponseItem = zod.object({
+  "teamNumber": zod.number().int(),
+  "percentage": zod.number().int().min(getCtfLeaderboardResponsePercentageMin).max(getCtfLeaderboardResponsePercentageMax)
+})
+export const GetCtfLeaderboardResponse = zod.array(GetCtfLeaderboardResponseItem)
+
+
+export const getLanternLeaderboardResponsePercentageMin = 0;
+export const getLanternLeaderboardResponsePercentageMax = 100;
+
+
+
+export const GetLanternLeaderboardResponseItem = zod.object({
+  "teamNumber": zod.number().int(),
+  "percentage": zod.number().int().min(getLanternLeaderboardResponsePercentageMin).max(getLanternLeaderboardResponsePercentageMax)
+})
+export const GetLanternLeaderboardResponse = zod.array(GetLanternLeaderboardResponseItem)
+
+
+export const getCtfReviewQueueQuerySortDefault = `time_asc`;
+
+export const GetCtfReviewQueueQueryParams = zod.object({
+  "sort": zod.enum(['time_asc', 'time_desc', 'name_asc', 'name_desc']).default(getCtfReviewQueueQuerySortDefault)
+})
+
+export const GetCtfReviewQueueHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetCtfReviewQueueResponseItem = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "teamNumber": zod.number().int().nullable(),
+  "questionId": zod.number().int(),
+  "code": zod.string(),
+  "prompt": zod.string(),
+  "value": zod.string(),
+  "points": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})
+export const GetCtfReviewQueueResponse = zod.array(GetCtfReviewQueueResponseItem)
+
+
+export const getLanternReviewQueueQuerySortDefault = `time_asc`;
+
+export const GetLanternReviewQueueQueryParams = zod.object({
+  "sort": zod.enum(['time_asc', 'time_desc', 'name_asc', 'name_desc']).default(getLanternReviewQueueQuerySortDefault)
+})
+
+export const GetLanternReviewQueueHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetLanternReviewQueueResponseItem = zod.object({
+  "sessionId": zod.string().uuid(),
+  "name": zod.string(),
+  "teamNumber": zod.number().int().nullable(),
+  "questionId": zod.number().int(),
+  "code": zod.string(),
+  "prompt": zod.string(),
+  "value": zod.string(),
+  "points": zod.number().int(),
+  "updatedAt": zod.coerce.date()
+})
+export const GetLanternReviewQueueResponse = zod.array(GetLanternReviewQueueResponseItem)
+
+
+export const GetCtfNotificationsHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetCtfNotificationsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "teamNumber": zod.number().int(),
+  "completedAt": zod.coerce.date(),
+  "readAt": zod.coerce.date().nullable()
+})
+export const GetCtfNotificationsResponse = zod.array(GetCtfNotificationsResponseItem)
+
+
+export const GetLanternNotificationsHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const GetLanternNotificationsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "teamNumber": zod.number().int(),
+  "completedAt": zod.coerce.date(),
+  "readAt": zod.coerce.date().nullable()
+})
+export const GetLanternNotificationsResponse = zod.array(GetLanternNotificationsResponseItem)
+
+
+export const ReadCtfNotificationParams = zod.object({
+  "notificationId": zod.coerce.string().uuid()
+})
+
+export const ReadCtfNotificationHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const ReadCtfNotificationResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+export const ReadLanternNotificationParams = zod.object({
+  "notificationId": zod.coerce.string().uuid()
+})
+
+export const ReadLanternNotificationHeader = zod.object({
+  "x-instructor-code": zod.string()
+})
+
+export const ReadLanternNotificationResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
 export const GetCtfInstructorAnswerGuideHeader = zod.object({
   "x-instructor-code": zod.string()
 })
@@ -578,7 +702,7 @@ export const reviewLanternWrittenAnswerBodyNoteMax = 2000;
 export const ReviewLanternWrittenAnswerBody = zod.object({
   "points": zod.number().int().min(reviewLanternWrittenAnswerBodyPointsMin),
   "note": zod.string().max(reviewLanternWrittenAnswerBodyNoteMax),
-  "decision": zod.enum(['approved', 'denied']),
+  "decision": zod.enum(['approved', 'approved_with_feedback', 'denied']),
   "responseUpdatedAt": zod.coerce.date()
 })
 
@@ -838,13 +962,16 @@ export const createCtfProgressBodyEmailMax = 254;
 
 export const createCtfProgressBodyInstructorEmailMax = 254;
 
+export const createCtfProgressBodyTeamNumberMax = 9999;
+
 
 
 export const CreateCtfProgressBody = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string().min(1).max(createCtfProgressBodyNameMax),
   "email": zod.string().email().max(createCtfProgressBodyEmailMax),
-  "instructorEmail": zod.string().email().max(createCtfProgressBodyInstructorEmailMax)
+  "instructorEmail": zod.string().email().max(createCtfProgressBodyInstructorEmailMax),
+  "teamNumber": zod.number().int().min(1).max(createCtfProgressBodyTeamNumberMax)
 })
 
 export const CreateCtfProgressResponse = zod.object({
@@ -852,6 +979,7 @@ export const CreateCtfProgressResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamNumber": zod.number().int().nullish(),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -860,7 +988,8 @@ export const CreateCtfProgressResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -881,6 +1010,7 @@ export const GetCtfProgressResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamNumber": zod.number().int().nullish(),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -889,7 +1019,8 @@ export const GetCtfProgressResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -936,6 +1067,7 @@ export const SubmitCtfProgressResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamNumber": zod.number().int().nullish(),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -944,7 +1076,8 @@ export const SubmitCtfProgressResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -1151,6 +1284,7 @@ export const ListCtfSubmissionsHeader = zod.object({
 export const ListCtfSubmissionsResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
+  "teamNumber": zod.number().int().nullish(),
   "email": zod.string().email(),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -1176,6 +1310,7 @@ export const GetCtfInstructorSubmissionResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamNumber": zod.number().int().nullish(),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1184,7 +1319,8 @@ export const GetCtfInstructorSubmissionResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -1216,8 +1352,10 @@ export const reviewCtfWrittenAnswerBodyNoteMax = 2000;
 
 
 export const ReviewCtfWrittenAnswerBody = zod.object({
-  "points": zod.number().int().min(reviewCtfWrittenAnswerBodyPointsMin),
-  "note": zod.string().max(reviewCtfWrittenAnswerBodyNoteMax)
+  "points": zod.number().int().min(reviewCtfWrittenAnswerBodyPointsMin).optional(),
+  "note": zod.string().max(reviewCtfWrittenAnswerBodyNoteMax).optional(),
+  "decision": zod.enum(['approved', 'approved_with_feedback', 'denied']),
+  "responseUpdatedAt": zod.coerce.date()
 })
 
 export const ReviewCtfWrittenAnswerResponse = zod.object({
@@ -1225,6 +1363,7 @@ export const ReviewCtfWrittenAnswerResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamNumber": zod.number().int().nullish(),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1233,7 +1372,8 @@ export const ReviewCtfWrittenAnswerResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "feedback": zod.string().optional(),
   "instructorPoints": zod.number().int().nullish(),
-  "instructorNote": zod.string().nullish()
+  "instructorNote": zod.string().nullish(),
+  "reviewStatus": zod.enum(['pending', 'approved', 'denied']).optional()
 })),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),

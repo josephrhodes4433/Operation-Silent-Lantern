@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  CompletionNotifications,
   CtfActivity,
   CtfAnswerInput,
   CtfAnswerResult,
@@ -35,6 +36,8 @@ import type {
   CtfQuestionInput,
   CtfReviewInput,
   CtfSubmissionSummary,
+  GetCtfReviewQueueParams,
+  GetLanternReviewQueueParams,
   HealthStatus,
   InstructorAnswerGuide,
   LanternActivity,
@@ -52,7 +55,11 @@ import type {
   LanternReviewInput,
   LanternScoreAdjustments,
   LanternSubmissionSummary,
-  LanternWrittenHistoryEntry
+  LanternWrittenHistoryEntry,
+  ReadCtfNotification200,
+  ReadLanternNotification200,
+  ReviewQueue,
+  TeamLeaderboard
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -81,6 +88,582 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetCtfLeaderboardUrl = () => {
+
+
+
+
+  return `/api/ctf/leaderboard`
+}
+
+export const getCtfLeaderboard = async ( options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
+
+  return customFetch<TeamLeaderboard>(getGetCtfLeaderboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfLeaderboardQueryKey = () => {
+    return [
+    `/api/ctf/leaderboard`
+    ] as const;
+    }
+
+
+export const getGetCtfLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getCtfLeaderboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfLeaderboardQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfLeaderboard>>> = ({ signal }) => getCtfLeaderboard({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfLeaderboardQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfLeaderboard>>>
+export type GetCtfLeaderboardQueryError = ErrorType<unknown>
+
+
+
+export function useGetCtfLeaderboard<TData = Awaited<ReturnType<typeof getCtfLeaderboard>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfLeaderboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternLeaderboardUrl = () => {
+
+
+
+
+  return `/api/lantern/leaderboard`
+}
+
+export const getLanternLeaderboard = async ( options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
+
+  return customFetch<TeamLeaderboard>(getGetLanternLeaderboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternLeaderboardQueryKey = () => {
+    return [
+    `/api/lantern/leaderboard`
+    ] as const;
+    }
+
+
+export const getGetLanternLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getLanternLeaderboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternLeaderboardQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternLeaderboard>>> = ({ signal }) => getLanternLeaderboard({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternLeaderboardQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternLeaderboard>>>
+export type GetLanternLeaderboardQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternLeaderboard<TData = Awaited<ReturnType<typeof getLanternLeaderboard>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternLeaderboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetCtfReviewQueueUrl = (params?: GetCtfReviewQueueParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/ctf/instructor/review-queue?${stringifiedParams}` : `/api/ctf/instructor/review-queue`
+}
+
+export const getCtfReviewQueue = async (params?: GetCtfReviewQueueParams, options?: Parameters<typeof customFetch>[1]): Promise<ReviewQueue> => {
+
+  return customFetch<ReviewQueue>(getGetCtfReviewQueueUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfReviewQueueQueryKey = (params?: GetCtfReviewQueueParams,) => {
+    return [
+    `/api/ctf/instructor/review-queue`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetCtfReviewQueueQueryOptions = <TData = Awaited<ReturnType<typeof getCtfReviewQueue>>, TError = ErrorType<unknown>>(params?: GetCtfReviewQueueParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfReviewQueue>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfReviewQueueQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfReviewQueue>>> = ({ signal }) => getCtfReviewQueue(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfReviewQueue>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfReviewQueueQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfReviewQueue>>>
+export type GetCtfReviewQueueQueryError = ErrorType<unknown>
+
+
+
+export function useGetCtfReviewQueue<TData = Awaited<ReturnType<typeof getCtfReviewQueue>>, TError = ErrorType<unknown>>(
+ params?: GetCtfReviewQueueParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfReviewQueue>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfReviewQueueQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternReviewQueueUrl = (params?: GetLanternReviewQueueParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/lantern/instructor/review-queue?${stringifiedParams}` : `/api/lantern/instructor/review-queue`
+}
+
+export const getLanternReviewQueue = async (params?: GetLanternReviewQueueParams, options?: Parameters<typeof customFetch>[1]): Promise<ReviewQueue> => {
+
+  return customFetch<ReviewQueue>(getGetLanternReviewQueueUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternReviewQueueQueryKey = (params?: GetLanternReviewQueueParams,) => {
+    return [
+    `/api/lantern/instructor/review-queue`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetLanternReviewQueueQueryOptions = <TData = Awaited<ReturnType<typeof getLanternReviewQueue>>, TError = ErrorType<unknown>>(params?: GetLanternReviewQueueParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternReviewQueue>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternReviewQueueQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternReviewQueue>>> = ({ signal }) => getLanternReviewQueue(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternReviewQueue>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternReviewQueueQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternReviewQueue>>>
+export type GetLanternReviewQueueQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternReviewQueue<TData = Awaited<ReturnType<typeof getLanternReviewQueue>>, TError = ErrorType<unknown>>(
+ params?: GetLanternReviewQueueParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternReviewQueue>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternReviewQueueQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetCtfNotificationsUrl = () => {
+
+
+
+
+  return `/api/ctf/instructor/notifications`
+}
+
+export const getCtfNotifications = async ( options?: Parameters<typeof customFetch>[1]): Promise<CompletionNotifications> => {
+
+  return customFetch<CompletionNotifications>(getGetCtfNotificationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfNotificationsQueryKey = () => {
+    return [
+    `/api/ctf/instructor/notifications`
+    ] as const;
+    }
+
+
+export const getGetCtfNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getCtfNotifications>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfNotificationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfNotifications>>> = ({ signal }) => getCtfNotifications({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfNotifications>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfNotificationsQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfNotifications>>>
+export type GetCtfNotificationsQueryError = ErrorType<unknown>
+
+
+
+export function useGetCtfNotifications<TData = Awaited<ReturnType<typeof getCtfNotifications>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfNotificationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternNotificationsUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/notifications`
+}
+
+export const getLanternNotifications = async ( options?: Parameters<typeof customFetch>[1]): Promise<CompletionNotifications> => {
+
+  return customFetch<CompletionNotifications>(getGetLanternNotificationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternNotificationsQueryKey = () => {
+    return [
+    `/api/lantern/instructor/notifications`
+    ] as const;
+    }
+
+
+export const getGetLanternNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getLanternNotifications>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternNotificationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternNotifications>>> = ({ signal }) => getLanternNotifications({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternNotifications>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternNotificationsQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternNotifications>>>
+export type GetLanternNotificationsQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternNotifications<TData = Awaited<ReturnType<typeof getLanternNotifications>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternNotificationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReadCtfNotificationUrl = (notificationId: string,) => {
+
+
+
+
+  return `/api/ctf/instructor/notifications/${notificationId}/read`
+}
+
+export const readCtfNotification = async (notificationId: string, options?: Parameters<typeof customFetch>[1]): Promise<ReadCtfNotification200> => {
+
+  return customFetch<ReadCtfNotification200>(getReadCtfNotificationUrl(notificationId),
+  {
+    ...options,
+    method: 'PUT'
+
+
+  }
+);}
+
+
+
+
+
+export const getReadCtfNotificationMutationKey = () => ['readCtfNotification'] as const;
+
+export const getReadCtfNotificationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readCtfNotification>>, TError,ReadCtfNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof readCtfNotification>>, TError,ReadCtfNotificationMutationVariables, TContext> => {
+
+const mutationKey = getReadCtfNotificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof readCtfNotification>>, ReadCtfNotificationMutationVariables> = (props) => {
+          const {notificationId} = props ?? {};
+
+          return  readCtfNotification(notificationId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReadCtfNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof readCtfNotification>>>
+
+    export type ReadCtfNotificationMutationError = ErrorType<unknown>
+    export type ReadCtfNotificationMutationVariables = {notificationId: string}
+
+    export const useReadCtfNotification = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readCtfNotification>>, TError,ReadCtfNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof readCtfNotification>>,
+        TError,
+        ReadCtfNotificationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReadCtfNotificationMutationOptions(options));
+    }
+
+export const getReadLanternNotificationUrl = (notificationId: string,) => {
+
+
+
+
+  return `/api/lantern/instructor/notifications/${notificationId}/read`
+}
+
+export const readLanternNotification = async (notificationId: string, options?: Parameters<typeof customFetch>[1]): Promise<ReadLanternNotification200> => {
+
+  return customFetch<ReadLanternNotification200>(getReadLanternNotificationUrl(notificationId),
+  {
+    ...options,
+    method: 'PUT'
+
+
+  }
+);}
+
+
+
+
+
+export const getReadLanternNotificationMutationKey = () => ['readLanternNotification'] as const;
+
+export const getReadLanternNotificationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readLanternNotification>>, TError,ReadLanternNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof readLanternNotification>>, TError,ReadLanternNotificationMutationVariables, TContext> => {
+
+const mutationKey = getReadLanternNotificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof readLanternNotification>>, ReadLanternNotificationMutationVariables> = (props) => {
+          const {notificationId} = props ?? {};
+
+          return  readLanternNotification(notificationId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReadLanternNotificationMutationResult = NonNullable<Awaited<ReturnType<typeof readLanternNotification>>>
+
+    export type ReadLanternNotificationMutationError = ErrorType<unknown>
+    export type ReadLanternNotificationMutationVariables = {notificationId: string}
+
+    export const useReadLanternNotification = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof readLanternNotification>>, TError,ReadLanternNotificationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof readLanternNotification>>,
+        TError,
+        ReadLanternNotificationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReadLanternNotificationMutationOptions(options));
+    }
 
 export const getGetCtfInstructorAnswerGuideUrl = () => {
 

@@ -47,7 +47,8 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
         }
         qc.setQueryData<CtfProgress>(getGetCtfProgressQueryKey(sessionId), (old) => old && {
           ...old, totalPoints: r.totalPoints,
-          answers: { ...old.answers, [String(q.id)]: { ...(old.answers[String(q.id)] ?? {}), value: v, correct: r.correct, earnedPoints: r.earnedPoints, status: r.status, updatedAt: new Date().toISOString() } as CtfAnswer },
+          answers: { ...old.answers, [String(q.id)]: { ...(old.answers[String(q.id)] ?? {}), value: v, correct: r.correct, earnedPoints: r.earnedPoints, status: r.status, updatedAt: new Date().toISOString(),
+            ...(q.manualReview ? { reviewStatus: r.status === 'correct' ? 'approved' : r.status === 'incorrect' ? 'denied' : 'pending', instructorNote: null, instructorPoints: null } : {}) } as CtfAnswer },
         });
         qc.invalidateQueries({ queryKey: getGetCtfProgressQueryKey(sessionId) });
       })
@@ -71,9 +72,10 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const status = dirty || isEmpty(value) ? undefined : result?.status ?? saved?.status;
+  const review = saved?.reviewStatus ?? 'pending';
+  const status = dirty || isEmpty(value) ? undefined : q.manualReview ? (saved ? (review === 'approved' ? 'accepted' : review === 'denied' ? 'denied' : 'manual') : undefined) : result?.status ?? saved?.status;
   const feedback = result?.feedback ?? saved?.feedback;
-  const earned = result?.earnedPoints ?? saved?.earnedPoints ?? 0;
+  const earned = q.manualReview ? saved?.earnedPoints ?? 0 : result?.earnedPoints ?? saved?.earnedPoints ?? 0;
   const id = `q-${q.id}`;
 
   return (
@@ -85,7 +87,7 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
       <div className="p-5 space-y-5">
         <p id={`${id}-p`} className="text-lg leading-snug font-medium">{q.prompt}</p>
         {q.kind === 'single' && typeof value === 'string' && value && !q.options.includes(value) && <p className="text-sm bg-muted p-3 break-words" data-testid={`previous-answer-${q.id}`}>Previously saved response: {value}. It is retained and still graded. Choose an option if you want to update it.</p>}
-        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Saved for instructor review and scored manually.</p>}
+        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Your team's saved answer is reviewed by an instructor. Accepted responses earn full points; denied ones need a revision. Editing an accepted response sends it back for review.</p>}
         {!q.manualReview && !q.correctAnswerAvailable && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Answer key not yet configured. Your response will be saved and marked pending.</p>}
 
         {(q.kind === 'single' || q.kind === 'multiple') && (
@@ -142,9 +144,11 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
 
         {status === 'correct' && <Banner icon={<CheckCircle2 />} tone="ok" text={`Correct. ${earned} points earned.`} fb={feedback} />}
         {status === 'incorrect' && <Banner icon={<XCircle />} tone="bad" text="Not correct. Retry as often as you like, with no penalty." fb={feedback} />}
-        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Saved. Awaiting instructor review." fb={feedback} />}
+        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Saved. Pending instructor review." fb={q.manualReview ? undefined : feedback} />}
+        {status === 'accepted' && <Banner icon={<CheckCircle2 />} tone="ok" text={`Accepted by your instructor. ${earned} points earned.`} fb={saved?.instructorNote ?? undefined} />}
+        {status === 'denied' && <Banner icon={<XCircle />} tone="bad" text="Denied by your instructor. Revise your response using the feedback, then it is reviewed again." fb={saved?.instructorNote ?? undefined} />}
         {status === 'unkeyed' && <Banner icon={<CircleDashed />} tone="warn" text="Saved. Pending: no answer key is configured yet." fb={feedback} />}
-        {saved?.instructorNote && <p className="text-sm bg-muted p-3"><span className="font-mono text-xs uppercase">Instructor note:</span> {saved.instructorNote}</p>}
+        {!q.manualReview && saved?.instructorNote && <p className="text-sm bg-muted p-3"><span className="font-mono text-xs uppercase">Instructor note:</span> {saved.instructorNote}</p>}
 
         <p className="text-xs text-muted-foreground font-mono">Reference: {q.guideReference || 'none provided'}</p>
       </div>

@@ -7,6 +7,7 @@ import NotFound from '@/pages/not-found';
 import Overview from '@/pages/overview';
 import Activity from '@/pages/activity';
 import Results from '@/pages/results';
+import Leaderboard from '@/pages/leaderboard';
 import Instructor from '@/pages/instructor';
 import {
   Route,
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/" component={Overview} />
         <Route path="/activity" component={Activity} />
         <Route path="/results" component={Results} />
+        <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/instructor" component={Instructor} />
         <Route component={NotFound} />
       </Switch>

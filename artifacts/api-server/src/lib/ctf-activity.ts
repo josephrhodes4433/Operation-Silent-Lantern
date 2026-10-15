@@ -22,6 +22,8 @@ export interface Question {
 
 export const questions = (sourceQuestions as Question[]).map(applyFacilitatorKey).map(withObjectiveChoices);
 export const isManual = (q: Question) => q.validationMode ? q.validationMode === "manual" : q.kind === "long" || [117, 118].includes(q.id);
+export const requiresReview = (q: Question, keys: Map<number, string[]>) =>
+  !["single", "multiple"].includes(withClassroomChoices(q, keys.get(q.id)).kind);
 export const validationMode = (q: Question): NonNullable<Question["validationMode"]> =>
   q.validationMode ?? (isManual(q) ? "manual" : q.category === "dataset" ? "dataset" : q.kind === "number" ? "numeric" : q.id === 99 ? "exact" : "normalised");
 
@@ -67,7 +69,7 @@ export function publicActivity(keys: Map<number, string[]>, activityQuestions = 
       id: q.id, section: q.section, sectionTitle: q.sectionTitle, prompt: q.prompt,
       kind: q.kind, options: q.options, points: q.points, guideReference: q.guideReference,
       correctAnswerAvailable: !isManual(q) && (q.category === "auto" ? q.acceptedAnswers.length > 0 : !!keys.get(q.id)?.length),
-      manualReview: isManual(q),
+      manualReview: requiresReview(q, keys),
     })),
   };
 }
@@ -79,7 +81,7 @@ function normalise(value: string) {
 export function evaluate(q: Question, value: string | string[], datasetKeys: Map<number, string[]>) {
   const empty = Array.isArray(value) ? value.length === 0 : !value.trim();
   if (empty) return { correct: null, earnedPoints: 0, status: "unkeyed" as const, feedback: "Draft cleared. Enter a response to continue." };
-  if (isManual(q)) return { correct: null, earnedPoints: 0, status: "manual" as const, feedback: "Written response saved for instructor review. It is not automatically scored." };
+  if (requiresReview(q, datasetKeys)) return { correct: null, earnedPoints: 0, status: "manual" as const, feedback: "Response saved for instructor acceptance. Points are added when accepted." };
   let accepted = q.category === "auto" ? q.acceptedAnswers : datasetKeys.get(q.id);
   if (!accepted?.length) return { correct: null, earnedPoints: 0, status: "unkeyed" as const, feedback: "Response saved. The instructor has not configured this dataset-dependent answer yet; no automatic score has been awarded." };
   if (!q.validationMode && q.id === 5) accepted = [...accepted, "Required yes", "Required = Yes", "Yes", "Make the field required"];

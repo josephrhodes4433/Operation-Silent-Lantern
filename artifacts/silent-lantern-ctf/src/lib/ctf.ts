@@ -41,10 +41,10 @@ export function submitBlockers(a: LanternActivity, p: LanternProgress): string[]
   if (hasUnsavedWork(a, p)) out.push('Some changes are still saving or are only saved in this browser. Return to the activity and resolve them before sending results.');
   const missing = a.questions.filter((q) => !hasResponse(p.answers[String(q.id)]));
   if (missing.length) out.push(`Missing responses: ${missing.map((q) => q.code).join(', ')}`);
-  const bad = a.questions.filter((q) => q.isFlag && p.answers[String(q.id)]?.status !== 'correct');
+  const bad = a.questions.filter((q) => !q.manualReview && q.isFlag && p.answers[String(q.id)]?.status !== 'correct');
   if (bad.length) out.push(`Flags not yet correct: ${bad.map((q) => q.code).join(', ')}`);
   const unapproved = a.questions.filter(q => q.manualReview && p.answers[String(q.id)]?.reviewStatus !== 'approved');
-  if (unapproved.length) out.push(`Written responses need instructor approval: ${unapproved.map(q => q.code).join(', ')}`);
+  if (unapproved.length) out.push(`Written responses need instructor acceptance: ${unapproved.map(q => q.code).join(', ')}`);
   return out;
 }
 
@@ -91,7 +91,7 @@ export function buildResultsText(a: LanternActivity, p: LanternProgress): string
     const ans = p.answers[String(q.id)];
     lines.push(`[Mission ${q.section}] ${q.code} (${q.points} pts)`, q.prompt,
       `Answer: ${ans ? asText(ans.value) : '(not answered)'}`,
-      `Status: ${ans ? ans.status : 'incomplete'}${ans ? `, ${ans.instructorPoints ?? ans.earnedPoints} pts` : ''}`);
+      `Status: ${outcome(q, ans).text}${ans ? `, ${ans.earnedPoints} pts` : ''}`);
     if (ans?.instructorNote) lines.push(`Instructor note: ${ans.instructorNote}`);
     lines.push('');
   }
@@ -114,4 +114,31 @@ export function buildMailto(a: LanternActivity, p: LanternProgress): string {
     ? `Analyst: ${p.name}\nStudent email: ${p.email}\nTeam: ${p.teamNumber}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy written responses are in the results text file. Please attach the downloaded results file before sending, or paste the copied written responses here.`
     : full;
   return `mailto:${encodeURIComponent(p.instructorEmail)}?subject=${encodeURIComponent(`${a.title} - Team ${p.teamNumber} - ${p.name}`)}&body=${encodeURIComponent(body)}`;
+}
+
+type Reviewable = { value: string | string[]; status: string; reviewStatus?: 'pending' | 'approved' | 'denied' };
+/** A question is complete when a choice/keyed answer is correct, or a written answer is instructor-accepted. */
+export function isDone(q: { manualReview: boolean }, an?: Reviewable): boolean {
+  if (!an || !hasResponse(an)) return false;
+  return q.manualReview ? an.reviewStatus === 'approved' : an.status === 'correct';
+}
+export function outcome(q: { manualReview: boolean }, an?: Reviewable): { text: string; cls: string } {
+  if (!an || !hasResponse(an)) return { text: 'Incomplete', cls: 'text-muted-foreground' };
+  if (q.manualReview) {
+    if (an.reviewStatus === 'approved') return { text: 'Accepted', cls: 'text-[hsl(var(--ok))]' };
+    if (an.reviewStatus === 'denied') return { text: 'Denied - revise and resubmit', cls: 'text-destructive' };
+    return { text: 'Pending instructor review', cls: 'text-[hsl(var(--warn))]' };
+  }
+  const t: Record<string, [string, string]> = { correct: ['Correct', 'text-[hsl(var(--ok))]'], incorrect: ['Incorrect', 'text-destructive'], manual: ['Awaiting review', 'text-[hsl(var(--warn))]'], unkeyed: ['Pending key', 'text-[hsl(var(--warn))]'] };
+  const [text, cls] = t[an.status] ?? ['Saved', 'text-muted-foreground'];
+  return { text, cls };
+}
+export function reviewCounts(qs: { id: number; manualReview: boolean }[], answers: Record<string, Reviewable>) {
+  let pending = 0, denied = 0;
+  for (const q of qs) {
+    const an = answers[String(q.id)];
+    if (!q.manualReview || !hasResponse(an)) continue;
+    if (an.reviewStatus === 'denied') denied++; else if (an.reviewStatus !== 'approved') pending++;
+  }
+  return { pending, denied };
 }

@@ -6,7 +6,7 @@ import type { CtfActivity } from '@workspace/api-client-react';
 import { ArrowLeft, ArrowRight, Check, FileWarning } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionCard } from '@/components/question-card';
-import { type Session, finalQuestionId, hasResponse, loadSession, orderedQuestions, storeSession } from '@/lib/ctf';
+import { type Session, errMessage, errStatus, finalQuestionId, hasResponse, isDone, loadSession, orderedQuestions, reviewCounts, storeSession } from '@/lib/ctf';
 
 type Step = { kind: 'q'; qid: number; section: number } | { kind: 'gap'; section: number };
 
@@ -23,6 +23,10 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const [f, setF] = useState({ firstName: '', lastName: '', email: '', instructorEmail: '' });
   const [identityError, setIdentityError] = useState('');
   const [resume, setResume] = useState('');
+  const [team, setTeam] = useState('');
+  const resumeRef = useRef<HTMLInputElement>(null);
+  const teamNo = Number(team);
+  const teamOk = team.trim() !== '' && Number.isInteger(teamNo) && teamNo >= 1 && teamNo <= 9999;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const firstName = f.firstName.trim(), lastName = f.lastName.trim();
@@ -31,10 +35,11 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
       setIdentityError('Enter both first and last name, using no more than 140 characters in total.');
       return;
     }
+    if (!teamOk) { setIdentityError('Enter a whole team number from 1 to 9999.'); return; }
     setIdentityError('');
-    const s: Session = { sessionId: crypto.randomUUID(), firstName, lastName, name, email: f.email.trim(), instructorEmail: f.instructorEmail.trim() };
-    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail } },
-      { onSuccess: () => { storeSession(s); onDone(s); } });
+    const s: Session = { sessionId: crypto.randomUUID(), firstName, lastName, name, email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: teamNo };
+    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamNumber: teamNo } },
+      { onSuccess: (p) => { const saved: Session = { ...s, sessionId: p.sessionId ?? s.sessionId, teamNumber: p.teamNumber ?? teamNo }; storeSession(saved); onDone(saved); } });
   };
   return (
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 max-w-4xl rise">
@@ -50,16 +55,23 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
               onChange={(e) => setF({ ...f, [k]: e.target.value })} />
           </div>
         ))}
-        <p className="text-xs text-muted-foreground">Your name, emails and responses are saved for instructor review. A private resume key is stored in this browser. Anyone holding your resume link can view and continue your session; keep it private.</p>
+        <div>
+          <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team number (1 to 9999)</label>
+          <input id="f-team" required type="number" min={1} max={9999} step={1} className={field} value={team} data-testid="input-teamNumber" onChange={(e) => { setTeam(e.target.value); setIdentityError(''); }} />
+        </div>
+        <p className="text-xs text-muted-foreground">Your team shares ONE saved submission. Your name, emails and responses are saved for instructor review. A private resume key is stored in this browser. Share your private resume link only with your teammates; anyone holding it can view and continue the team's work.</p>
         {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
-        {create.isError && <ErrorPanel title="Could not start" message="The server rejected the details. Check the fields and retry." />}
-        <button className={btn} disabled={create.isPending} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
+        {create.isError && <ErrorPanel title={errStatus(create.error) === 409 ? 'Team already has a submission' : 'Could not start'} message={errStatus(create.error) === 409
+          ? `${errMessage(create.error, 'A submission already exists for this team.')} Each team shares one saved submission. Ask a teammate for the private resume link and use it instead of creating a new one.`
+          : errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
+        {create.isError && errStatus(create.error) === 409 && <button type="button" className={btnGhost} onClick={() => resumeRef.current?.focus()} data-testid="button-use-resume">Resume with a teammate's link</button>}
+        <button className={btn} disabled={create.isPending || !teamOk} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>
       <div className="space-y-3 self-start bg-secondary text-secondary-foreground p-6">
         <h2 className="font-display text-xl font-bold">Returning analyst?</h2>
-        <p className="text-sm text-white/70">Paste your private resume key (or open your resume link) to continue where you left off.</p>
+        <p className="text-sm text-white/70">Paste your team's private resume key (or open the resume link) to continue where you left off. Share that link only with your teammates.</p>
         <label htmlFor="resume" className="sr-only">Resume key</label>
-        <input id="resume" className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
+        <input id="resume" ref={resumeRef} className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
         <button className={btnGhost + ' text-foreground'} disabled={resume.trim().length < 8}
           onClick={() => { const s = { sessionId: resume.trim(), name: '', email: '', instructorEmail: '' }; storeSession(s); onDone(s); }} data-testid="button-resume">Resume session</button>
       </div>
@@ -77,7 +89,7 @@ export default function Activity() {
   });
   const act = useGetCtfActivity();
   const sid = session?.sessionId ?? '';
-  const prog = useGetCtfProgress(sid, { query: { enabled: !!session, queryKey: getGetCtfProgressQueryKey(sid) } });
+  const prog = useGetCtfProgress(sid, { query: { enabled: !!session, queryKey: getGetCtfProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const [idx, setIdx] = useState(0);
   const positioned = useRef(false);
   void search;
@@ -87,7 +99,7 @@ export default function Activity() {
 
   useEffect(() => {
     if (session && !session.name && prog.data?.name) {
-      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail };
+      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber };
       storeSession(s); setSession(s);
     }
   }, [prog.data, session]);
@@ -121,7 +133,9 @@ export default function Activity() {
   const step = steps[Math.min(idx, steps.length - 1)];
   const finalId = finalQuestionId(a);
   const total = a.questions.length;
-  const pct = total ? Math.round((p.answeredCount / total) * 1000) / 10 : 0;
+  const doneCount = a.questions.filter((q) => isDone(q, p.answers[String(q.id)])).length;
+  const pct = total ? Math.round((doneCount / total) * 1000) / 10 : 0;
+  const rc = reviewCounts(a.questions, p.answers);
   const incomplete = a.questions.filter((q) => !hasResponse(p.answers[String(q.id)])).map((q) => q.id);
   const q = step?.kind === 'q' ? qMap.get(step.qid) : undefined;
   const section = a.sections.find((s) => s.id === step?.section);
@@ -131,16 +145,20 @@ export default function Activity() {
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <aside className="space-y-4 lg:sticky lg:top-4 self-start" aria-label="Progress">
           <div className="bg-secondary text-secondary-foreground p-4 space-y-3">
-            <p className="font-mono text-xs uppercase tracking-widest text-white/60">{p.name || 'Analyst'}</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-white/60">{p.name || 'Analyst'}{p.teamNumber ? ` | Team ${p.teamNumber}` : ''}</p>
             <p className="font-display text-3xl font-bold" data-testid="text-score">{p.totalPoints}<span className="text-base text-white/60"> / {a.totalPoints} pts</span></p>
-            <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Answered" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
+            <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Correct or accepted" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
             <p className="text-xs text-white/70" data-testid="text-progress">{p.answeredCount} of {total} answered</p>
+            <p className="text-xs text-white/70" data-testid="text-complete">{doneCount} of {total} correct or accepted ({pct}%)</p>
+            <p role="status" aria-live="polite" className="text-xs text-white/80" data-testid="text-review-summary">
+              {rc.pending || rc.denied ? `${rc.pending} awaiting instructor review | ${rc.denied} denied, needs revision` : 'No written responses waiting on review.'}
+            </p>
           </div>
           <nav aria-label="Sections" className="bg-card border border-border">
             {[...a.sections].sort((x, y) => x.id - y.id).map((s) => {
               const at = steps.findIndex((t) => t.section === s.id);
               const mine = a.questions.filter((x) => x.section === s.id);
-              const done = mine.filter((x) => hasResponse(p.answers[String(x.id)])).length;
+              const done = mine.filter((x) => isDone(x, p.answers[String(x.id)])).length;
               const cur = step?.section === s.id;
               return (
                 <button key={s.id} onClick={() => setIdx(at)} aria-current={cur ? 'step' : undefined} data-testid={`button-section-${s.id}`}

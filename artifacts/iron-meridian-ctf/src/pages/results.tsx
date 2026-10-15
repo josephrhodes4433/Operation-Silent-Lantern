@@ -4,17 +4,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getGetCtfProgressQueryKey, useGetCtfActivity, useGetCtfProgress, useSubmitCtfProgress } from '@workspace/api-client-react';
 import { Copy, Download, Mail, Send } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost } from '@/components/shell';
-import { asText, buildMailto, buildResultsText, buildWrittenEmailBody, hasResponse, loadSession, orderedQuestions, resumeLink } from '@/lib/ctf';
-
-const tone: Record<string, string> = { correct: 'text-[hsl(var(--ok))]', incorrect: 'text-destructive', manual: 'text-[hsl(var(--warn))]', unkeyed: 'text-[hsl(var(--warn))]' };
-const label: Record<string, string> = { correct: 'Correct', incorrect: 'Incorrect', manual: 'Awaiting review', unkeyed: 'Pending key' };
+import { asText, buildMailto, buildResultsText, buildWrittenEmailBody, hasResponse, isDone, loadSession, orderedQuestions, outcome, resumeLink, reviewCounts, submitBlockers } from '@/lib/ctf';
 
 export default function Results() {
   const session = loadSession();
   const qc = useQueryClient();
   const act = useGetCtfActivity();
   const sid = session?.sessionId ?? '';
-  const prog = useGetCtfProgress(sid, { query: { enabled: !!session, queryKey: getGetCtfProgressQueryKey(sid) } });
+  const prog = useGetCtfProgress(sid, { query: { enabled: !!session, queryKey: getGetCtfProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const submit = useSubmitCtfProgress();
   const [copied, setCopied] = useState(false);
   const [mailCopied, setMailCopied] = useState(false);
@@ -49,15 +46,19 @@ export default function Results() {
     catch { setCopyError(true); }
   };
   const qs = orderedQuestions(a);
+  const blockers = submitBlockers(a, p);
+  const rc = reviewCounts(a.questions, p.answers);
+  const doneCount = a.questions.filter((q) => isDone(q, p.answers[String(q.id)])).length;
 
   return (
     <Shell>
       <div className="space-y-8 rise">
         <div className="grid md:grid-cols-[1fr_auto] gap-6 items-end">
-          <div><Eyebrow>Results | {p.name}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
+          <div><Eyebrow>Results | {p.name}{p.teamNumber ? ` | Team ${p.teamNumber}` : ''}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
           <div className="bg-secondary text-secondary-foreground px-6 py-4">
             <p className="font-display text-5xl font-bold" data-testid="text-total">{p.totalPoints}<span className="text-lg text-white/60"> / {a.totalPoints}</span></p>
-            <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered</p>
+            <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered | {doneCount} correct or accepted</p>
+            <p role="status" aria-live="polite" className="text-xs font-mono text-white/70" data-testid="text-review-summary">{rc.pending} pending review | {rc.denied} denied</p>
           </div>
         </div>
 
@@ -70,15 +71,16 @@ export default function Results() {
             <button className={btnGhost} onClick={download} data-testid="button-download"><Download size={16} /> Download text</button>
             <button className={btnGhost} onClick={copyMail}><Copy size={16} /> {mailCopied ? 'Written responses copied' : 'Copy written responses'}</button>
             <button className={btnGhost} onClick={copy} data-testid="button-copy-link"><Copy size={16} /> {copied ? 'Copied' : 'Copy private resume link'}</button>
-            <button className={btnGhost} disabled={submit.isPending || !!p.submittedAt} data-testid="button-submit"
+            <button className={btnGhost} disabled={submit.isPending || !!p.submittedAt || blockers.length > 0} data-testid="button-submit"
               onClick={() => submit.mutate({ sessionId: p.sessionId }, { onSuccess: () => qc.invalidateQueries({ queryKey: getGetCtfProgressQueryKey(sid) }) })}>
               <Send size={16} /> {p.submittedAt ? 'Marked ready for review' : submit.isPending ? 'Submitting...' : 'Mark ready for review'}
             </button>
           </div>
+          {blockers.length > 0 && !p.submittedAt && <ul className="text-xs text-muted-foreground list-disc pl-5" data-testid="list-blockers">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>}
           {submit.isError && <p role="alert" className="text-sm text-destructive">Submit failed. Try again.</p>}
           {copyError && <p role="alert" className="text-sm text-destructive">Your browser blocked clipboard access. Download the text file instead, or select and copy the private link below.</p>}
           {p.submittedAt && <p className="text-xs font-mono text-muted-foreground">Submitted {new Date(p.submittedAt).toLocaleString()}</p>}
-          <p className="text-xs text-muted-foreground break-all font-mono">Keep this link private: {link}</p>
+          <p className="text-xs text-muted-foreground break-all font-mono">Keep this link private and share it only with your teammates; your team shares one saved submission: {link}</p>
         </section>
 
         <section aria-labelledby="resp"><h2 id="resp" className="font-display font-bold text-lg mb-3">Responses in mission order</h2>
@@ -86,18 +88,19 @@ export default function Results() {
             {qs.map((q) => {
               const savedAnswer = p.answers[String(q.id)];
               const an = hasResponse(savedAnswer) ? savedAnswer : undefined;
+              const oc = outcome(q, an);
               return (
                 <li key={q.id} className="bg-card border border-border p-4 grid sm:grid-cols-[90px_1fr_auto] gap-3" data-testid={`row-result-${q.id}`}>
                   <span className="font-mono text-xs text-muted-foreground">S{q.section} / Flag {q.id}</span>
                   <div className="min-w-0 space-y-1">
                     <p className="text-sm font-medium">{q.prompt}</p>
                     <p className="text-sm whitespace-pre-wrap break-words">{an ? asText(an.value) : <span className="text-muted-foreground italic">Incomplete</span>}</p>
-                    {an?.instructorNote && <p className="text-xs bg-muted p-2">Instructor: {an.instructorNote}</p>}
+                    {an?.instructorNote && <p className="text-xs bg-muted p-2 whitespace-pre-wrap">Instructor feedback: {an.instructorNote}</p>}
                     <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>
                   </div>
                   <div className="text-right text-sm">
-                    <p className={`font-semibold ${an ? tone[an.status] : 'text-muted-foreground'}`}>{an ? label[an.status] : 'Incomplete'}</p>
-                    <p className="font-mono text-xs">{an ? (an.instructorPoints ?? an.earnedPoints) : 0} / {q.points} pts</p>
+                    <p className={`font-semibold ${oc.cls}`} data-testid={`status-result-${q.id}`}>{oc.text}</p>
+                    <p className="font-mono text-xs">{an ? an.earnedPoints : 0} / {q.points} pts</p>
                   </div>
                 </li>
               );

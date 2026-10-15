@@ -79,7 +79,8 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const status = dirty || isEmpty(value) ? undefined : q.manualReview ? saved?.status : result?.status ?? saved?.status;
+  const review = saved?.reviewStatus ?? 'pending';
+  const status = dirty || isEmpty(value) ? undefined : q.manualReview ? (saved ? (review === 'approved' ? 'correct' : review === 'denied' ? 'incorrect' : 'manual') : undefined) : result?.status ?? saved?.status;
   const feedback = result?.feedback ?? saved?.feedback;
   const earned = q.manualReview ? saved?.earnedPoints ?? 0 : result?.earnedPoints ?? saved?.earnedPoints ?? 0;
   const id = `q-${q.id}`;
@@ -151,11 +152,11 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
           </p>
         </div>
 
-        {status === 'correct' && <Banner icon={<CheckCircle2 />} tone="ok" text={q.manualReview ? `Instructor approved. You may continue. ${earned} points earned.` : `Correct. ${earned} points earned.`} fb={feedback} />}
-        {status === 'incorrect' && <Banner icon={<XCircle />} tone="bad" text={q.manualReview ? 'Instructor denied this response. Revise your answer using the feedback below, then resubmit. You cannot continue until approved.' : 'Not correct. Retry as often as you like. Only hints cost points.'} fb={feedback} />}
-        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Submitted. Waiting for instructor approval before you can continue." fb={feedback} />}
+        {status === 'correct' && <Banner icon={<CheckCircle2 />} tone="ok" text={q.manualReview ? `Accepted by your instructor. You may continue. ${earned} points earned.` : `Correct. ${earned} points earned.`} fb={feedback} />}
+        {status === 'incorrect' && <Banner icon={<XCircle />} tone="bad" text={q.manualReview ? 'Denied by your instructor. Revise your answer using the feedback below, then resubmit. You cannot continue until approved.' : 'Not correct. Retry as often as you like. Only hints cost points.'} fb={feedback} />}
+        {status === 'manual' && <Banner icon={<Clock />} tone="warn" text="Submitted. Pending instructor review. You cannot continue until it is accepted." fb={feedback} />}
         {status === 'unkeyed' && <Banner icon={<CircleDashed />} tone="warn" text="Saved. Pending: no answer key is configured yet." fb={feedback} />}
-        {saved?.instructorNote && <p className="text-sm bg-muted p-3"><span className="font-mono text-xs uppercase">Instructor note:</span> {saved.instructorNote}</p>}
+        {saved?.instructorNote && <p className="text-sm bg-muted p-3 whitespace-pre-wrap" data-testid={`text-feedback-${q.id}`}><span className="font-mono text-xs uppercase">Instructor feedback:</span> {saved.instructorNote}</p>}
 
         <p className="text-xs text-muted-foreground font-mono">Reference: {q.guideReference || 'none provided'}</p>
       </div>

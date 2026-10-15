@@ -1,5 +1,5 @@
 import type { InstructorAnswerGuide, InstructorAnswerGuideEntry } from "@workspace/api-zod";
-import { questions, validationMode, type Question } from "./ctf-activity";
+import { questions, requiresReview, validationMode, type Question } from "./ctf-activity";
 import { withClassroomChoices } from "./iron-choice-questions";
 
 // Server-only: examples must never be included in the public activity payload.
@@ -27,7 +27,7 @@ export function ironAnswerGuide(current: Question[], keys: Map<number, string[]>
       const mode = validationMode(q);
       const active = keys.get(q.id) ?? [];
       const reference = q.facilitatorAnswers ?? [];
-      const manual = mode === "manual";
+      const manual = requiresReview(q, keys);
       const source = manual ? "manual" : mode === "dataset" ? active.length ? "classroom" : reference.length ? "reference" : "unconfigured" : "fixed";
       const original = questions.find(original => original.id === q.id);
       const unchanged = original?.prompt === q.prompt && original.kind === q.kind;
@@ -35,7 +35,7 @@ export function ironAnswerGuide(current: Question[], keys: Map<number, string[]>
         id: q.id, code: `Flag ${String(q.id).padStart(3, "0")}`, section: q.section, sectionTitle: q.sectionTitle,
         prompt: q.prompt, points: q.points, kind: q.kind, source,
         answers: manual ? [] : mode === "dataset" ? active : q.acceptedAnswers,
-        referenceAnswers: reference,
+        referenceAnswers: manual ? [...new Set([...reference, ...active, ...q.acceptedAnswers])] : reference,
         guidance: q.validationMethod || (manual ? "Review the response against the learner's cited evidence." : ""),
         sampleResponse: manual && unchanged ? examples[q.id] ?? "" : "",
         notes: [q.facilitatorNote, manual && !unchanged ? "Instructor-authored question: no baseline sample is assumed. Use the current question and review criteria." : "", q.guideReference ? `Source: ${q.guideReference}` : ""].filter(Boolean).join("\n"),

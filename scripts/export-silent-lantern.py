@@ -119,11 +119,24 @@ def export(destination):
             "src/lib/lantern-history.ts",
             "src/lib/lantern-answer-guide.ts",
             "src/lib/lantern-choice-feedback.ts",
-            "src/routes/health.ts", "src/routes/lantern.ts",
+            "src/lib/classroom-teams.ts",
+            "src/routes/health.ts", "src/routes/lantern.ts", "src/routes/classroom.ts",
             "src/tests/lantern-history.test.ts",
+            "tests/lantern-triage-email.test.ts",
         ]
         for relative in api_files:
             copy(stage, "artifacts/api-server/" + relative)
+        # The shared workspace router serves both products. Scope the portable
+        # project to Lantern without carrying the other activity's definitions.
+        classroom_path = stage / "artifacts/api-server/src/routes/classroom.ts"
+        classroom = classroom_path.read_text()
+        classroom = "\n".join(line for line in classroom.split("\n") if not any(
+            f'from "../lib/{module}"' in line for module in ["iron-progress", "ctf-question-authoring", "ctf-activity"]))
+        first = classroom.index('  if (activity === "ctf") {')
+        last = classroom.index('  const [rows, keys] = await Promise.all([pool.query<LanternRow>', first)
+        classroom = classroom[:first] + classroom[last:]
+        classroom = classroom.replace('["ctf", "lantern"] as const', '["lantern"] as const').replace("Ctf", "Lantern")
+        classroom_path.write_text(classroom)
         api_package = json.loads((stage / "artifacts/api-server/package.json").read_text())
         # These shared-workspace test suites import the other activity and are
         # intentionally not shipped in the standalone application.
@@ -135,12 +148,14 @@ def export(destination):
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import lanternRouter from "./lantern";
+import classroomRouter from "./classroom";
 const router: IRouter = Router();
 router.use(healthRouter);
+router.use(classroomRouter);
 router.use(lanternRouter);
 export default router;
 """)
-        write(stage, "lib/db/src/schema/index.ts", 'export * from "./lantern";\n')
+        write(stage, "lib/db/src/schema/index.ts", 'export * from "./lantern";\nexport * from "./classroom-teams";\n')
         (stage / "lib/db/src/schema/ctf.ts").unlink(missing_ok=True)
 
         app = (stage / "artifacts/api-server/src/app.ts").read_text()
@@ -179,6 +194,12 @@ app.get("/{*path}", (req, res) => {
             raise RuntimeError("Instructor answer-guide contract changed; inspect before exporting.")
         contract = contract.replace("paths:\n", "paths:\n" + guide_path.group(), 1)
         contract = contract.replace("  schemas:\n", "  schemas:\n" + "".join(guide_schemas), 1)
+        team_paths = re.findall(r"^  /lantern/(?:leaderboard|instructor/(?:review-queue|notifications(?:/\{notificationId\}/read)?)):\n.*?(?=^  /|\Z)", root_contract, re.M | re.S)
+        team_schemas = re.findall(r"^    (?:TeamLeaderboard|ReviewQueue|CompletionNotifications):\n.*?(?=^    [A-Za-z]|\Z)", root_contract, re.M | re.S)
+        if len(team_paths) != 4 or len(team_schemas) != 3:
+            raise RuntimeError("Team review contract changed; inspect before exporting.")
+        contract = contract.replace("paths:\n", "paths:\n" + "".join(team_paths), 1)
+        contract = contract.replace("  schemas:\n", "  schemas:\n" + "".join(team_schemas), 1)
         contract = contract.replace("paths:\n", """\
 paths:
   /healthz:

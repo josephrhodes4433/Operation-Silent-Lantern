@@ -5,10 +5,13 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CtfReviewInputDecision } from './ctfReviewInputDecision';
 
 export interface CtfReviewInput {
   /** @minimum 0 */
-  points: number;
+  points?: number;
   /** @maxLength 2000 */
-  note: string;
+  note?: string;
+  decision: CtfReviewInputDecision;
+  responseUpdatedAt: Date;
 }

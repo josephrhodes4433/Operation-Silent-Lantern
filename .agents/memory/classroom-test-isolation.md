@@ -57,3 +57,16 @@ data.
 allowlisted subprocess environment with only fixture connection details, and
 stop and remove the cluster afterward. Keep browser-only contract checks clearly
 distinguished from real persistence checks.
+
+For the remote browser tester, install the fixture relay **before the first
+application page load or interaction**, and verify browser API destinations as
+well as the fixture marker.
+
+**Why:** A marker request from the workspace can succeed while the remote browser
+still calls the mounted development preview. One browser pass reached the
+development registration endpoint before its relay was installed, potentially
+creating a synthetic team there.
+
+**How to apply:** Keep the browser on a blank page until routing is installed.
+Fail closed if the relay or marker is unavailable; never explore the preview as
+a fallback. Do not delete a possibly pre-existing team to conceal test pollution.

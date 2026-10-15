@@ -6,7 +6,7 @@ type Mode = Question["keyMode"];
 type Kind = Question["kind"];
 const missions = [
   ["Collection Plan & Preservation Knowledge", "00:20–01:10", "Isolate the device, plan collection, and review Preserved Extraction and SafeGuard as knowledge topics only. No preserved extraction or supported live device is required. Create your case identifier and submit FLAG-01."],
-  ["iPhone Triage & Major Match", "01:10–02:05", "Use the Coordinator iPhone and the supplied watchlist first. Connect TurboLink in the correct order, run Triage, and inspect the matching IMEI in the saved Triage report. Submit FLAG-02."],
+  ["iPhone Triage & Major Match", "01:10–02:05", "Use the instructor-kit iPhone 8 as the Coordinator iPhone. For the beta, the instructor demonstrates Triage and shares the saved report; learners do not need their own kits for this step. The simplest offline profile matches this kit's actual IMEI. The instructor can also pre-test planted contact/message indicators and their Major/Minor priorities. Follow the supported connection procedure, inspect the first Major item actually reported, and submit FLAG-02. Do not use the kit ZTE for Triage: its unsupported Advanced extraction workflow does not expose those options."],
   ["iPhone Targeted Collection & Courier Alias", "02:05–03:00", "Use the same iPhone as Mission 2. Compare Content Types and Applications extraction with Triage, then refine the alias from the message naming the courier. Use the Triage report timestamp and UFED outputs as sources. Submit FLAG-03."],
   ["Individual SIM Examination", "03:10–04:00", "Extract your assigned SIM with a SIM or multiSIM adapter. SIMs are not standardized: record your own IMSI and actual results, including an honest no-content finding where applicable. Instructor validation is individual. Submit FLAG-04."],
   ["UFED Classic Tools: ZTE", "04:00–04:50", "Use UFED Classic tools with the training ZTE. Configure the required settings, perform Advanced Logical, File System, and Physical extractions, and review the Collection Summary Reports for the chipset. Submit FLAG-05."],
@@ -14,7 +14,7 @@ const missions = [
 ];
 export const hintTexts = [
   "Keep the device powered on and isolate it from networks. Preserved/SafeGuard questions are knowledge-based; UFDX is the container for multiple extractions.",
-  "Triage comes first on the iPhone. Save and open the report; check Major severity and the matching IMEI. Use datatype and value exactly.",
+  "Use the demonstrated iPhone 8 report, not the ZTE. Inspect the configured priorities and the first actual Major row; report its data type and value, rather than assuming which artifact must match.",
   "Use the same iPhone. Chats is not a Content Types option; look for the courier-naming message and cite its timestamp/source.",
   "Your SIM may contain no contacts or messages. Record the actual IMSI, report what is present or absent, and submit it for individual instructor approval.",
   "Use UFED Classic tools. Check Developer Options, Stay Awake, USB Debugging, and MTP; compare all three Collection Summary Reports.",
@@ -24,9 +24,10 @@ function q(id: number, code: string, section: number, prompt: string, keyMode: M
   return {
     id, code, section, sectionTitle: missions[section - 1][0], prompt, keyMode, points, acceptedAnswers, format,
     kind: keyMode === "fixed" && lanternChoices[id] ? "single" as const : kind, options: lanternChoices[id] ?? options,
-    guideReference: `CEDI feedback workbook + CTF Feedback 2 · ${code}`,
+    guideReference: `CEDI feedback workbook + CTF Feedback 2${section === 2 ? " + Triage profile email (October 2026)" : ""} · ${code}`,
     isFlag: code.includes("FLAG"), isFinalSummary: code === "M6-Q1",
-    correctAnswerAvailable: keyMode === "fixed" || keyMode === "format", manualReview: keyMode === "manual",
+    correctAnswerAvailable: keyMode === "fixed" || keyMode === "format",
+    manualReview: !["single", "multiple"].includes(keyMode === "fixed" && lanternChoices[id] ? "single" : kind),
   };
 }
 // New identities prevent earlier answers, approvals and classroom keys from
@@ -41,9 +42,9 @@ export const lanternQuestions: Question[] = [
   q(107, "M1-Q7", 1, "Briefly describe a situation in which you would use Preserved Extraction or SafeGuard Mode. Explain the preservation or inactivity-timer concern. This is knowledge-based; no live preserved extraction is required.", "manual", 5, [], "", "long"),
   q(108, "M1-FLAG01", 1, "Enter FLAG-01 using your case identifier and your registered team number.", "format", 10, [], "CASE:JTF-####-TEAM# (example for team 3: CASE:JTF-0427-TEAM3)"),
   q(109, "M2-Q1", 2, "What is the proper order to connect a device via TurboLink?", "fixed", 5, ["Connect TurboLink to power and computer → Turn on TurboLink → Wait for the connect-device indicator → Connect device"], "", "single", ["Connect device → Turn on TurboLink → Connect power and computer", "Connect TurboLink to power and computer → Turn on TurboLink → Wait for the connect-device indicator → Connect device", "Turn on the device → Connect device → Connect TurboLink to power"]),
-  q(110, "M2-Q2", 2, "List at least two criteria that may be used in a Triage Scan (e.g., keyword + phone number).", "manual", 5, [], "", "long"),
-  q(111, "M2-Q3", 2, "Which Triage match type indicates the highest priority match?", "fixed", 5, ["Major"], "", "single", ["Minor", "Major", "No match"]),
-  q(112, "M2-FLAG02", 2, "Save and open the Triage report. Enter the data type and details for the first item that matched as Major Severity. Use the supplied iPhone watchlist; the intended classroom match is its IMEI.", "dataset", 10, [], "MAJOR:<datatype>:<value>"),
+  q(110, "M2-Q2", 2, "Describe at least two supported Triage profile criteria and explain how you would verify them against the instructor's iPhone 8 demonstration. Consider the kit's actual IMEI and a known planted contact or message indicator. Distinguish the simplest IMEI-only beta profile from an expanded content-based profile; do not claim that two criteria are mandatory for every scan.", "manual", 5, [], "", "long"),
+  q(111, "M2-Q3", 2, "A pre-tested iPhone 8 profile produces Major and Minor indicators. Which report label denotes the higher-priority match, regardless of whether an IMEI, contact, or message matched?", "fixed", 5, ["Major"], "", "single", ["Minor", "Major", "No match"]),
+  q(112, "M2-FLAG02", 2, "Save and open the instructor-demonstrated iPhone 8 Triage report (or your own assigned report in a kit-equipped class). Enter the reported data type and value of its first Major Severity item. An IMEI-only beta profile may match the kit IMEI; an expanded profile may report a planted contact/message indicator instead. Use the actual report, not an assumed IMEI or invented value. If no Major item is present, ask the instructor to check the profile and demonstration before submitting.", "dataset", 10, [], "MAJOR:<reported datatype>:<reported value>"),
   q(113, "M3-Q1", 3, "What manual extraction options are available for this iPhone? Select the supported manual collection options, not Full File System or SIM.", "fixed", 5, ["Content Types", "Applications", "Triage Scan"], "", "multiple", ["Full File System", "SIM", "Content Types", "Applications", "Triage Scan"]),
   q(114, "M3-Q2", 3, "Select the Content Types most useful for rendezvous instructions and courier identification. Use the same iPhone as Triage. Chats is not a Content Types option; Images and Videos are excluded from this question.", "fixed", 5, ["Call logs", "Locations", "Contacts", "Documents"], "", "multiple", ["Call logs", "Locations", "Contacts", "Documents"]),
   q(115, "M3-FLAG03", 3, "Enter FLAG-03: the courier alias named in the message on the same iPhone used for Triage.", "dataset", 10, [], "ALIAS:<3–20 letters> (no spaces)"),
@@ -65,18 +66,18 @@ export function publicLanternActivity(keys: Map<number, string[]>) {
   return GetLanternActivityResponse.parse({
     title: "OPERATION SILENT LANTERN", course: "Cellebrite UFED | Defense & Intelligence", duration: "6 hours",
     totalFlags: lanternQuestions.length, totalPoints: lanternQuestions.reduce((n, item) => n + item.points, 0),
-    scenario: "You are a Joint Task Force Mobile Exploitation Cell supporting a coalition partner in a contested information environment. A hostile network is coordinating logistics disruption and influence operations using disposable devices, encrypted chats, and staged media drops. A partner unit executed a lawful, authorized site exploitation and recovered training evidence for rapid triage. Triage the Coordinator iPhone first, then use targeted collection on that same iPhone to refine the courier alias and details. Examine your own assigned SIM and the UFED Classic ZTE training phone, and produce a concise, defensible lead package.",
+    scenario: "You are a Joint Task Force Mobile Exploitation Cell supporting a coalition partner in a contested information environment. A hostile network is coordinating logistics disruption and influence operations using disposable devices, encrypted chats, and staged media drops. A partner unit executed a lawful, authorized site exploitation and recovered training evidence for rapid triage. Triage the Coordinator iPhone 8 first, then use targeted collection on that same iPhone to refine the courier alias and details. For beta triage, follow the instructor's demonstration and supplied report rather than requiring a learner kit. Examine your own assigned SIM and the UFED Classic ZTE training phone, and produce a concise, defensible lead package.",
     rules: [
       "Work only on provided training devices/datasets. Do not connect personal devices.",
       "UFED-only: use UFED outputs and saved reports; no PA or Streamline knowledge is required.",
       "Follow classroom SOPs: document case identifiers, handling notes, and artifact provenance.",
       "Preserved Extraction and SafeGuard are knowledge-based only; classroom phones do not support the preserved workflow and no preserved extraction is supplied.",
-      "Triage and targeted collection use the same iPhone. SIMs differ: each IMSI and SIM finding requires individual instructor review.",
+      "Triage and targeted collection use the same iPhone 8. Beta triage is instructor-led; use the demonstrated report. SIMs differ: each IMSI and SIM finding requires individual instructor review.",
       "Capture each flag and obtain instructor approval of written responses to advance. Denied responses require a meaningful revision and another review.",
       "Three hint tokens per team; each hint costs 2 points. Wrong submissions have no penalty.",
       "Accuracy and defensible reasoning matter more than speed. A 10-minute optional break/intel inject follows Mission 3.",
     ],
-    evidence: ["Coordinator iPhone training device/dataset — Triage and targeted collection", "Training ZTE phone — UFED Classic tools", "Individually assigned training SIM card and SIM/multiSIM adapter", "TurboLink for supported iPhone collection; not mandatory for UFED Classic SIM extraction", "Instructor watchlist brief: keywords, phone numbers, and location focus areas"],
+    evidence: ["Coordinator iPhone 8 — instructor-kit Triage demonstration and same-device targeted collection", "Offline Triage profile matched to the actual instructor-kit IMEI; optional pre-tested contact/message indicators and configured priorities", "Saved iPhone 8 Triage report shared for the beta; learner kits are not required for that step", "Training ZTE phone — UFED Classic tools only in its assigned mission, not the Advanced Triage workflow", "Individually assigned training SIM card and SIM/multiSIM adapter", "TurboLink for supported iPhone collection; not mandatory for UFED Classic SIM extraction", "Instructor watchlist brief: confirm which indicators are actually configured and present; do not assume consistent content across kits"],
     sections: missions.map(([title, time, inject], i) => ({ id: i + 1, title, time, inject, flags: `FLAG-0${i + 1}`, points: lanternQuestions.filter(item => item.section === i + 1).reduce((n, item) => n + item.points, 0) })),
     questions: lanternQuestions.map(({ acceptedAnswers: _private, ...question }) => ({ ...question, correctAnswerAvailable: question.keyMode === "fixed" || question.keyMode === "format" || (question.keyMode === "dataset" && keys.has(question.id)) })),
   });
@@ -97,6 +98,7 @@ export function flagFormatValid(id: number, value: string, teamNumber?: number) 
 export function evaluateLantern(question: Question, value: string | string[], keys: Map<number, string[]>, teamNumber: number, _authorized: boolean, responses?: Record<string, { value: string | string[]; reviewStatus?: string }>) {
   const result = (status: "correct" | "incorrect" | "manual" | "unkeyed", feedback: string) => ({ status, feedback, correct: status === "correct" ? true : status === "incorrect" ? false : null, earnedPoints: status === "correct" ? question.points : 0 });
   if (!hasLanternResponse(value)) return result("unkeyed", "Response cleared.");
+  if (question.manualReview) return result("manual", "Response saved for instructor acceptance. Points are added when accepted.");
   if (question.isFlag && (typeof value !== "string" || !flagFormatValid(question.id, value.trim(), teamNumber))) return result("incorrect", `Check the strict format: ${question.format}. Retries have no penalty.`);
   if (question.keyMode === "manual") return result("manual", "Response saved for individual instructor review.");
   if (question.keyMode === "format") return result("correct", "Case format and registered team number confirmed.");

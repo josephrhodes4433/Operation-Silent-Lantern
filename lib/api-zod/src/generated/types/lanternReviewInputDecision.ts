@@ -11,5 +11,6 @@ export type LanternReviewInputDecision = typeof LanternReviewInputDecision[keyof
 
 export const LanternReviewInputDecision = {
   approved: 'approved',
+  approved_with_feedback: 'approved_with_feedback',
   denied: 'denied',
 } as const;

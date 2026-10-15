@@ -8,6 +8,7 @@ import express from "express";
 import { pool } from "@workspace/db";
 import ctf from "../src/routes/ctf";
 import lantern from "../src/routes/lantern";
+import classroom from "../src/routes/classroom";
 import { questions, isManual } from "../src/lib/ctf-activity";
 import { lanternQuestions } from "../src/lib/lantern-activity";
 
@@ -44,6 +45,7 @@ async function main() {
     CREATE TABLE IF NOT EXISTS lantern_keys(question_id integer PRIMARY KEY,accepted_answers jsonb NOT NULL);
   `);
   await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/lantern-written-history.sql"), "utf8"));
+  await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/classroom-team-reviews.sql"), "utf8"));
   // Seed only the isolated DB. Fixed-choice answer keys come from current
   // source definitions; evidence-dependent gaps receive conspicuous synthetic
   // values, never a claim about actual evidence.
@@ -67,7 +69,7 @@ async function main() {
   app.get("/__ctf_recording_fixture", (_req, res) => res.json({
     marker: "ctf-recording-fixture-only", runId: process.env.CTF_RECORDING_RUN_ID,
   }));
-  app.use("/api", ctf, lantern);
+  app.use("/api", classroom, ctf, lantern);
   app.use("/silent-lantern", express.static(lanternDir));
   app.get("/silent-lantern/{*splat}", (_req, res) => res.sendFile(path.join(lanternDir, "index.html")));
   app.use(express.static(ironDir));

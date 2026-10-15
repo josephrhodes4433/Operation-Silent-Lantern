@@ -18,5 +18,6 @@
 //   export type Post = typeof postsTable.$inferSelect;
 
 export * from "./ctf";
+export * from "./classroom-teams";
 export * from "./ctf-questions";
 export * from "./lantern";

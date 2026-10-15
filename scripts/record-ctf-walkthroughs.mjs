@@ -388,7 +388,43 @@ try {
   if (proof.marker !== "ctf-recording-fixture-only" || proof.runId !== runId) throw new Error("Fixture marker/run ID mismatch; refusing to record.");
   console.log("Verified isolated fixture", proof);
   const recordings = [];
-  if (process.env.CTF_RECORDING_INSTRUCTOR === "1") {
+  if (process.env.CTF_RECORDING_VERIFY_ONLY === "1") {
+    const { verifyTeamReviews } = await import("./src/verify-team-reviews.mjs");
+    await verifyTeamReviews({ base, outputDir, testCode });
+  } else if (process.env.CTF_RECORDING_HOLD === "1") {
+    writeFileSync(path.join(outputDir, "ui-test-fixture.json"), JSON.stringify({ base, runId, testCode, marker: proof.marker }));
+    console.log("ISOLATED UI FIXTURE READY", base);
+    await new Promise(resolve => process.once("SIGUSR2", resolve));
+  } else if (process.env.CTF_RECORDING_UPDATED === "1") {
+    const { captureUpdatedStudent } = await import("./src/capture-updated-student.mjs");
+    const { captureUpdatedInstructor } = await import("./src/capture-updated-instructor.mjs");
+    for (const lanternMode of (mode === "both" ? [false, true] : [mode === "lantern"])) {
+      const opts = { base, outputDir, testCode, lanternMode, createContext };
+      const prefix = lanternMode ? "silent-lantern" : "iron-meridian";
+      const captureFile = path.join(outputDir, `${prefix}-updated-student-capture.json`);
+      if (process.env.CTF_RECORDING_REUSE_STUDENT === "1" && existsSync(captureFile)) {
+        const prior = JSON.parse(readFileSync(captureFile, "utf8"));
+        if (prior.failed || prior.questions.length !== prior.questionCount) throw new Error("Cannot reuse incomplete student footage");
+        const { api } = await import("./src/updated-recording-utils.mjs");
+        const activity = lanternMode ? "lantern" : "ctf";
+        const sid = randomUUID();
+        const request = (...args) => api(base, activity, testCode, ...args);
+        await request("/progress", "POST", { sessionId: sid, name: "Student Demo", teamNumber: 3,
+          email: "student@example.test", instructorEmail: "instructor@example.test", ...(lanternMode ? { roeAcknowledged: true } : {}) });
+        for (const q of prior.questions) {
+          await request(`/progress/${sid}/answers/${q.questionId}`, "PUT", { value: q.value });
+          if (q.manualReview) {
+            const p = await request(`/progress/${sid}`);
+            await request(`/instructor/submissions/${sid}/review/${q.questionId}`, "PUT", {
+              decision: "approved", note: "", points: q.points, responseUpdatedAt: p.answers[String(q.questionId)].updatedAt,
+            });
+          }
+        }
+        await request(`/progress/${sid}/submit`, "POST", {});
+      } else await captureUpdatedStudent(opts);
+      await captureUpdatedInstructor(opts);
+    }
+  } else if (process.env.CTF_RECORDING_INSTRUCTOR === "1") {
     const { captureInstructor } = await import("./src/record-instructor.mjs");
     for (const lanternMode of mode === "iron" ? [false] : mode === "lantern" ? [true] : [false, true]) {
       const recording = await captureInstructor({ base, lanternMode, createContext, outputDir, testCode });
@@ -398,7 +434,7 @@ try {
     const iron = await captureApp({ base, title: "IRON MERIDIAN | STUDENT WALKTHROUGH", lanternMode: false });
     console.log("IRON MERIDIAN recorded", iron); recordings.push(iron);
   }
-  if (process.env.CTF_RECORDING_INSTRUCTOR !== "1" && mode !== "iron") {
+  if (!process.env.CTF_RECORDING_UPDATED && !process.env.CTF_RECORDING_VERIFY_ONLY && !process.env.CTF_RECORDING_HOLD && process.env.CTF_RECORDING_INSTRUCTOR !== "1" && mode !== "iron") {
     const lantern = await captureApp({ base, title: "SILENT LANTERN | STUDENT WALKTHROUGH", lanternMode: true });
     console.log("SILENT LANTERN recorded", lantern); recordings.push(lantern);
   }
@@ -408,7 +444,7 @@ try {
     try { prior = JSON.parse(readFileSync(manifestPath, "utf8")).recordings ?? []; } catch {}
   }
   const merged = [...prior.filter(x => !recordings.some(r => r.video === x.video)), ...recordings];
-  writeFileSync(manifestPath, JSON.stringify({ generatedAt: new Date().toISOString(), fixtureMarker: "ctf-recording-fixture-only", recordings: merged }, null, 2));
+  if (recordings.length) writeFileSync(manifestPath, JSON.stringify({ generatedAt: new Date().toISOString(), fixtureMarker: "ctf-recording-fixture-only", recordings: merged }, null, 2));
 } catch (error) {
   console.error(error.stack || error);
   process.exitCode = 1;

@@ -4,21 +4,25 @@ import {
   getGetCtfInstructorKeysQueryKey, getGetCtfInstructorSubmissionQueryKey, getListCtfSubmissionsQueryKey,
   getGetCtfActivityQueryKey, getGetCtfInstructorQuestionsQueryKey, useGetCtfInstructorQuestions,
   useGetCtfActivity, useGetCtfInstructorKeys, useGetCtfInstructorSubmission, useListCtfSubmissions,
-  useReviewCtfWrittenAnswer, useSetCtfInstructorKey, useVerifyCtfInstructor,
+  useSetCtfInstructorKey, useVerifyCtfInstructor,
   useGetCtfInstructorAnswerGuide, getGetCtfInstructorAnswerGuideQueryKey,
 } from '@workspace/api-client-react';
-import type { CtfInstructorQuestion, CtfQuestion } from '@workspace/api-client-react';
+import type { CtfInstructorQuestion } from '@workspace/api-client-react';
 import { AnswerGuide } from '@/components/answer-guide';
 import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionAuthoring } from '@/components/question-authoring';
-import { asText, errStatus } from '@/lib/ctf';
+import { asText, errStatus, hasResponse, outcome } from '@/lib/ctf';
+import { ReviewActions } from '@/components/review-actions';
+import { ReviewQueue } from '@/components/review-queue';
+import { CompletionsPanel, SignalsBar, useNotificationData, useQueueData } from '@/components/instructor-signals';
 
 export default function Instructor() {
   const [code, setCode] = useState<string | null>(null); // memory only
   const qc = useQueryClient();
   const lock = () => {
     setCode(null);
+    qc.cancelQueries();
     qc.removeQueries({ predicate: (q) => String(q.queryKey[0]).startsWith('/api/ctf/instructor') });
     qc.removeQueries({ predicate: (q) => String(q.queryKey[0]).startsWith('/api/ctf/progress') });
   };
@@ -52,20 +56,25 @@ function Gate({ onOk }: { onOk: (c: string) => void }) {
 }
 
 function Console({ code, onLock }: { code: string; onLock: () => void }) {
-  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'author'>('guide');
+  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'author' | 'queue' | 'notes'>('guide');
+  const queue = useQueueData(code, 'time_asc');
+  const notes = useNotificationData(code);
+  const pending = queue.data?.length ?? 0;
+  const unread = (notes.data ?? []).filter((n) => !n.readAt).length;
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div><Eyebrow>Instructor console</Eyebrow><h1 className="font-display text-3xl font-bold">Questions, keys and submissions</h1></div>
         <button className={btnGhost} onClick={onLock} data-testid="button-lock">Lock</button>
       </div>
+      <SignalsBar pending={pending} pendingState={queue.data ? 'ready' : queue.isError ? 'error' : 'loading'} unread={unread} onQueue={() => setTab('queue')} onNotes={() => setTab('notes')} />
       <div role="tablist" className="flex flex-wrap border-b border-border">
-        {([['guide', 'Answer guide'], ['author', 'Questions'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
+        {([['queue', `Review queue (${pending})`], ['notes', `Completions (${unread} new)`], ['guide', 'Answer guide'], ['author', 'Questions'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}
             className={`px-4 py-2 text-sm font-semibold border-b-2 ${tab === k ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{l}</button>
         ))}
       </div>
-      {tab === 'guide' ? <Guide code={code} /> : tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
+      {tab === 'queue' ? <ReviewQueue code={code} /> : tab === 'notes' ? <CompletionsPanel code={code} /> : tab === 'guide' ? <Guide code={code} /> : tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
     </div>
   );
 }
@@ -188,7 +197,7 @@ function Subs({ code }: { code: string }) {
 function Detail({ sid, headers }: { sid: string; headers: Record<string, string> }) {
   const act = useGetCtfActivity();
   const catalog = useGetCtfInstructorQuestions({ request: { headers } });
-  const d = useGetCtfInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetCtfInstructorSubmissionQueryKey(sid) }, request: { headers } });
+  const d = useGetCtfInstructorSubmission(sid, { query: { enabled: true, queryKey: getGetCtfInstructorSubmissionQueryKey(sid), refetchInterval: 5000, staleTime: 0 }, request: { headers } });
   if (d.isLoading || act.isLoading) return <PageSkeleton />;
   if (d.isError || !d.data || !act.data) return <ErrorPanel title="Could not load submission" onRetry={() => d.refetch()} />;
   const p = d.data;
@@ -204,34 +213,12 @@ function Detail({ sid, headers }: { sid: string; headers: Record<string, string>
             <p className="text-sm font-medium">{q.prompt}</p>
             {guidance && <p className="text-xs whitespace-pre-wrap border-l-2 border-primary pl-3 text-muted-foreground"><strong>Review guidance: </strong>{guidance.facilitatorNote || guidance.validationMethod}</p>}
             <p className="text-sm whitespace-pre-wrap bg-muted p-2">{an ? asText(an.value) : 'Not answered'}</p>
-            {an && <p className="text-xs font-mono">Status: {an.status} | earned {an.earnedPoints}</p>}
-            {an && q.manualReview && <Review sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? 0} note={an.instructorNote ?? ''} />}
+            {an && <p className="text-xs font-mono" data-testid={`text-status-${q.id}`}>Status: {outcome(q, an).text} | earned {an.earnedPoints} / {q.points}</p>}
+            {an && q.manualReview && an.instructorNote && <p className="text-xs whitespace-pre-wrap bg-muted p-2" data-testid={`text-last-note-${q.id}`}>Latest feedback sent: {an.instructorNote}</p>}
+            {an && q.manualReview && hasResponse(an) && <ReviewActions sessionId={sid} questionId={q.id} points={q.points} updatedAt={an.updatedAt} headers={headers} label={`Flag ${q.id}`} />}
           </div>
         );
       })}
-    </div>
-  );
-}
-
-function Review({ sid, q, headers, pts, note }: { sid: string; q: CtfQuestion; headers: Record<string, string>; pts: number; note: string }) {
-  const qc = useQueryClient();
-  const rev = useReviewCtfWrittenAnswer({ request: { headers } });
-  const [points, setPoints] = useState(String(pts));
-  const [n, setN] = useState(note);
-  const num = Number(points);
-  const bad = !Number.isFinite(num) || num < 0 || num > q.points;
-  return (
-    <div className="grid sm:grid-cols-[120px_1fr_auto] gap-2 items-end border-t border-border pt-3">
-      <div><label htmlFor={`pt-${q.id}`} className="text-xs font-mono">Points (max {q.points})</label>
-        <input id={`pt-${q.id}`} type="number" min={0} max={q.points} className={field} value={points} onChange={(e) => setPoints(e.target.value)} data-testid={`input-points-${q.id}`} /></div>
-      <div><label htmlFor={`nt-${q.id}`} className="text-xs font-mono">Note</label>
-        <input id={`nt-${q.id}`} maxLength={2000} className={field} value={n} onChange={(e) => setN(e.target.value)} data-testid={`input-note-${q.id}`} /></div>
-      <button className={btn} disabled={bad || rev.isPending} data-testid={`button-review-${q.id}`}
-        onClick={() => rev.mutate({ sessionId: sid, questionId: q.id, data: { points: num, note: n } }, {
-          onSuccess: () => { qc.invalidateQueries({ queryKey: getGetCtfInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListCtfSubmissionsQueryKey() }); } })}>
-        {rev.isPending ? 'Saving...' : rev.isSuccess ? 'Saved' : 'Save review'}
-      </button>
-      {rev.isError && <p role="alert" className="text-xs text-destructive sm:col-span-3">Review failed to save.</p>}
     </div>
   );
 }

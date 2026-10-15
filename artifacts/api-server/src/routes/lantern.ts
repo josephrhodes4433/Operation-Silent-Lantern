@@ -13,6 +13,7 @@ import { evaluateLantern, flagFormatValid, hasLanternResponse, lanternQuestions,
 import { changeLantern, getLanternRow, lanternProgress, loadLanternKeys, type LanternRow } from "../lib/lantern-progress";
 import { requireWrittenApproval, reviewLanternResponse, sameLanternResponse } from "../lib/lantern-review";
 import { getLanternHistory } from "../lib/lantern-history";
+import { completionPercentage, createSharedTeam } from "../lib/classroom-teams";
 
 const router: IRouter = Router();
 function input<T>(schema: { parse: (data: unknown) => T }, data: unknown) {
@@ -29,13 +30,7 @@ router.get("/lantern/activity", async (_req, res) => {
 router.post("/lantern/progress", async (req, res) => {
   const body = input(CreateLanternProgressBody, req.body);
   if (!body.roeAcknowledged || !body.name.trim()) throw new ClassroomError(400, "Enter your name and acknowledge the classroom rules of engagement.");
-  // Never overwrite a saved team from a repeated create request or a known token.
-  const result = await pool.query<LanternRow>(
-    `INSERT INTO lantern_progress(session_id,name,email,instructor_email,team_number)
-     VALUES($1,$2,$3,$4,$5) ON CONFLICT(session_id) DO NOTHING RETURNING *`,
-    [body.sessionId, body.name.trim(), body.email.trim(), body.instructorEmail.trim(), body.teamNumber],
-  );
-  const row = result.rows[0] ?? await getLanternRow(body.sessionId);
+  const row = await createSharedTeam("lantern", body);
   res.json(lanternProgress(row, await loadLanternKeys()));
 });
 router.get("/lantern/progress/:sessionId", async (req, res) => {
@@ -53,15 +48,13 @@ router.put("/lantern/progress/:sessionId/answers/:questionId", async (req, res) 
   const progress = await changeLantern(sessionId, async (row, keys, record) => {
     unlocked(row, keys, question.section);
     requireWrittenApproval(row, questionId);
-    if (question.id === 117 && hasLanternResponse(value) && (typeof value !== "string" || !flagFormatValid(117, value.trim()))) {
-      throw new ClassroomError(400, "Use IMSI: followed by 10–18 digits from your own SIM.");
-    }
     grade = evaluateLantern(question, value, keys, row.team_number, row.authorization_granted, row.answers);
     const previous = row.answers[String(questionId)];
     const sameResponse = previous && (question.manualReview ? sameLanternResponse(previous.value, value) : JSON.stringify(previous.value) === JSON.stringify(value));
     if (question.manualReview && previous?.reviewStatus === "denied" && sameResponse) {
       throw new ClassroomError(409, "Revise your denied response before resubmitting. An unchanged response cannot be approved.");
     }
+    if (sameResponse) return;
     row.answers[String(questionId)] = {
       value, correct: grade.correct, earnedPoints: grade.earnedPoints, status: grade.status,
       updatedAt: new Date(Math.max(Date.now(), previous ? new Date(previous.updatedAt).getTime() + 1 : 0)),
@@ -79,7 +72,7 @@ router.post("/lantern/progress/:sessionId/submit", async (req, res) => {
   const progress = await changeLantern(session(req.params), (row, keys) => {
     const current = lanternProgress(row, keys);
     if (current.reviewGateQuestionId !== null) throw new ClassroomError(409, "Every written response must be approved before you can submit final results.");
-    if (current.answeredCount !== lanternQuestions.length || missionFlagIds.some(id => current.answers[String(id)]?.correct !== true)) {
+    if (completionPercentage(current.answers, lanternQuestions.map(q => q.id)) !== 100) {
       throw new ClassroomError(409, `Save all ${lanternQuestions.length} responses and capture all six flags before submitting your final results.`);
     }
     row.submitted_at = new Date();
@@ -149,10 +142,9 @@ router.put("/lantern/instructor/submissions/:sessionId/review/:questionId", asyn
   const { sessionId, questionId } = input(ReviewLanternWrittenAnswerParams, req.params);
   const { points, note, decision, responseUpdatedAt } = input(ReviewLanternWrittenAnswerBody, req.body);
   const question = lanternQuestions.find(q => q.id === questionId);
-  if (!question?.manualReview || points > question.points) throw new ClassroomError(400, "Only written responses can be reviewed, within the question’s point limit.");
+  if (!question?.manualReview) throw new ClassroomError(400, "Only non-choice responses require acceptance.");
   res.json(await changeLantern(sessionId, async (row, _keys, record) => {
-    if (decision === "approved" && questionId === 117 && !flagFormatValid(117, String(row.answers["117"]?.value ?? "").trim())) throw new ClassroomError(400, "Review a valid individual IMSI before approving this flag.");
-    reviewLanternResponse(row, questionId, decision, points, note, responseUpdatedAt);
+    reviewLanternResponse(row, questionId, decision, question.points, note, responseUpdatedAt);
     await record(questionId, "reviewed");
   }));
 });

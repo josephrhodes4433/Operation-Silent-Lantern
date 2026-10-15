@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionCard } from '@/components/question-card';
 import { ArchivedResponses } from '@/components/archived-responses';
-import { type Session, errMessage, hasResponse, loadSession, orderedQuestions, storeSession } from '@/lib/ctf';
+import { type Session, errMessage, errStatus, hasResponse, isDone, loadSession, orderedQuestions, reviewCounts, storeSession } from '@/lib/ctf';
 import { clearCheckInDraft, loadCheckInDraft, loadLearnerProfile, storeCheckInDraft, type CheckInDraft } from '@/lib/check-in';
 
 function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
@@ -27,6 +27,7 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   };
   const [roe, setRoe] = useState(false);
   const [resume, setResume] = useState('');
+  const resumeRef = useRef<HTMLInputElement>(null);
   const team = Number(f.team);
   const teamOk = Number.isInteger(team) && team >= 1 && team <= 999;
   const submit = (e: React.FormEvent) => {
@@ -73,16 +74,19 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
           <input type="checkbox" required checked={roe} onChange={(e) => setRoe(e.target.checked)} className="mt-1 accent-[hsl(var(--primary))]" data-testid="checkbox-roe" />
           <span>I have read the rules of engagement on the Mission page and agree to follow them.</span>
         </label>
-        <p className="text-xs text-muted-foreground">Your details are remembered in this browser. Your name, emails and responses are saved for instructor review. On another device, use your private resume link instead of checking in again. Anyone holding that link can continue your session; keep it private.</p>
+        <p className="text-xs text-muted-foreground">Your details are remembered in this browser. Your name, emails and responses are saved for instructor review. Your team shares ONE saved submission. On another device, use your private resume link instead of checking in again. Share that link only with your teammates; anyone holding it can continue the team's session.</p>
         {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
-        {create.isError && <ErrorPanel title="Could not start" message={errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
+        {create.isError && <ErrorPanel title={errStatus(create.error) === 409 ? 'Team already has a submission' : 'Could not start'} message={errStatus(create.error) === 409
+          ? `${errMessage(create.error, 'A submission already exists for this team.')} Each team shares one saved submission. Ask a teammate for the private resume link and use it instead of creating a new one.`
+          : errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
+        {create.isError && errStatus(create.error) === 409 && <button type="button" className={btnGhost} onClick={() => resumeRef.current?.focus()} data-testid="button-use-resume">Resume with a teammate's link</button>}
         <button className={btn} disabled={create.isPending || !roe || !teamOk} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>
       <div className="space-y-3 self-start bg-secondary text-secondary-foreground p-6">
         <h2 className="font-display text-xl font-bold">Returning analyst?</h2>
-        <p className="text-sm text-white/70">Paste your private resume key (or open your resume link) to continue where you left off.</p>
+        <p className="text-sm text-white/70">Paste your team's private resume key (or open the resume link) to continue where you left off. Share that link only with your teammates.</p>
         <label htmlFor="resume" className="sr-only">Resume key</label>
-        <input id="resume" className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
+        <input id="resume" ref={resumeRef} className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
         <button className={btnGhost + ' text-foreground'} disabled={resume.trim().length < 8}
           onClick={() => { const s = { sessionId: resume.trim(), name: '', email: '', instructorEmail: '' }; storeSession(s); onDone(s); }} data-testid="button-resume">Resume session</button>
       </div>
@@ -124,7 +128,7 @@ export default function Activity() {
   });
   const act = useGetLanternActivity();
   const sid = session?.sessionId ?? '';
-  const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 15000 } });
+  const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const [idx, setIdx] = useState(0);
   const positioned = useRef(false);
 
@@ -178,7 +182,9 @@ export default function Activity() {
   const unlocked = p.unlockedMission;
   const cur = qs[Math.min(idx, qs.length - 1)];
   const total = a.questions.length;
-  const pct = total ? Math.round((p.answeredCount / total) * 1000) / 10 : 0;
+  const doneCount = a.questions.filter((q) => isDone(q, p.answers[String(q.id)])).length;
+  const pct = total ? Math.round((doneCount / total) * 1000) / 10 : 0;
+  const rc = reviewCounts(a.questions, p.answers);
   const incomplete = a.questions.filter((q) => !hasResponse(p.answers[String(q.id)])).map((q) => q.code);
   const section = a.sections.find((s) => s.id === cur?.section);
   const nextIdx = idx + 1;
@@ -197,18 +203,22 @@ export default function Activity() {
             <p className="font-mono text-xs uppercase tracking-widest text-white/60">{p.name || 'Analyst'} | Team {p.teamNumber}</p>
             <p className="font-display text-3xl font-bold" data-testid="text-score">{p.totalPoints}<span className="text-base text-white/60"> / {a.totalPoints} pts</span></p>
             <p className="text-xs text-white/70" data-testid="text-adjust">Hints -{p.penaltyPoints} | speed +{p.speedBonus} | tradecraft +{p.tradecraftBonus}</p>
-            <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Answered" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
+            <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Correct or accepted" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
             <p className="text-xs text-white/70" data-testid="text-progress">{p.answeredCount} of {total} answered</p>
+            <p className="text-xs text-white/70" data-testid="text-complete">{doneCount} of {total} correct or accepted ({pct}%)</p>
+            <p role="status" aria-live="polite" className="text-xs text-white/80" data-testid="text-review-summary">
+              {rc.pending || rc.denied ? `${rc.pending} awaiting instructor review | ${rc.denied} denied, needs revision` : 'No written responses waiting on review.'}
+            </p>
             <p className="text-xs text-white/70" data-testid="text-unlocked">{unlocked >= 7 ? 'All missions cleared' : `Mission ${unlocked} unlocked`}</p>
             {p.reviewGateQuestionId !== null && p.answers[String(p.reviewGateQuestionId)] && <p className="text-xs text-white/80" data-testid="text-review-gate">
-              {p.answers[String(p.reviewGateQuestionId)].reviewStatus === 'denied' ? 'Written response denied — revise and resubmit.' : 'Written response waiting for instructor approval.'}
+              {p.answers[String(p.reviewGateQuestionId)].reviewStatus === 'denied' ? 'Written response denied. Read the feedback, revise and resubmit.' : 'Written response waiting for instructor review.'}
             </p>}
           </div>
           <nav aria-label="Missions" className="bg-card border border-border">
             {[...a.sections].sort((x, y) => x.id - y.id).map((s) => {
               const at = qs.findIndex((t) => t.section === s.id);
               const mine = a.questions.filter((x) => x.section === s.id);
-              const done = mine.filter((x) => hasResponse(p.answers[String(x.id)])).length;
+              const done = mine.filter((x) => isDone(x, p.answers[String(x.id)])).length;
               const on = cur?.section === s.id;
               const lock = missionLocked(s.id);
               return (

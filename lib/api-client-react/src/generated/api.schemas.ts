@@ -165,6 +165,15 @@ export const CtfAnswerStatus = {
   manual: 'manual',
 } as const;
 
+export type CtfAnswerReviewStatus = typeof CtfAnswerReviewStatus[keyof typeof CtfAnswerReviewStatus];
+
+
+export const CtfAnswerReviewStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  denied: 'denied',
+} as const;
+
 export interface CtfAnswer {
   value: string | string[];
   /** @nullable */
@@ -177,6 +186,7 @@ export interface CtfAnswer {
   instructorPoints?: number | null;
   /** @nullable */
   instructorNote?: string | null;
+  reviewStatus?: CtfAnswerReviewStatus;
 }
 
 export interface CtfProgressInput {
@@ -190,6 +200,11 @@ export interface CtfProgressInput {
   email: string;
   /** @maxLength 254 */
   instructorEmail: string;
+  /**
+     * @minimum 1
+     * @maximum 9999
+     */
+  teamNumber: number;
 }
 
 export type CtfProgressAnswers = {[key: string]: CtfAnswer};
@@ -199,6 +214,8 @@ export interface CtfProgress {
   name: string;
   email: string;
   instructorEmail: string;
+  /** @nullable */
+  teamNumber?: number | null;
   answers: CtfProgressAnswers;
   totalPoints: number;
   answeredCount: number;
@@ -257,16 +274,29 @@ export interface CtfInstructorKey {
 
 export type CtfInstructorKeys = CtfInstructorKey[];
 
+export type CtfReviewInputDecision = typeof CtfReviewInputDecision[keyof typeof CtfReviewInputDecision];
+
+
+export const CtfReviewInputDecision = {
+  approved: 'approved',
+  approved_with_feedback: 'approved_with_feedback',
+  denied: 'denied',
+} as const;
+
 export interface CtfReviewInput {
   /** @minimum 0 */
-  points: number;
+  points?: number;
   /** @maxLength 2000 */
-  note: string;
+  note?: string;
+  decision: CtfReviewInputDecision;
+  responseUpdatedAt: string;
 }
 
 export interface CtfSubmissionSummary {
   sessionId: string;
   name: string;
+  /** @nullable */
+  teamNumber?: number | null;
   email: string;
   totalPoints: number;
   answeredCount: number;
@@ -274,6 +304,42 @@ export interface CtfSubmissionSummary {
   /** @nullable */
   submittedAt: string | null;
 }
+
+export type TeamLeaderboardItem = {
+  teamNumber: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  percentage: number;
+};
+
+export type TeamLeaderboard = TeamLeaderboardItem[];
+
+export type ReviewQueueItem = {
+  sessionId: string;
+  name: string;
+  /** @nullable */
+  teamNumber: number | null;
+  questionId: number;
+  code: string;
+  prompt: string;
+  value: string;
+  points: number;
+  updatedAt: string;
+};
+
+export type ReviewQueue = ReviewQueueItem[];
+
+export type CompletionNotificationsItem = {
+  id: string;
+  teamNumber: number;
+  completedAt: string;
+  /** @nullable */
+  readAt: string | null;
+};
+
+export type CompletionNotifications = CompletionNotificationsItem[];
 
 export type LanternWrittenHistoryEntryEvent = typeof LanternWrittenHistoryEntryEvent[keyof typeof LanternWrittenHistoryEntryEvent];
 
@@ -581,6 +647,7 @@ export type LanternReviewInputDecision = typeof LanternReviewInputDecision[keyof
 
 export const LanternReviewInputDecision = {
   approved: 'approved',
+  approved_with_feedback: 'approved_with_feedback',
   denied: 'denied',
 } as const;
 
@@ -592,4 +659,40 @@ export interface LanternReviewInput {
   decision: LanternReviewInputDecision;
   responseUpdatedAt: string;
 }
+
+export type GetCtfReviewQueueParams = {
+sort?: GetCtfReviewQueueSort;
+};
+
+export type GetCtfReviewQueueSort = typeof GetCtfReviewQueueSort[keyof typeof GetCtfReviewQueueSort];
+
+
+export const GetCtfReviewQueueSort = {
+  time_asc: 'time_asc',
+  time_desc: 'time_desc',
+  name_asc: 'name_asc',
+  name_desc: 'name_desc',
+} as const;
+
+export type GetLanternReviewQueueParams = {
+sort?: GetLanternReviewQueueSort;
+};
+
+export type GetLanternReviewQueueSort = typeof GetLanternReviewQueueSort[keyof typeof GetLanternReviewQueueSort];
+
+
+export const GetLanternReviewQueueSort = {
+  time_asc: 'time_asc',
+  time_desc: 'time_desc',
+  name_asc: 'name_asc',
+  name_desc: 'name_desc',
+} as const;
+
+export type ReadCtfNotification200 = {
+  ok: boolean;
+};
+
+export type ReadLanternNotification200 = {
+  ok: boolean;
+};
 

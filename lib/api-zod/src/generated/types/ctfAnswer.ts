@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CtfAnswerReviewStatus } from './ctfAnswerReviewStatus';
 import type { CtfAnswerStatus } from './ctfAnswerStatus';
 
 export interface CtfAnswer {
@@ -19,4 +20,5 @@ export interface CtfAnswer {
   instructorPoints?: number | null;
   /** @nullable */
   instructorNote?: string | null;
+  reviewStatus?: CtfAnswerReviewStatus;
 }

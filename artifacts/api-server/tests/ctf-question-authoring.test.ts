@@ -3,7 +3,7 @@ import { test } from "node:test";
 import express from "express";
 import { pool } from "@workspace/db";
 import router from "../src/routes/ctf";
-import { evaluate, mergeQuestions, questions, sectionForFlag } from "../src/lib/ctf-activity";
+import { evaluate, mergeQuestions, questions, requiresReview, sectionForFlag } from "../src/lib/ctf-activity";
 import { validateQuestion } from "../src/lib/ctf-question-authoring";
 import { SetCtfInstructorQuestionBody } from "@workspace/api-zod";
 
@@ -28,16 +28,17 @@ test("question rules reject invalid definitions without inventing content", () =
   assert.equal(SetCtfInstructorQuestionBody.safeParse({ ...input(), validationMode: "unknown" }).success, false);
 });
 
-test("authored grading modes and fixed section boundaries preserve original IDs", () => {
+test("authored non-choice keys require review and fixed section boundaries preserve original IDs", () => {
   const q = { ...input(), id: 67, ...sectionForFlag(67), category: "auto" };
-  assert.equal(evaluate(q, "Fixture KEY", new Map()).earnedPoints, 7);
-  assert.equal(evaluate(q, "fixture key", new Map()).correct, false);
-  assert.equal(evaluate({ ...q, validationMode: "normalised" }, "fixture-key", new Map()).correct, true);
-  assert.equal(evaluate({ ...q, kind: "number", validationMode: "numeric", acceptedAnswers: ["1,000"] }, "1000", new Map()).correct, true);
+  assert.equal(evaluate(q, "Fixture KEY", new Map()).earnedPoints, 0);
+  assert.equal(evaluate(q, "fixture key", new Map()).status, "manual");
+  assert.equal(evaluate({ ...q, validationMode: "normalised" }, "fixture-key", new Map()).status, "manual");
+  const numeric = { ...q, kind: "number" as const, validationMode: "numeric" as const, acceptedAnswers: ["1,000"] };
+  assert.equal(evaluate(numeric, "1000", new Map()).status, requiresReview(numeric, new Map()) ? "manual" : "correct");
   assert.equal(evaluate({ ...q, kind: "multiple", acceptedAnswers: ["A", "B"] }, ["B", "A"], new Map()).correct, true);
   assert.equal(evaluate({ ...q, kind: "multiple", acceptedAnswers: ["A", "B"] }, ["A"], new Map()).correct, false);
   assert.equal(evaluate({ ...q, validationMode: "manual" }, "any written evidence", new Map()).status, "manual");
-  assert.equal(evaluate({ ...q, category: "dataset", validationMode: "dataset" }, "anything", new Map()).status, "unkeyed");
+  assert.equal(evaluate({ ...q, category: "dataset", validationMode: "dataset" }, "anything", new Map()).status, "manual");
   for (const [id, section] of [[1, 1], [10, 1], [11, 2], [29, 2], [30, 3], [43, 3], [44, 4], [66, 4], [67, 5], [79, 5], [80, 6], [102, 6], [103, 7], [109, 7], [110, 8], [120, 8]]) {
     assert.equal(sectionForFlag(id).section, section);
   }
@@ -63,8 +64,10 @@ test("protected authoring persists independently of source and learner responses
   const originalLearner = JSON.stringify(learner);
   const originalSource = JSON.stringify(questions);
   const query = async (sql: string, args: unknown[] = []) => {
+    // Team bootstrapping is a no-op in this authoring-only in-memory fixture.
+    if (sql.startsWith("SELECT pg_advisory_xact_lock") || sql.startsWith("WITH missing AS") || sql.startsWith("INSERT INTO classroom_teams")) return { rows: [] };
     if (sql.startsWith("SELECT question_id, definition")) return { rows: [...definitions].map(([question_id, definition]) => ({ question_id, definition })) };
-    if (sql.startsWith("SELECT question_id, accepted_answers")) return { rows: [...keys].map(([question_id, accepted_answers]) => ({ question_id, accepted_answers })) };
+    if (/^SELECT question_id,\s*accepted_answers/.test(sql)) return { rows: [...keys].map(([question_id, accepted_answers]) => ({ question_id, accepted_answers })) };
     if (sql.startsWith("INSERT INTO ctf_questions")) { definitions.set(Number(args[0]), JSON.parse(String(args[1]))); return { rows: [] }; }
     if (sql.startsWith("INSERT INTO ctf_keys")) { keys.set(Number(args[0]), JSON.parse(String(args[1]))); return { rows: [] }; }
     if (sql.startsWith("SELECT * FROM ctf_progress")) return { rows: [learner] };
@@ -108,12 +111,12 @@ test("protected authoring persists independently of source and learner responses
     assert.equal(activity.questions.some((q: { acceptedAnswers?: unknown; validationMethod?: unknown }) => q.acceptedAnswers || q.validationMethod), false);
     const progress = await (await request(`/ctf/progress/${learner.session_id}`)).json();
     assert.equal(progress.answers["67"].value, "Fixture KEY");
-    assert.equal(progress.answers["67"].earnedPoints, 7);
+    assert.equal(progress.answers["67"].earnedPoints, 0); // A reference key is not an instructor acceptance.
     assert.equal(progress.answers["67"].instructorNote, "Keep this note");
     assert.equal(progress.answers["1"].earnedPoints, 5);
     assert.equal(progress.submittedAt, learner.submitted_at.toISOString());
     await request("/ctf/instructor/questions/67", "PUT", input({ points: 9 }));
-    assert.equal((await (await request(`/ctf/progress/${learner.session_id}`)).json()).answers["67"].earnedPoints, 9);
+    assert.equal((await (await request(`/ctf/progress/${learner.session_id}`)).json()).answers["67"].earnedPoints, 0);
     await request("/ctf/instructor/questions/68", "PUT", input({ validationMode: "dataset", acceptedAnswers: ["Shared test"] }));
     assert.deepEqual(keys.get(68), ["Shared test"]);
     await request("/ctf/instructor/questions/69", "PUT", input({ validationMode: "manual", kind: "long", acceptedAnswers: [] }));

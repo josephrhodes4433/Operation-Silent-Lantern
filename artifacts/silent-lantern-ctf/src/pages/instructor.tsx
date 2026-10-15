@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetLanternActivityQueryKey, getGetLanternInstructorKeysQueryKey, getGetLanternInstructorSubmissionQueryKey, getListLanternSubmissionsQueryKey,
   useAdjustLanternScore, useGetLanternActivity, useGetLanternInstructorKeys, useGetLanternInstructorSubmission,
-  useListLanternSubmissions, useReviewLanternWrittenAnswer, useSetLanternInstructorKey, useVerifyLanternInstructor,
+  useListLanternSubmissions, useSetLanternInstructorKey, useVerifyLanternInstructor,
   useGetLanternWrittenHistory, getGetLanternWrittenHistoryQueryKey,
   useGetLanternInstructorAnswerGuide, getGetLanternInstructorAnswerGuideQueryKey,
 } from '@workspace/api-client-react';
@@ -11,7 +11,10 @@ import type { LanternQuestion } from '@workspace/api-client-react';
 import { AnswerGuide } from '@/components/answer-guide';
 import { Lock } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
-import { asText, errMessage, errStatus } from '@/lib/ctf';
+import { asText, errMessage, errStatus, hasResponse, outcome } from '@/lib/ctf';
+import { ReviewActions } from '@/components/review-actions';
+import { ReviewQueue } from '@/components/review-queue';
+import { CompletionsPanel, SignalsBar, useNotificationData, useQueueData } from '@/components/instructor-signals';
 import { WrittenComparison } from '@/components/written-comparison';
 import { ArchivedResponses } from '@/components/archived-responses';
 
@@ -56,20 +59,25 @@ function Gate({ onOk }: { onOk: (c: string) => void }) {
 }
 
 function Console({ code, onLock }: { code: string; onLock: () => void }) {
-  const [tab, setTab] = useState<'guide' | 'keys' | 'subs'>('guide');
+  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'queue' | 'notes'>('guide');
+  const queue = useQueueData(code, 'time_asc');
+  const notes = useNotificationData(code);
+  const pending = queue.data?.length ?? 0;
+  const unread = (notes.data ?? []).filter((n) => !n.readAt).length;
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div><Eyebrow>Instructor console</Eyebrow><h1 className="font-display text-3xl font-bold">Keys and submissions</h1></div>
         <button className={btnGhost} onClick={onLock} data-testid="button-lock">Lock</button>
       </div>
+      <SignalsBar pending={pending} pendingState={queue.data ? 'ready' : queue.isError ? 'error' : 'loading'} unread={unread} onQueue={() => setTab('queue')} onNotes={() => setTab('notes')} />
       <div role="tablist" className="flex flex-wrap border-b border-border">
-        {([['guide', 'Answer guide'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
+        {([['queue', `Review queue (${pending})`], ['notes', `Completions (${unread} new)`], ['guide', 'Answer guide'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}
             className={`px-4 py-2 text-sm font-semibold border-b-2 ${tab === k ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{l}</button>
         ))}
       </div>
-      {tab === 'guide' ? <Guide code={code} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
+      {tab === 'queue' ? <ReviewQueue code={code} /> : tab === 'notes' ? <CompletionsPanel code={code} /> : tab === 'guide' ? <Guide code={code} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
     </div>
   );
 }
@@ -84,7 +92,7 @@ function Keys({ code }: { code: string }) {
   const map = new Map((keys.data ?? []).map((k) => [k.questionId, k.acceptedAnswers]));
   return (
     <div className="space-y-4">
-      <p role="note" className="text-sm border-l-4 border-accent bg-card p-4">Revised curriculum: configure the same-iPhone Major match and courier alias. For M6-FLAG06, enter only the watchlist keyword, one accepted variant per line—not a full TPL. Each learner's own SIM IMSI is reviewed individually, never configured as a class-wide key. Earlier keys are retained but are not reused for these revised questions.</p>
+      <p role="note" className="text-sm border-l-4 border-accent bg-card p-4">Triage setup: use the instructor-kit iPhone 8, not the ZTE. For the beta, demonstrate the workflow and share the saved report; learners do not need their own kits for this step. Start with an offline profile matching the kit's actual IMEI, or pre-test an expanded profile against known planted contact/message indicators and Major/Minor priorities. Check the first actual Major row before setting the FLAG-02 reference; do not assume an IMEI must always be first. No shared kit content is guaranteed. Keep the ZTE's separate UFED Classic mission. Configure the courier alias from the same iPhone. For M6-FLAG06, enter only the watchlist keyword, one variant per line—not a full TPL. Each learner's own SIM IMSI is reviewed individually, never configured as a class-wide key. Existing keys are retained; verify them against the current demonstration.</p>
       {!qs.length ? <p className="bg-card border border-dashed p-8 text-center">No dataset-keyed questions in this activity.</p> :
         <ul className="space-y-3">{qs.map((q) => <KeyRow key={q.id} q={q} headers={headers} initial={map.get(q.id) ?? []} />)}</ul>}
     </div>
@@ -199,8 +207,10 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
             <p className="text-xs font-mono text-primary">{q.code} | {q.points} pts{q.manualReview ? ' | written' : ''}</p>
             <p className="text-sm font-medium">{q.prompt}</p>
             <p className="text-sm whitespace-pre-wrap bg-muted p-2">{an ? asText(an.value) : 'Not answered'}</p>
-            {an && <p className="text-xs font-mono">Status: {q.manualReview ? an.reviewStatus ?? 'pending' : an.status} | earned {an.earnedPoints}</p>}
-            {an && q.manualReview && <Review key={`${q.id}-${an.updatedAt}-${an.reviewStatus}`} sid={sid} q={q} headers={headers} pts={an.instructorPoints ?? q.points} note={an.instructorNote ?? ''} updatedAt={an.updatedAt} />}
+            {an && <p className="text-xs font-mono" data-testid={`text-status-${q.id}`}>Status: {outcome(q, an).text} | earned {an.earnedPoints} / {q.points}</p>}
+            {an && q.manualReview && an.instructorNote && <p className="text-xs whitespace-pre-wrap bg-muted p-2" data-testid={`text-last-note-${q.id}`}>Latest feedback sent: {an.instructorNote}</p>}
+            {an && q.manualReview && hasResponse(an) && <ReviewActions sessionId={sid} questionId={q.id} points={q.points} updatedAt={an.updatedAt} headers={headers} label={q.code}
+              onDecided={() => qc.invalidateQueries({ queryKey: getGetLanternWrittenHistoryQueryKey(sid, q.id) })} />}
             {q.manualReview && <WrittenHistory sid={sid} questionId={q.id} headers={headers} />}
           </div>
         );
@@ -239,35 +249,6 @@ function WrittenHistory({ sid, questionId, headers }: { sid: string; questionId:
           </>
         )}
       </div>}
-    </div>
-  );
-}
-
-function Review({ sid, q, headers, pts, note, updatedAt }: { sid: string; q: LanternQuestion; headers: Headers; pts: number; note: string; updatedAt: string }) {
-  const qc = useQueryClient();
-  const rev = useReviewLanternWrittenAnswer({ request: { headers } });
-  const [points, setPoints] = useState(String(pts));
-  const [n, setN] = useState(note);
-  const num = Number(points);
-  const bad = !points.trim() || !Number.isInteger(num) || num < 0 || num > q.points;
-  const decide = (decision: 'approved' | 'denied') => rev.mutate({
-    sessionId: sid, questionId: q.id,
-    data: { points: decision === 'denied' ? 0 : num, note: n, decision, responseUpdatedAt: updatedAt },
-  }, {
-    onSuccess: () => { qc.invalidateQueries({ queryKey: getGetLanternInstructorSubmissionQueryKey(sid) }); qc.invalidateQueries({ queryKey: getListLanternSubmissionsQueryKey() }); qc.invalidateQueries({ queryKey: getGetLanternWrittenHistoryQueryKey(sid, q.id) }); },
-  });
-  return (
-    <div className="grid sm:grid-cols-[120px_1fr_auto] gap-2 items-end border-t border-border pt-3">
-      <div><label htmlFor={`pt-${q.id}`} className="text-xs font-mono">Points (max {q.points})</label>
-        <input id={`pt-${q.id}`} type="number" min={0} max={q.points} className={field} value={points} onChange={(e) => setPoints(e.target.value)} data-testid={`input-points-${q.id}`} /></div>
-      <div><label htmlFor={`nt-${q.id}`} className="text-xs font-mono">Feedback (required to deny)</label>
-        <input id={`nt-${q.id}`} maxLength={2000} className={field} value={n} onChange={(e) => setN(e.target.value)} data-testid={`input-note-${q.id}`} /></div>
-      <div className="flex flex-wrap gap-2">
-        <button className={btn} disabled={bad || rev.isPending} data-testid={`button-approve-${q.id}`} onClick={() => decide('approved')}>Approve</button>
-        <button className={btn + ' bg-destructive text-destructive-foreground'} disabled={!n.trim() || rev.isPending} data-testid={`button-deny-${q.id}`} onClick={() => decide('denied')}>Deny / reattempt</button>
-      </div>
-      {rev.isPending && <p role="status" className="text-xs sm:col-span-3">Saving decision...</p>}
-      {rev.isError && <p role="alert" className="text-xs text-destructive sm:col-span-3">{errMessage(rev.error, 'Review failed to save.')}</p>}
     </div>
   );
 }

@@ -17,4 +17,9 @@ export interface CtfProgressInput {
   email: string;
   /** @maxLength 254 */
   instructorEmail: string;
+  /**
+     * @minimum 1
+     * @maximum 9999
+     */
+  teamNumber: number;
 }

@@ -5,17 +5,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getGetLanternProgressQueryKey, useGetLanternActivity, useGetLanternProgress, useSubmitLanternProgress } from '@workspace/api-client-react';
 import { Copy, Download, Mail, Send } from 'lucide-react';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost } from '@/components/shell';
-import { asText, buildMailto, buildResultsText, buildWrittenEmailBody, errMessage, hasResponse, hasUnsavedWork, loadSession, orderedQuestions, resumeLink, submitBlockers } from '@/lib/ctf';
-
-const tone: Record<string, string> = { correct: 'text-[hsl(var(--ok))]', incorrect: 'text-destructive', manual: 'text-[hsl(var(--warn))]', unkeyed: 'text-[hsl(var(--warn))]' };
-const label: Record<string, string> = { correct: 'Correct', incorrect: 'Incorrect', manual: 'Awaiting review', unkeyed: 'Pending key' };
+import { asText, buildMailto, buildResultsText, buildWrittenEmailBody, errMessage, hasResponse, hasUnsavedWork, isDone, loadSession, orderedQuestions, outcome, resumeLink, reviewCounts, submitBlockers } from '@/lib/ctf';
 
 export default function Results() {
   const session = loadSession();
   const qc = useQueryClient();
   const act = useGetLanternActivity();
   const sid = session?.sessionId ?? '';
-  const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 15000 } });
+  const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const submit = useSubmitLanternProgress();
   const [copied, setCopied] = useState(false);
   const [mailCopied, setMailCopied] = useState(false);
@@ -52,6 +49,8 @@ export default function Results() {
     catch { setCopyError(true); }
   };
   const qs = orderedQuestions(a);
+  const rc = reviewCounts(a.questions, p.answers);
+  const doneCount = a.questions.filter((q) => isDone(q, p.answers[String(q.id)])).length;
 
   return (
     <Shell>
@@ -61,7 +60,8 @@ export default function Results() {
           <div><Eyebrow>Results | {p.name} | Team {p.teamNumber}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
           <div className="bg-secondary text-secondary-foreground px-6 py-4">
             <p className="font-display text-5xl font-bold" data-testid="text-total">{p.totalPoints}<span className="text-lg text-white/60"> / {a.totalPoints}</span></p>
-            <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered | hints -{p.penaltyPoints} | bonuses +{p.speedBonus + p.tradecraftBonus}</p>
+            <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered | {doneCount} correct or accepted | hints -{p.penaltyPoints} | bonuses +{p.speedBonus + p.tradecraftBonus}</p>
+            <p role="status" aria-live="polite" className="text-xs font-mono text-white/70" data-testid="text-review-summary">{rc.pending} pending review | {rc.denied} denied</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export default function Results() {
           {submit.isError && <p role="alert" className="text-sm text-destructive">{errMessage(submit.error, 'Submit failed. Try again.')}</p>}
           {copyError && <p role="alert" className="text-sm text-destructive">Your browser blocked clipboard access. Download the text file instead, or select and copy the private link below.</p>}
           {p.submittedAt && <p className="text-xs font-mono text-muted-foreground">Submitted {new Date(p.submittedAt).toLocaleString()}</p>}
-          <p className="text-xs text-muted-foreground break-all font-mono">Keep this link private: {link}</p>
+          <p className="text-xs text-muted-foreground break-all font-mono">Keep this link private and share it only with your teammates; your team shares one saved submission: {link}</p>
         </section>
 
         <section aria-labelledby="resp"><h2 id="resp" className="font-display font-bold text-lg mb-3">Responses in mission order</h2>
@@ -92,18 +92,19 @@ export default function Results() {
             {qs.map((q) => {
               const savedAnswer = p.answers[String(q.id)];
               const an = hasResponse(savedAnswer) ? savedAnswer : undefined;
+              const oc = outcome(q, an);
               return (
                 <li key={q.id} className="bg-card border border-border p-4 grid sm:grid-cols-[90px_1fr_auto] gap-3" data-testid={`row-result-${q.id}`}>
                   <span className="font-mono text-xs text-muted-foreground">{q.code}</span>
                   <div className="min-w-0 space-y-1">
                     <p className="text-sm font-medium">{q.prompt}</p>
                     <p className="text-sm whitespace-pre-wrap break-words">{an ? asText(an.value) : <span className="text-muted-foreground italic">Incomplete</span>}</p>
-                    {an?.instructorNote && <p className="text-xs bg-muted p-2">Instructor: {an.instructorNote}</p>}
+                    {an?.instructorNote && <p className="text-xs bg-muted p-2">Instructor feedback: {an.instructorNote}</p>}
                     {q.section <= p.unlockedMission && (p.reviewGateQuestionId === null || q.id <= p.reviewGateQuestionId) && <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>}
                   </div>
                   <div className="text-right text-sm">
-                    <p className={`font-semibold ${an ? tone[an.status] : 'text-muted-foreground'}`}>{an ? q.manualReview ? an.reviewStatus === 'approved' ? 'Approved' : an.reviewStatus === 'denied' ? 'Denied — revise' : 'Awaiting approval' : label[an.status] : 'Incomplete'}</p>
-                    <p className="font-mono text-xs">{an ? (an.instructorPoints ?? an.earnedPoints) : 0} / {q.points} pts</p>
+                    <p className={`font-semibold ${oc.cls}`} data-testid={`status-result-${q.id}`}>{oc.text}</p>
+                    <p className="font-mono text-xs">{an ? an.earnedPoints : 0} / {q.points} pts</p>
                   </div>
                 </li>
               );

@@ -6,6 +6,7 @@ const nav = [
   { href: '/', label: 'Mission' },
   { href: '/activity', label: 'Activity' },
   { href: '/results', label: 'Results' },
+  { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/instructor', label: 'Instructor' },
 ];
 
@@ -20,7 +21,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <span className="font-display font-bold text-xl tracking-[0.18em]">CELLEBRITE</span>
             <span className="font-display text-sm tracking-[0.2em] text-accent">SILENT LANTERN</span><span className="text-[11px] uppercase tracking-[0.2em] text-primary-foreground/60 hidden sm:inline">Defense &amp; Intelligence</span>
           </Link>
-          <nav aria-label="Primary" className="flex gap-1 ml-auto">
+          <nav aria-label="Primary" className="flex flex-wrap gap-1 ml-auto">
             {nav.map((n) => {
               const on = n.href === '/' ? loc === '/' : loc.startsWith(n.href);
               return (

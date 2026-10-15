@@ -4,6 +4,7 @@ import { ClassroomError } from "./instructor-access";
 import { evaluateLantern, hasLanternResponse, hintTexts, lanternQuestions, missionFlagIds } from "./lantern-activity";
 import { reviewGate } from "./lantern-review";
 import { appendLanternHistory } from "./lantern-history";
+import { bootstrapTeams, recordCompletion } from "./classroom-teams";
 
 export type Progress = ReturnType<typeof GetLanternProgressResponse.parse>;
 export interface LanternRow {
@@ -23,12 +24,13 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
     if (!question) continue;
     const grade = evaluateLantern(question, answer.value, keys, row.team_number, row.authorization_granted, row.answers);
     if (question.manualReview) {
-      const approved = hasLanternResponse(answer.value) && answer.reviewStatus === "approved" && grade.status !== "incorrect";
+      const approved = hasLanternResponse(answer.value) && answer.reviewStatus === "approved";
       answers[id] = {
         ...answer, reviewStatus: answer.reviewStatus ?? "pending",
         correct: approved ? true : answer.reviewStatus === "denied" ? false : null,
         status: approved ? "correct" : answer.reviewStatus === "denied" ? "incorrect" : "manual",
-        earnedPoints: approved ? answer.instructorPoints ?? 0 : 0,
+        earnedPoints: approved ? question.points : 0,
+        feedback: approved ? "Instructor accepted this response." : answer.reviewStatus === "denied" ? "Revise your response using the instructor's feedback." : "Saved for instructor acceptance; points are added when accepted.",
       };
     } else {
       answers[id] = { ...answer, correct: grade.correct, status: grade.status, earnedPoints: grade.earnedPoints, feedback: grade.feedback };
@@ -65,6 +67,7 @@ export async function getLanternRow(sessionId: string) {
 // Serialize all session writes so autosaves, hint debits and instructor reviews
 // cannot overwrite each other's JSON responses or administrative changes.
 export async function changeLantern(sessionId: string, action: (row: LanternRow, keys: Map<number, string[]>, record: (questionId: number, event: "submitted" | "reviewed") => Promise<void>) => void | Promise<void>) {
+  await bootstrapTeams("lantern");
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -77,8 +80,10 @@ export async function changeLantern(sessionId: string, action: (row: LanternRow,
       `UPDATE lantern_progress SET answers=$2::jsonb,authorization_notes=$3,authorization_granted=$4,hints=$5::jsonb,speed_bonus=$6,tradecraft_bonus=$7,submitted_at=$8,saved_at=now() WHERE session_id=$1 RETURNING *`,
       [sessionId, JSON.stringify(row.answers), row.authorization_notes, row.authorization_granted, JSON.stringify(row.hints), row.speed_bonus, row.tradecraft_bonus, row.submitted_at],
     );
+    const progress = lanternProgress(updated.rows[0], keys);
+    await recordCompletion("lantern", progress, lanternQuestions.map(q => q.id), client);
     await client.query("COMMIT");
-    return lanternProgress(updated.rows[0], keys);
+    return progress;
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

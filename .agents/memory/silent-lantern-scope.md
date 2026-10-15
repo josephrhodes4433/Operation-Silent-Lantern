@@ -26,3 +26,9 @@ SILENT LANTERN is intended to be a separate Replit project, not just a second we
 
 **How to apply:** Keep SILENT LANTERN independently runnable, with its own backend, database and secret configuration. Do not describe a different URL inside the shared workspace as completing project separation.
 
+The later triage email clarifies the beta: use the instructor-kit **iPhone 8**, with an instructor demonstration/shared saved report because beta learners have no kits. The simplest offline profile matches the actual kit IMEI; known planted contact/message indicators can support an expanded, pre-tested profile with Major/Minor priorities. The kit ZTE does not expose Triage through the needed Advanced extraction workflow.
+
+**Why:** The user explicitly asked to apply the email's triage information. It confirms contact/message testing on the iPhone 8 but gives no actual IMEI, indicator values, report, or definitive first Major row.
+
+**How to apply:** Retain the six missions, question identities, existing responses, approvals, and instructor keys. Require the first Major item's actual reported type/value, not a universal IMEI answer. Do not fabricate data, assume identical kit content, remove the separate ZTE UFED Classic mission, or confuse Advanced workflow support with Classic's Advanced Logical task.
+

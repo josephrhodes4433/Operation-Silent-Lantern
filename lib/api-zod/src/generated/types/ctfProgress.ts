@@ -12,6 +12,8 @@ export interface CtfProgress {
   name: string;
   email: string;
   instructorEmail: string;
+  /** @nullable */
+  teamNumber?: number | null;
   answers: CtfProgressAnswers;
   totalPoints: number;
   answeredCount: number;

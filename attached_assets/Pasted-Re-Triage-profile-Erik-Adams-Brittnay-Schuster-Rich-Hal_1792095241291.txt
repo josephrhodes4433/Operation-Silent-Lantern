@@ -1,0 +1,192 @@
+Re: Triage profile
+Erik Adams
+
+Brittnay Schuster;
+Rich Hale
+Following up on incorporating phone data to be able to run the Triage for CTF.
+
+My knee jerk was to use the ZTE phone. However, the ZTE phone is not an option because it is not supported by advanced extractions, and therefore we can't get to the Triage options.
+
+I created a contact as well as a message on the iPhone 8, and with that I was able to get major and minor indicators on triage reports based on my triage profile.
+
+V/r
+
+
+
+Erik Adams
+
+Subcontractor Trainer
+
+www.cellebrite.com
+
+
+
+
+
+From: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>
+Sent: Friday, October 9, 2026 10:34 AM
+To: Rich Hale <Richard.Hale@cellebrite.com>; Erik Adams <erik.adams@cellebrite.com>
+Subject: Re: Triage profile
+ 
+Thanks for responding so quickly on that! I think probably let’s go with the easiest route for the Beta and then we can expand on it with the extra step as we continue to improve the CTFs
+
+
+
+Brittnay Schuster
+
+Instructional Designer
+
+www.cellebrite.com
+
+
+
+
+
+
+From: Rich Hale <Richard.Hale@cellebrite.com>
+Sent: Friday, 09 October 2026 10:49:35
+To: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>; Erik Adams <erik.adams@cellebrite.com>
+Subject: Re: Triage profile
+ 
+Based off what you have, the easiest way would be for you to make the offline profile to match the IMEI number of your instructor kit. If you wanted to go one step further, you could plant a contact or just use one of the default apps that's on those phones like calendar or the browser. The latter are obviously going to cover everyones phones, rather than just defining to the IMEI of one device. 
+
+
+
+Rich Hale
+
+Senior Training Specialist - International Team
+
+Cell: +44 (0)7778 878 924 (WhatsApp & Calls)
+
+www.cellebrite.com
+
+
+
+
+
+From: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>
+Sent: 09 October 2026 15:40
+To: Erik Adams <erik.adams@cellebrite.com>; Rich Hale <Richard.Hale@cellebrite.com>
+Subject: Re: Triage profile
+ 
+Thank you so much for the addition information.  (Also get back to your vacation!!)
+
+@Rich Hale does this information help to determine what you could do for the triage profile? 
+
+
+
+Brittnay Schuster
+
+Instructional Designer
+
+www.cellebrite.com
+
+
+
+
+
+
+From: Erik Adams <erik.adams@cellebrite.com>
+Sent: Friday, 09 October 2026 10:38:05
+To: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>; Rich Hale <Richard.Hale@cellebrite.com>
+Subject: Re: Triage profile
+ 
+I will have a standard Inseyets instructor kit, so I have the ZTE, the iPhone, and the Samsung. As it stands now, I don't believe any of the phones for extractions have any particular or consistent data set on them. If Rich can get a dataset built for whichever one he thinks works best I think we might be able to demo the triage profile for the BETA (everything for the CTF will be me demoing and then working through it together due to students not having kits). I think the bigger lift would be getting the consistent data on full classroom kits.
+
+V/r
+
+Erik
+
+
+
+
+Erik Adams
+
+Subcontractor Trainer
+
+www.cellebrite.com
+
+
+
+
+
+
+From: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>
+Sent: Friday, 09 October 2026 09:06:18
+To: Rich Hale <Richard.Hale@cellebrite.com>; Erik Adams <erik.adams@cellebrite.com>
+Subject: Re: Triage profile
+ 
+Hey Rich,
+Thanks for getting back to me. I am looping in Erik since he will be delivering the Betas. @Erik Adams we were talking about building out a Triage profile for the students to use during the Triage question on the CTF. Which device do you think we should use? It's my understanding that they will have a standard classroom kit when these are actually delivered but for the beta CTF they wont have any devices. I'd love for them to be able to complete the CTF using a Triage profile but I don't want to cause any excessive work for anyone. Any thoughts you have are greatly appreciated! 
+
+
+
+Brittnay Schuster
+
+Instructional Designer
+
+www.cellebrite.com
+
+
+
+
+
+From: Rich Hale <Richard.Hale@cellebrite.com>
+Sent: Friday, October 9, 2026 4:14 AM
+To: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>
+Subject: Re: Triage profile
+ 
+Hi Brittnay,
+
+Simon and I discussed how we were going to do it and one of the issues we have is the individual phones. The  idea behind the triage being that we have data on the source phone we know we will find. Do you know what phone you'll be using? I have some ideas on what could be done/used but this will depend on the equipment. 
+
+Regards,
+Rich
+
+
+
+Rich Hale
+
+Senior Training Specialist - International Team
+
+Cell: +44 (0)7778 878 924 (WhatsApp & Calls)
+
+www.cellebrite.com
+
+
+
+
+
+From: Brittnay Schuster <Brittnay.Schuster@cellebrite.com>
+Sent: 08 October 2026 23:57
+To: Rich Hale <Richard.Hale@cellebrite.com>
+Subject: Triage profile
+ 
+Hey Rich,
+I wanted to check in and see if you ever got around to creating the triage profile for the CEDI CTF that we talked about? If not, is that something you could do this week? 
+
+
+
+Brittnay Schuster
+
+Brittnay.Schuster@cellebrite.com
+
+USA - GA/Remote
+
+Instructional Designer
+
+Cellebrite | Protecting Communities, Nations and Businesses.
+www.cellebrite.com
+
+ 
+
+ 
+
+
+
+
+  
+[Join the 101 Community](https://community.cellebrite.com/s/101)
+
+
+This e-mail and the information it contains may be privileged and/or confidential. It is intended solely for the use of the named recipient(s). If you are not the intended recipient you may not disclose, copy, distribute or retain any part of this message or attachments. If you have received this e-mail in error please notify the sender immediately [by clicking 'Reply'] and delete this e-mail.
