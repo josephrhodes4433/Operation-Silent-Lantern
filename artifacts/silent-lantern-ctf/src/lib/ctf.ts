@@ -2,7 +2,7 @@ import type { LanternActivity, LanternProgress, LanternQuestion } from '@workspa
 import { rememberLearner } from './check-in';
 
 const KEY = 'silent-lantern-session';
-export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number }
+export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number; teamName?: string }
 
 export function loadSession(): Session | null {
   try {
@@ -84,7 +84,7 @@ export const clearAuthDraft = (s: string, saved: string) => {
 };
 
 export function buildResultsText(a: LanternActivity, p: LanternProgress): string {
-  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, `Team: ${p.teamNumber}`,
+  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, `Team: ${p.teamName}`, `Team members: ${p.teamMembers.join(', ')}`, `Session date (Eastern Time): ${p.sessionDate}`,
     `Score: ${p.totalPoints} / ${a.totalPoints} points (hint penalty ${p.penaltyPoints}, speed bonus ${p.speedBonus}, tradecraft bonus ${p.tradecraftBonus})`,
     `Answered: ${p.answeredCount} / ${a.totalFlags}`, `Saved: ${p.savedAt}`, ''];
   for (const q of orderedQuestions(a)) {
@@ -104,16 +104,16 @@ export function buildResultsText(a: LanternActivity, p: LanternProgress): string
 }
 export function buildWrittenEmailBody(a: LanternActivity, p: LanternProgress): string {
   const written = orderedQuestions(a).filter((q) => q.manualReview || q.kind === 'long' || q.isFinalSummary);
-  return [`Analyst: ${p.name}`, `Student email: ${p.email}`, `Team: ${p.teamNumber}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
+  return [`Analyst: ${p.name}`, `Student email: ${p.email}`, `Team: ${p.teamName}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
     ...written.flatMap((q) => [`${q.code}: ${q.prompt}`, p.answers[String(q.id)] ? asText(p.answers[String(q.id)].value) : '(not answered)', '']),
   ].join('\n');
 }
 export function buildMailto(a: LanternActivity, p: LanternProgress): string {
   const full = buildWrittenEmailBody(a, p);
   const body = encodeURIComponent(full).length > 6000
-    ? `Analyst: ${p.name}\nStudent email: ${p.email}\nTeam: ${p.teamNumber}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy written responses are in the results text file. Please attach the downloaded results file before sending, or paste the copied written responses here.`
+    ? `Analyst: ${p.name}\nStudent email: ${p.email}\nTeam: ${p.teamName}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy written responses are in the results text file. Please attach the downloaded results file before sending, or paste the copied written responses here.`
     : full;
-  return `mailto:${encodeURIComponent(p.instructorEmail)}?subject=${encodeURIComponent(`${a.title} - Team ${p.teamNumber} - ${p.name}`)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${encodeURIComponent(p.instructorEmail)}?subject=${encodeURIComponent(`${a.title} - ${p.teamName} - ${p.name}`)}&body=${encodeURIComponent(body)}`;
 }
 
 type Reviewable = { value: string | string[]; status: string; reviewStatus?: 'pending' | 'approved' | 'denied' };

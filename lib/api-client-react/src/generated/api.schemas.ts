@@ -201,10 +201,17 @@ export interface CtfProgressInput {
   /** @maxLength 254 */
   instructorEmail: string;
   /**
-     * @minimum 1
-     * @maximum 9999
+     * @minLength 1
+     * @maxLength 60
      */
-  teamNumber: number;
+  teamName: string;
+  /**
+     * Additional full names; the registered learner is automatically included in the roster.
+     * @maxItems 29
+     * @items.minLength 1
+     * @items.maxLength 140
+     */
+  additionalTeamMembers?: string[];
 }
 
 export type CtfProgressAnswers = {[key: string]: CtfAnswer};
@@ -216,6 +223,10 @@ export interface CtfProgress {
   instructorEmail: string;
   /** @nullable */
   teamNumber?: number | null;
+  teamName: string;
+  teamMembers: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   answers: CtfProgressAnswers;
   totalPoints: number;
   answeredCount: number;
@@ -297,6 +308,10 @@ export interface CtfSubmissionSummary {
   name: string;
   /** @nullable */
   teamNumber?: number | null;
+  teamName: string;
+  teamMembers: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   email: string;
   totalPoints: number;
   answeredCount: number;
@@ -307,6 +322,7 @@ export interface CtfSubmissionSummary {
 
 export type TeamLeaderboardItem = {
   teamNumber: number;
+  teamName: string;
   /**
      * @minimum 0
      * @maximum 100
@@ -321,6 +337,9 @@ export type ReviewQueueItem = {
   name: string;
   /** @nullable */
   teamNumber: number | null;
+  teamName: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   questionId: number;
   code: string;
   prompt: string;
@@ -334,6 +353,9 @@ export type ReviewQueue = ReviewQueueItem[];
 export type CompletionNotificationsItem = {
   id: string;
   teamNumber: number;
+  teamName: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   completedAt: string;
   /** @nullable */
   readAt: string | null;
@@ -450,14 +472,21 @@ export interface LanternLearnerInput {
   email: string;
   /** @maxLength 254 */
   instructorEmail: string;
+  /**
+     * @minLength 1
+     * @maxLength 60
+     */
+  teamName: string;
+  /**
+     * Additional full names; the registered learner is automatically included.
+     * @maxItems 29
+     * @items.minLength 1
+     * @items.maxLength 140
+     */
+  additionalTeamMembers?: string[];
 }
 
 export type LanternProgressInput = LanternLearnerInput & {
-  /**
-     * @minimum 1
-     * @maximum 999
-     */
-  teamNumber: number;
   roeAcknowledged: true;
 };
 
@@ -507,6 +536,10 @@ export interface LanternBaseProgress {
   name: string;
   email: string;
   instructorEmail: string;
+  teamName: string;
+  teamMembers: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   answers: LanternBaseProgressAnswers;
   totalPoints: number;
   answeredCount: number;
@@ -543,6 +576,10 @@ export interface LanternBaseSubmissionSummary {
   sessionId: string;
   name: string;
   email: string;
+  teamName: string;
+  teamMembers: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   totalPoints: number;
   answeredCount: number;
   savedAt: string;
@@ -659,6 +696,20 @@ export interface LanternReviewInput {
   decision: LanternReviewInputDecision;
   responseUpdatedAt: string;
 }
+
+export type GetCtfLeaderboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: string;
+};
+
+export type GetLanternLeaderboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: string;
+};
 
 export type GetCtfReviewQueueParams = {
 sort?: GetCtfReviewQueueSort;

@@ -90,7 +90,7 @@ export function CompletionsPanel({ code }: { code: string }) {
           {items.map((n) => (
             <li key={n.id} className={`border p-4 flex flex-wrap items-center gap-3 ${n.readAt ? 'bg-card border-border' : 'bg-primary/5 border-primary'}`} data-testid={`notification-${n.id}`}>
               <span className={`font-mono text-[11px] uppercase px-2 py-1 ${n.readAt ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground'}`}>{n.readAt ? 'Read' : 'New'}</span>
-              <p className="flex-1 min-w-[14rem] text-sm"><strong>Team {n.teamNumber}</strong> completed every question<span className="text-muted-foreground"> | {new Date(n.completedAt).toLocaleString()}</span></p>
+              <p className="flex-1 min-w-[14rem] text-sm break-words"><strong>{n.teamName}</strong> completed every question<span className="text-muted-foreground"> | Session {n.sessionDate} | {new Date(n.completedAt).toLocaleString()}</span></p>
               {!n.readAt && <button className={btnGhost} disabled={read.isPending} onClick={() => markOne(n.id)} data-testid={`button-read-${n.id}`}>Mark read</button>}
             </li>
           ))}

@@ -14,6 +14,24 @@ export function normalizeTeamName(value: string) {
   }
   return name;
 }
+export function teamSessionDate(row: { session_date?: string | Date | null; saved_at: Date; submitted_at?: Date | null }) {
+  if (typeof row.session_date === "string") return row.session_date;
+  // node-postgres can return DATE as local midnight; read its calendar parts,
+  // not a UTC conversion that could change the day.
+  if (row.session_date instanceof Date) {
+    const d = row.session_date;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(row.submitted_at ?? row.saved_at));
+}
+function teamRoster(name: string, additional: string[] = []) {
+  const members = [name, ...additional].map(n => n.trim().replace(/\s+/gu, " "));
+  if (members.length > 30 || members.some(n => !n || n.length > 140 || /[\p{Cc}\p{Cf}]/u.test(n))) {
+    throw new ClassroomError(400, "List up to 30 team members, each with a full name of 1 to 140 characters.");
+  }
+  return members;
+}
 export function completionPercentage(answers: Record<string, { correct?: boolean | null }>, ids: number[]) {
   const done = ids.filter(id => answers[String(id)]?.correct === true).length;
   // A rounded-up 100 must never imply completion with one requirement pending.
@@ -37,11 +55,18 @@ export async function bootstrapTeams(activity: ActivityId) {
         }
         // Legacy duplicate SL team numbers remain privately accessible. Select
         // one stable canonical shared session without merging/deleting answers.
-        await client.query(`UPDATE ${activity}_progress SET team_name='Team ' || team_number WHERE team_name IS NULL`);
-        await client.query(`INSERT INTO classroom_teams(activity,team_number,session_id,team_name)
-          SELECT DISTINCT ON(team_number) $1,team_number,session_id,team_name FROM ${activity}_progress
+        await client.query(`UPDATE ${activity}_progress SET
+          team_name=coalesce(team_name,'Team ' || team_number),
+          team_members=coalesce(team_members,jsonb_build_array(name)),
+          session_date=coalesce(session_date,(coalesce(submitted_at,saved_at) AT TIME ZONE 'America/New_York')::date)
+          WHERE team_name IS NULL OR team_members IS NULL OR session_date IS NULL`);
+        await client.query(`INSERT INTO classroom_teams(activity,team_number,session_id,team_name,session_date)
+          SELECT DISTINCT ON(team_number) $1,team_number,session_id,team_name,session_date FROM ${activity}_progress
           ORDER BY team_number,saved_at DESC,session_id ON CONFLICT DO NOTHING`, [activity]);
-        await client.query("UPDATE classroom_teams SET team_name='Team ' || team_number WHERE activity=$1 AND team_name IS NULL", [activity]);
+        await client.query(`UPDATE classroom_teams t SET
+          team_name=coalesce(t.team_name,p.team_name),session_date=coalesce(t.session_date,p.session_date)
+          FROM ${activity}_progress p WHERE t.activity=$1 AND t.session_id=p.session_id
+          AND (t.team_name IS NULL OR t.session_date IS NULL)`, [activity]);
         await client.query("COMMIT");
       } catch (e) { await client.query("ROLLBACK"); throw e; }
       finally { client.release(); }
@@ -53,9 +78,10 @@ export async function bootstrapTeams(activity: ActivityId) {
 }
 
 export async function createSharedTeam(activity: ActivityId, body: {
-  sessionId: string; name: string; email: string; instructorEmail: string; teamName: string;
+  sessionId: string; name: string; email: string; instructorEmail: string; teamName: string; additionalTeamMembers?: string[];
 }) {
   const teamName = normalizeTeamName(body.teamName);
+  const members = teamRoster(body.name, body.additionalTeamMembers);
   await bootstrapTeams(activity);
   const client = await pool.connect();
   try {
@@ -66,16 +92,20 @@ export async function createSharedTeam(activity: ActivityId, body: {
       await client.query("COMMIT");
       return previous.rows[0];
     }
-    const registered = await client.query("SELECT 1 FROM classroom_teams WHERE activity=$1 AND lower(team_name)=lower($2)", [activity, teamName]);
+    const registered = await client.query(`SELECT 1 FROM classroom_teams WHERE activity=$1
+      AND session_date=(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date
+      AND lower(team_name)=lower($2)`, [activity, teamName]);
     if (registered.rowCount) throw new ClassroomError(409, "This team already has a saved submission. Ask your teammate for the private resume link or token; do not start a second submission.");
     const allocated = await client.query(`SELECT greatest(
       coalesce((SELECT max(team_number) FROM ${activity}_progress),0),
       coalesce((SELECT max(team_number) FROM classroom_teams WHERE activity=$1),0)
     )+1 AS number`, [activity]);
     const teamNumber = allocated.rows[0].number;
-    const saved = await client.query(`INSERT INTO ${activity}_progress(session_id,name,email,instructor_email,team_number,team_name) VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [body.sessionId, body.name.trim(), body.email.trim().toLowerCase(), body.instructorEmail.trim().toLowerCase(), teamNumber, teamName]);
-    await client.query("INSERT INTO classroom_teams(activity,team_number,session_id,team_name) VALUES($1,$2,$3,$4)", [activity, teamNumber, body.sessionId, teamName]);
+    const saved = await client.query(`INSERT INTO ${activity}_progress(session_id,name,email,instructor_email,team_number,team_name,team_members,session_date)
+      VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date) RETURNING *`,
+      [body.sessionId, body.name.trim(), body.email.trim().toLowerCase(), body.instructorEmail.trim().toLowerCase(), teamNumber, teamName, JSON.stringify(members)]);
+    await client.query(`INSERT INTO classroom_teams(activity,team_number,session_id,team_name,session_date)
+      VALUES($1,$2,$3,$4,(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date)`, [activity, teamNumber, body.sessionId, teamName]);
     await client.query("COMMIT");
     return saved.rows[0];
   } catch (e) { await client.query("ROLLBACK"); throw e; }

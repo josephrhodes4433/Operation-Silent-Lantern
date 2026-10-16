@@ -174,12 +174,12 @@ router.put("/ctf/instructor/keys/:questionId", async (req, res): Promise<void> =
 router.get("/ctf/instructor/submissions", async (req, res): Promise<void> => {
   if (!instructorAllowed(req, res)) return;
   await bootstrapTeams("ctf");
-  const records = await pool.query<ProgressRow>("SELECT * FROM ctf_progress ORDER BY saved_at DESC LIMIT 1000");
+  const records = await pool.query<ProgressRow>("SELECT * FROM ctf_progress ORDER BY saved_at DESC,session_id");
   const keys = await loadKeys();
   const questions = await loadQuestions();
   res.set("Cache-Control", "no-store").json(ListCtfSubmissionsResponse.parse(records.rows.map(row => {
-    const { sessionId, name, email, teamNumber, teamName, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
-    return { sessionId, name, email, teamNumber, teamName, totalPoints, answeredCount, savedAt, submittedAt };
+    const { sessionId, name, email, teamNumber, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
+    return { sessionId, name, email, teamNumber, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt };
   })));
 });
 

@@ -46,6 +46,32 @@ async function main() {
   `);
   await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/lantern-written-history.sql"), "utf8"));
   await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/classroom-team-reviews.sql"), "utf8"));
+  const datedTest = process.env.CTF_DATED_TEAMS_VERIFY === "1";
+  const oldSession = "11111111-1111-4111-8111-111111111111";
+  const priorSession = "22222222-2222-4222-8222-222222222222";
+  const before: Record<string, unknown> = {};
+  if (datedTest) for (const activity of ["ctf", "lantern"]) {
+    const question = activity === "ctf" ? questions.find(q => q.kind === "long")! : lanternQuestions.find(q => q.manualReview)!;
+    const answer = { value: "Historical fixture response", reviewStatus: "approved", correct: true, status: "correct", earnedPoints: question.points, updatedAt: "2026-01-01T12:00:00.000Z" };
+    await pool.query(`INSERT INTO ${activity}_progress(session_id,name,email,instructor_email,team_number,answers,saved_at,submitted_at)
+      VALUES($1,'Legacy Learner','legacy@example.test','different-instructor@example.test',74,$2::jsonb,now()-interval '2 days',now()-interval '2 days')`,
+    [oldSession, JSON.stringify({ [question.id]: answer })]);
+    before[activity] = (await pool.query(`SELECT answers,saved_at,submitted_at FROM ${activity}_progress WHERE session_id=$1`, [oldSession])).rows[0];
+  }
+  await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/team-names.sql"), "utf8"));
+  if (datedTest) {
+    // Idempotency and preservation are asserted on real PostgreSQL, not a mock.
+    await pool.query(await readFile(path.join(process.cwd(), "../../lib/db/migrations/team-names.sql"), "utf8"));
+    for (const activity of ["ctf", "lantern"]) {
+      assert.deepEqual((await pool.query(`SELECT answers,saved_at,submitted_at FROM ${activity}_progress WHERE session_id=$1`, [oldSession])).rows[0], before[activity]);
+      await pool.query(`INSERT INTO ${activity}_progress(session_id,name,email,instructor_email,team_number,team_name,team_members,session_date,saved_at)
+        VALUES($1,'Yesterday Learner','yesterday@example.test','different-instructor@example.test',75,'Archive Eagles',
+        '["Yesterday Learner","Yesterday Teammate"]'::jsonb,
+        ((now() AT TIME ZONE 'America/New_York')::date-1),now()-interval '1 day')`, [priorSession]);
+      await pool.query(`INSERT INTO classroom_notifications(activity,session_id,team_number)
+        VALUES($1,$2,75)`, [activity, priorSession]);
+    }
+  }
   // Seed only the isolated DB. Fixed-choice answer keys come from current
   // source definitions; evidence-dependent gaps receive conspicuous synthetic
   // values, never a claim about actual evidence.
@@ -68,6 +94,7 @@ async function main() {
   app.use(express.json());
   app.get("/__ctf_recording_fixture", (_req, res) => res.json({
     marker: "ctf-recording-fixture-only", runId: process.env.CTF_RECORDING_RUN_ID,
+    ...(datedTest ? { migrationPreserved: true, oldSession, priorSession } : {}),
   }));
   app.use("/api", classroom, ctf, lantern);
   app.use("/silent-lantern", express.static(lanternDir));

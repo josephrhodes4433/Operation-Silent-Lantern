@@ -6,6 +6,7 @@ export interface LearnerProfile {
   instructorEmail: string;
 }
 export interface CheckInDraft extends LearnerProfile {
+  additionalMembers?: string;
   firstName: string;
   lastName: string;
   team: string;

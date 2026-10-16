@@ -24,9 +24,10 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const [identityError, setIdentityError] = useState('');
   const [resume, setResume] = useState('');
   const [team, setTeam] = useState('');
+  const [members, setMembers] = useState('');
   const resumeRef = useRef<HTMLInputElement>(null);
-  const teamNo = Number(team);
-  const teamOk = team.trim() !== '' && Number.isInteger(teamNo) && teamNo >= 1 && teamNo <= 9999;
+  const teamName = team.trim();
+  const teamOk = teamName.length > 0 && teamName.length <= 60;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const firstName = f.firstName.trim(), lastName = f.lastName.trim();
@@ -35,11 +36,15 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
       setIdentityError('Enter both first and last name, using no more than 140 characters in total.');
       return;
     }
-    if (!teamOk) { setIdentityError('Enter a whole team number from 1 to 9999.'); return; }
+    if (!teamOk) { setIdentityError('Enter a team name of 1 to 60 characters.'); return; }
+    const additionalTeamMembers = members.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+    if (additionalTeamMembers.length > 29 || additionalTeamMembers.some(n => n.length > 140)) {
+      setIdentityError('Enter up to 29 additional team members, one full name per line (140 characters maximum each).'); return;
+    }
     setIdentityError('');
-    const s: Session = { sessionId: crypto.randomUUID(), firstName, lastName, name, email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: teamNo };
-    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamNumber: teamNo } },
-      { onSuccess: (p) => { const saved: Session = { ...s, sessionId: p.sessionId ?? s.sessionId, teamNumber: p.teamNumber ?? teamNo }; storeSession(saved); onDone(saved); } });
+    const s: Session = { sessionId: crypto.randomUUID(), firstName, lastName, name, email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamName };
+    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamName, additionalTeamMembers } },
+      { onSuccess: (p) => { const saved: Session = { ...s, sessionId: p.sessionId ?? s.sessionId, teamNumber: p.teamNumber, teamName: p.teamName }; storeSession(saved); onDone(saved); } });
   };
   return (
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 max-w-4xl rise">
@@ -56,8 +61,14 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
           </div>
         ))}
         <div>
-          <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team number (1 to 9999)</label>
-          <input id="f-team" required type="number" min={1} max={9999} step={1} className={field} value={team} data-testid="input-teamNumber" onChange={(e) => { setTeam(e.target.value); setIdentityError(''); }} />
+          <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team name</label>
+          <input id="f-team" required type="text" maxLength={60} placeholder="e.g. Night Watch" className={field} value={team} data-testid="input-teamName" onChange={(e) => { setTeam(e.target.value); setIdentityError(''); }} />
+          <p className="text-xs text-muted-foreground mt-1">Choose a name for today's group. Sessions are grouped by calendar date in Eastern Time.</p>
+        </div>
+        <div>
+          <label htmlFor="f-members" className="block text-sm font-medium mb-1">Additional team members</label>
+          <textarea id="f-members" rows={3} maxLength={4200} className={field} value={members} onChange={e => setMembers(e.target.value)} data-testid="input-teamMembers" aria-describedby="members-help" />
+          <p id="members-help" className="text-xs text-muted-foreground mt-1">One full name per line, up to 29 others. Your name above is included automatically. The roster is private to your team and instructors.</p>
         </div>
         <p className="text-xs text-muted-foreground">Your team shares ONE saved submission. Your name, emails and responses are saved for instructor review. A private resume key is stored in this browser. Share your private resume link only with your teammates; anyone holding it can view and continue the team's work.</p>
         {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
@@ -99,7 +110,7 @@ export default function Activity() {
 
   useEffect(() => {
     if (session && !session.name && prog.data?.name) {
-      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber };
+      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber, teamName: prog.data.teamName };
       storeSession(s); setSession(s);
     }
   }, [prog.data, session]);
@@ -145,7 +156,7 @@ export default function Activity() {
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <aside className="space-y-4 lg:sticky lg:top-4 self-start" aria-label="Progress">
           <div className="bg-secondary text-secondary-foreground p-4 space-y-3">
-            <p className="font-mono text-xs uppercase tracking-widest text-white/60">{p.name || 'Analyst'}{p.teamNumber ? ` | Team ${p.teamNumber}` : ''}</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-white/60 break-words">{p.name || 'Analyst'} | {p.teamName}</p>
             <p className="font-display text-3xl font-bold" data-testid="text-score">{p.totalPoints}<span className="text-base text-white/60"> / {a.totalPoints} pts</span></p>
             <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Correct or accepted" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>
             <p className="text-xs text-white/70" data-testid="text-progress">{p.answeredCount} of {total} answered</p>

@@ -36,7 +36,9 @@ import type {
   CtfQuestionInput,
   CtfReviewInput,
   CtfSubmissionSummary,
+  GetCtfLeaderboardParams,
   GetCtfReviewQueueParams,
+  GetLanternLeaderboardParams,
   GetLanternReviewQueueParams,
   HealthStatus,
   InstructorAnswerGuide,
@@ -89,17 +91,24 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getGetCtfLeaderboardUrl = () => {
+export const getGetCtfLeaderboardUrl = (params?: GetCtfLeaderboardParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/ctf/leaderboard`
+  return stringifiedParams.length > 0 ? `/api/ctf/leaderboard?${stringifiedParams}` : `/api/ctf/leaderboard`
 }
 
-export const getCtfLeaderboard = async ( options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
+export const getCtfLeaderboard = async (params?: GetCtfLeaderboardParams, options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
 
-  return customFetch<TeamLeaderboard>(getGetCtfLeaderboardUrl(),
+  return customFetch<TeamLeaderboard>(getGetCtfLeaderboardUrl(params),
   {
     ...options,
     method: 'GET'
@@ -112,23 +121,23 @@ export const getCtfLeaderboard = async ( options?: Parameters<typeof customFetch
 
 
 
-export const getGetCtfLeaderboardQueryKey = () => {
+export const getGetCtfLeaderboardQueryKey = (params?: GetCtfLeaderboardParams,) => {
     return [
-    `/api/ctf/leaderboard`
+    `/api/ctf/leaderboard`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetCtfLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getCtfLeaderboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetCtfLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getCtfLeaderboard>>, TError = ErrorType<unknown>>(params?: GetCtfLeaderboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetCtfLeaderboardQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfLeaderboardQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfLeaderboard>>> = ({ signal }) => getCtfLeaderboard({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfLeaderboard>>> = ({ signal }) => getCtfLeaderboard(params, { signal, ...requestOptions });
 
 
 
@@ -143,11 +152,11 @@ export type GetCtfLeaderboardQueryError = ErrorType<unknown>
 
 
 export function useGetCtfLeaderboard<TData = Awaited<ReturnType<typeof getCtfLeaderboard>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetCtfLeaderboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetCtfLeaderboardQueryOptions(options)
+  const queryOptions = getGetCtfLeaderboardQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -160,17 +169,24 @@ export function useGetCtfLeaderboard<TData = Awaited<ReturnType<typeof getCtfLea
 
 
 
-export const getGetLanternLeaderboardUrl = () => {
+export const getGetLanternLeaderboardUrl = (params?: GetLanternLeaderboardParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/lantern/leaderboard`
+  return stringifiedParams.length > 0 ? `/api/lantern/leaderboard?${stringifiedParams}` : `/api/lantern/leaderboard`
 }
 
-export const getLanternLeaderboard = async ( options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
+export const getLanternLeaderboard = async (params?: GetLanternLeaderboardParams, options?: Parameters<typeof customFetch>[1]): Promise<TeamLeaderboard> => {
 
-  return customFetch<TeamLeaderboard>(getGetLanternLeaderboardUrl(),
+  return customFetch<TeamLeaderboard>(getGetLanternLeaderboardUrl(params),
   {
     ...options,
     method: 'GET'
@@ -183,23 +199,23 @@ export const getLanternLeaderboard = async ( options?: Parameters<typeof customF
 
 
 
-export const getGetLanternLeaderboardQueryKey = () => {
+export const getGetLanternLeaderboardQueryKey = (params?: GetLanternLeaderboardParams,) => {
     return [
-    `/api/lantern/leaderboard`
+    `/api/lantern/leaderboard`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetLanternLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getLanternLeaderboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetLanternLeaderboardQueryOptions = <TData = Awaited<ReturnType<typeof getLanternLeaderboard>>, TError = ErrorType<unknown>>(params?: GetLanternLeaderboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetLanternLeaderboardQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternLeaderboardQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternLeaderboard>>> = ({ signal }) => getLanternLeaderboard({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternLeaderboard>>> = ({ signal }) => getLanternLeaderboard(params, { signal, ...requestOptions });
 
 
 
@@ -214,11 +230,11 @@ export type GetLanternLeaderboardQueryError = ErrorType<unknown>
 
 
 export function useGetLanternLeaderboard<TData = Awaited<ReturnType<typeof getLanternLeaderboard>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetLanternLeaderboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternLeaderboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetLanternLeaderboardQueryOptions(options)
+  const queryOptions = getGetLanternLeaderboardQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

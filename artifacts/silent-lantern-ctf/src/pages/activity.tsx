@@ -28,8 +28,8 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
   const [roe, setRoe] = useState(false);
   const [resume, setResume] = useState('');
   const resumeRef = useRef<HTMLInputElement>(null);
-  const team = Number(f.team);
-  const teamOk = Number.isInteger(team) && team >= 1 && team <= 999;
+  const teamName = f.team.trim();
+  const teamOk = teamName.length > 0 && teamName.length <= 60;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.firstName.trim() || !f.lastName.trim() || f.name.trim().length > 140) {
@@ -38,11 +38,15 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
       return;
     }
     if (!teamOk || !roe) return;
+    const additionalTeamMembers = (f.additionalMembers ?? '').split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+    if (additionalTeamMembers.length > 29 || additionalTeamMembers.some(n => n.length > 140)) {
+      setIdentityError('Enter up to 29 additional team members, one full name per line (140 characters maximum each).'); return;
+    }
     storeCheckInDraft(f);
-    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamNumber: team };
-    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamNumber: team, roeAcknowledged: true } },
+    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamName };
+    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamName, additionalTeamMembers, roeAcknowledged: true } },
       { onSuccess: (p) => {
-        const saved: Session = { ...s, sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber };
+        const saved: Session = { ...s, sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber, teamName: p.teamName };
         storeSession(saved); clearCheckInDraft(); onDone(saved);
       } });
   };
@@ -67,8 +71,14 @@ function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
           </div>
         ))}
         <div>
-          <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team number (1 to 999)</label>
-          <input id="f-team" required type="number" min={1} max={999} step={1} className={field} value={f.team} data-testid="input-teamNumber" onChange={(e) => change({ ...f, team: e.target.value })} />
+          <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team name</label>
+          <input id="f-team" required type="text" maxLength={60} placeholder="e.g. Night Watch" className={field} value={f.team} data-testid="input-teamName" onChange={(e) => change({ ...f, team: e.target.value })} />
+          <p className="text-xs text-muted-foreground mt-1">Choose a name for today's group. Sessions are grouped by calendar date in Eastern Time.</p>
+        </div>
+        <div>
+          <label htmlFor="f-members" className="block text-sm font-medium mb-1">Additional team members</label>
+          <textarea id="f-members" rows={3} maxLength={4200} className={field} value={f.additionalMembers ?? ''} onChange={e => change({ ...f, additionalMembers: e.target.value })} data-testid="input-teamMembers" aria-describedby="members-help" />
+          <p id="members-help" className="text-xs text-muted-foreground mt-1">One full name per line, up to 29 others. Your name above is included automatically. The roster is private to your team and instructors.</p>
         </div>
         <label className="flex gap-3 items-start text-sm border border-border p-3 cursor-pointer">
           <input type="checkbox" required checked={roe} onChange={(e) => setRoe(e.target.checked)} className="mt-1 accent-[hsl(var(--primary))]" data-testid="checkbox-roe" />
@@ -136,7 +146,7 @@ export default function Activity() {
 
   useEffect(() => {
     if (session && prog.data?.name) {
-      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber };
+      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber, teamName: prog.data.teamName };
       storeSession(s);
       if (JSON.stringify(s) !== JSON.stringify(session)) setSession(s);
     }
@@ -200,7 +210,7 @@ export default function Activity() {
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <aside className="space-y-4 lg:sticky lg:top-4 self-start" aria-label="Progress">
           <div className="bg-secondary text-secondary-foreground p-4 space-y-3">
-            <p className="font-mono text-xs uppercase tracking-widest text-white/60">{p.name || 'Analyst'} | Team {p.teamNumber}</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-white/60 break-words">{p.name || 'Analyst'} | {p.teamName}</p>
             <p className="font-display text-3xl font-bold" data-testid="text-score">{p.totalPoints}<span className="text-base text-white/60"> / {a.totalPoints} pts</span></p>
             <p className="text-xs text-white/70" data-testid="text-adjust">Hints -{p.penaltyPoints} | speed +{p.speedBonus} | tradecraft +{p.tradecraftBonus}</p>
             <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Correct or accepted" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>

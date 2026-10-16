@@ -22,8 +22,14 @@ async function records(activity: ActivityId) {
 }
 for (const activity of ["ctf", "lantern"] as const) {
   router.get(`/${activity}/leaderboard`, async (_req, res) => {
+    const date = _req.query.date;
+    if (date !== undefined && (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      !Number.isFinite(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date)) {
+      throw new ClassroomError(400, "Choose a valid calendar date.");
+    }
     const data = await records(activity);
-    const teams = await pool.query<{ team_number: number; team_name: string | null; session_id: string }>("SELECT team_number,team_name,session_id FROM classroom_teams WHERE activity=$1", [activity]);
+    const teams = await pool.query<{ team_number: number; team_name: string | null; session_id: string }>(`SELECT team_number,team_name,session_id FROM classroom_teams
+      WHERE activity=$1 AND session_date=coalesce($2::date,(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date)`, [activity, date ?? null]);
     const ids = data.questions.map(q => q.id);
     const board = teams.rows.map(team => {
       const progress = data.progress.find(p => p.sessionId === team.session_id);
@@ -41,6 +47,7 @@ for (const activity of ["ctf", "lantern"] as const) {
       return q.manualReview && a && hasResponse(a.value) && (a.reviewStatus ?? "pending") === "pending";
     }).map(q => ({
       sessionId: p.sessionId, name: p.name, teamNumber: p.teamNumber ?? null, teamName: p.teamName, questionId: q.id,
+      sessionDate: p.sessionDate,
       code: q.code, prompt: q.prompt, value: String(p.answers[String(q.id)].value),
       points: q.points, updatedAt: p.answers[String(q.id)].updatedAt,
     })));
@@ -58,6 +65,7 @@ for (const activity of ["ctf", "lantern"] as const) {
     for (const p of data.progress) await recordCompletion(activity, p, data.questions.map(q => q.id));
     const notifications = await pool.query(`SELECT n.id,n.team_number AS "teamNumber",
       coalesce(t.team_name,'Team ' || n.team_number) AS "teamName",
+      to_char(coalesce(t.session_date,(n.completed_at AT TIME ZONE 'America/New_York')::date),'YYYY-MM-DD') AS "sessionDate",
       n.completed_at AS "completedAt",n.read_at AS "readAt"
       FROM classroom_notifications n LEFT JOIN classroom_teams t
         ON t.activity=n.activity AND t.session_id=n.session_id

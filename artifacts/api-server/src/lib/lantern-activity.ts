@@ -40,7 +40,7 @@ export const lanternQuestions: Question[] = [
   q(105, "M1-Q5", 1, "Which feature tackles an iOS inactivity timer, rendering it irrelevant?", "fixed", 5, ["SafeGuard", "Safeguard Mode"], "", "single", ["SafeGuard", "Airplane mode", "Mass Storage"]),
   q(106, "M1-Q6", 1, "Which workflow is used to preserve iOS data pending authorization? This is a knowledge question; do not perform a preserved extraction.", "fixed", 5, ["Preserved Extraction", "Preserved Extraction workflow"], "", "single", ["Preserved Extraction", "Mass Storage extraction", "Unrestricted manual browsing"]),
   q(107, "M1-Q7", 1, "Briefly describe a situation in which you would use Preserved Extraction or SafeGuard Mode. Explain the preservation or inactivity-timer concern. This is knowledge-based; no live preserved extraction is required.", "manual", 5, [], "", "long"),
-  q(108, "M1-FLAG01", 1, "Enter FLAG-01 using your case identifier and your registered team number.", "format", 10, [], "CASE:JTF-####-TEAM# (example for team 3: CASE:JTF-0427-TEAM3)"),
+  q(108, "M1-FLAG01", 1, "Enter FLAG-01 using your case identifier and your registered team name.", "format", 10, [], "CASE:JTF-####-<team name> (example: CASE:JTF-0427-Night Watch)"),
   q(109, "M2-Q1", 2, "What is the proper order to connect a device via TurboLink?", "fixed", 5, ["Connect TurboLink to power and computer → Turn on TurboLink → Wait for the connect-device indicator → Connect device"], "", "single", ["Connect device → Turn on TurboLink → Connect power and computer", "Connect TurboLink to power and computer → Turn on TurboLink → Wait for the connect-device indicator → Connect device", "Turn on the device → Connect device → Connect TurboLink to power"]),
   q(110, "M2-Q2", 2, "Describe at least two supported Triage profile criteria and explain how you would verify them against the instructor's iPhone 8 demonstration. Consider the kit's actual IMEI and a known planted contact or message indicator. Distinguish the simplest IMEI-only beta profile from an expanded content-based profile; do not claim that two criteria are mandatory for every scan.", "manual", 5, [], "", "long"),
   q(111, "M2-Q3", 2, "A pre-tested iPhone 8 profile produces Major and Minor indicators. Which report label denotes the higher-priority match, regardless of whether an IMEI, contact, or message matched?", "fixed", 5, ["Major"], "", "single", ["Minor", "Major", "No match"]),
@@ -84,10 +84,12 @@ export function publicLanternActivity(keys: Map<number, string[]>) {
 }
 export const hasLanternResponse = (value: string | string[]) => Array.isArray(value) ? value.length > 0 : !!value.trim();
 const normalise = (value: string) => value.normalize("NFKC").toLowerCase().replace(/[^a-z0-9]/g, "");
-export function flagFormatValid(id: number, value: string, teamNumber?: number) {
+export function flagFormatValid(id: number, value: string, teamIdentity?: number | string) {
   if (id === 108) {
-    const match = /^CASE:JTF-\d{4}-TEAM([1-9]\d{0,2})$/.exec(value);
-    return !!match && (teamNumber === undefined || Number(match[1]) === teamNumber);
+    const match = /^CASE:JTF-\d{4}-([^\r\n:]{1,60})$/.exec(value);
+    if (!match || !match[1].trim()) return false;
+    if (typeof teamIdentity === "number") return match[1] === `TEAM${teamIdentity}`;
+    return teamIdentity === undefined || match[1].normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase() === teamIdentity.normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
   }
   if (id === 115) return /^ALIAS:[A-Za-z]{3,20}$/.test(value);
   if (id === 112) return /^MAJOR:[^:\r\n]+:[^:\r\n]+$/.test(value);
@@ -101,7 +103,7 @@ export function evaluateLantern(question: Question, value: string | string[], ke
   if (question.manualReview) return result("manual", "Response saved for instructor acceptance. Points are added when accepted.");
   if (question.isFlag && (typeof value !== "string" || !flagFormatValid(question.id, value.trim(), teamNumber))) return result("incorrect", `Check the strict format: ${question.format}. Retries have no penalty.`);
   if (question.keyMode === "manual") return result("manual", "Response saved for individual instructor review.");
-  if (question.keyMode === "format") return result("correct", "Case format and registered team number confirmed.");
+  if (question.keyMode === "format") return result("correct", "Case format and registered team identity confirmed.");
   const expected = question.keyMode === "fixed" ? question.acceptedAnswers : keys.get(question.id);
   if (!expected?.length) return result("unkeyed", "Saved pending instructor configuration of the classroom answer key. Format alone does not verify a value.");
   let correct: boolean;

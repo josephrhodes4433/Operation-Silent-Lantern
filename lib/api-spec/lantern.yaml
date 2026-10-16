@@ -331,20 +331,31 @@ components:
         inject: { type: string }
     LanternLearnerInput:
       type: object
-      required: [sessionId, name, email, instructorEmail]
+      required: [sessionId, name, email, instructorEmail, teamName]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string, minLength: 1, maxLength: 140 }
         email: { type: string, format: email, maxLength: 254 }
         instructorEmail: { type: string, format: email, maxLength: 254 }
+        teamName: { type: string, minLength: 1, maxLength: 60 }
+        additionalTeamMembers:
+          type: array
+          maxItems: 29
+          description: Additional full names; the registered learner is automatically included.
+          items: { type: string, minLength: 1, maxLength: 140 }
     LanternBaseProgress:
       type: object
-      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt, reviewGateQuestionId]
+      required: [sessionId, name, email, instructorEmail, teamName, teamMembers, sessionDate, answers, totalPoints, answeredCount, savedAt, submittedAt, reviewGateQuestionId]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string }
         email: { type: string, format: email }
         instructorEmail: { type: string, format: email }
+        teamName: { type: string }
+        teamMembers:
+          type: array
+          items: { type: string }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         answers:
           type: object
           additionalProperties: { $ref: "#/components/schemas/LanternAnswer" }
@@ -423,11 +434,16 @@ components:
         responseUpdatedAt: { type: string, format: date-time }
     LanternBaseSubmissionSummary:
       type: object
-      required: [sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, name, email, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string }
         email: { type: string, format: email }
+        teamName: { type: string }
+        teamMembers:
+          type: array
+          items: { type: string }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         totalPoints: { type: integer }
         answeredCount: { type: integer }
         savedAt: { type: string, format: date-time }

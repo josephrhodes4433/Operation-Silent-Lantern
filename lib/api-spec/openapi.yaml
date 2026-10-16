@@ -18,6 +18,10 @@ paths:
   /ctf/leaderboard:
     get:
       operationId: getCtfLeaderboard
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
       responses:
         "200":
           description: Public team completion only
@@ -27,6 +31,10 @@ paths:
   /lantern/leaderboard:
     get:
       operationId: getLanternLeaderboard
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
       responses:
         "200":
           description: Public team completion only
@@ -665,9 +673,14 @@ components:
         email: { type: string, format: email, maxLength: 254 }
         instructorEmail: { type: string, format: email, maxLength: 254 }
         teamName: { type: string, minLength: 1, maxLength: 60 }
+        additionalTeamMembers:
+          type: array
+          maxItems: 29
+          description: Additional full names; the registered learner is automatically included in the roster.
+          items: { type: string, minLength: 1, maxLength: 140 }
     CtfProgress:
       type: object
-      required: [sessionId, name, email, instructorEmail, teamName, answers, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, name, email, instructorEmail, teamName, teamMembers, sessionDate, answers, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string }
@@ -675,6 +688,10 @@ components:
         instructorEmail: { type: string, format: email }
         teamNumber: { type: ["integer", "null"] }
         teamName: { type: string }
+        teamMembers:
+          type: array
+          items: { type: string }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         answers:
           type: object
           additionalProperties:
@@ -746,12 +763,16 @@ components:
         responseUpdatedAt: { type: string, format: date-time }
     CtfSubmissionSummary:
       type: object
-      required: [sessionId, name, teamName, email, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, name, teamName, teamMembers, sessionDate, email, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
         name: { type: string }
         teamNumber: { type: ["integer", "null"] }
         teamName: { type: string }
+        teamMembers:
+          type: array
+          items: { type: string }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         email: { type: string, format: email }
         totalPoints: { type: integer }
         answeredCount: { type: integer }
@@ -770,12 +791,13 @@ components:
       type: array
       items:
         type: object
-        required: [sessionId, name, teamNumber, teamName, questionId, code, prompt, value, points, updatedAt]
+        required: [sessionId, name, teamNumber, teamName, sessionDate, questionId, code, prompt, value, points, updatedAt]
         properties:
           sessionId: { type: string, format: uuid }
           name: { type: string }
           teamNumber: { type: ["integer", "null"] }
           teamName: { type: string }
+          sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
           questionId: { type: integer }
           code: { type: string }
           prompt: { type: string }
@@ -786,11 +808,12 @@ components:
       type: array
       items:
         type: object
-        required: [id, teamNumber, teamName, completedAt, readAt]
+        required: [id, teamNumber, teamName, sessionDate, completedAt, readAt]
         properties:
           id: { type: string, format: uuid }
           teamNumber: { type: integer }
           teamName: { type: string }
+          sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
           completedAt: { type: string, format: date-time }
           readAt: { type: ["string", "null"], format: date-time }
 

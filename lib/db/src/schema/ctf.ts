@@ -1,4 +1,4 @@
-import { jsonb, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { date, jsonb, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -9,6 +9,8 @@ export const ctfProgressTable = pgTable("ctf_progress", {
   instructorEmail: text("instructor_email").notNull(),
   teamNumber: integer("team_number"),
   teamName: text("team_name"),
+  teamMembers: jsonb("team_members").$type<string[]>(),
+  sessionDate: date("session_date", { mode: "string" }),
   answers: jsonb("answers").notNull().default({}),
   savedAt: timestamp("saved_at", { withTimezone: true }).notNull().defaultNow(),
   submittedAt: timestamp("submitted_at", { withTimezone: true }),

@@ -1,7 +1,7 @@
 import type { CtfActivity, CtfProgress, CtfQuestion } from '@workspace/api-client-react';
 
 const KEY = 'iron-meridian-session';
-export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number | null }
+export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number | null; teamName?: string }
 
 export function loadSession(): Session | null {
   try {
@@ -51,7 +51,7 @@ export function clearDraft(sessionId: string, questionId: number, value: string 
 }
 
 export function buildResultsText(a: CtfActivity, p: CtfProgress): string {
-  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, ...(p.teamNumber ? [`Team: ${p.teamNumber}`] : []), `Score: ${p.totalPoints} / ${a.totalPoints} points`,
+  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, `Team: ${p.teamName}`, `Team members: ${p.teamMembers.join(', ')}`, `Session date (Eastern Time): ${p.sessionDate}`, `Score: ${p.totalPoints} / ${a.totalPoints} points`,
     `Answered: ${p.answeredCount} / ${a.totalFlags}`, `Saved: ${p.savedAt}`, ''];
   for (const q of orderedQuestions(a)) {
     const ans = p.answers[String(q.id)];

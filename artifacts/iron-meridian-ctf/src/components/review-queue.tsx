@@ -43,7 +43,7 @@ export function ReviewQueue({ code }: { code: string }) {
             {q.data.map((it) => (
               <li key={`${it.sessionId}-${it.questionId}`} className="bg-card border border-border" data-testid={`queue-item-${it.sessionId}-${it.questionId}`}>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 bg-muted/60 border-b border-border text-xs font-mono">
-                  <span className="bg-secondary text-secondary-foreground px-2 py-0.5">{it.teamNumber == null ? 'No team' : `Team ${it.teamNumber}`}</span>
+                  <span className="bg-secondary text-secondary-foreground px-2 py-0.5 break-words">{it.teamName} · {it.sessionDate}</span>
                   <span className="font-semibold text-sm font-sans">{it.name}</span>
                   <span className="text-primary">{it.code || `Flag ${it.questionId}`}</span>
                   <span>{it.points} pts</span>
@@ -53,7 +53,7 @@ export function ReviewQueue({ code }: { code: string }) {
                   <p className="text-sm font-medium">{it.prompt}</p>
                   <p className="text-sm whitespace-pre-wrap break-words bg-muted p-3" data-testid={`queue-value-${it.sessionId}-${it.questionId}`}>{it.value}</p>
                   <ReviewActions sessionId={it.sessionId} questionId={it.questionId} points={it.points} updatedAt={it.updatedAt} headers={headers}
-                    label={`${it.teamNumber == null ? it.name : `Team ${it.teamNumber}`} ${it.code || `Flag ${it.questionId}`}`} onDecided={setDecided} />
+                    label={`${it.teamName} ${it.code || `Flag ${it.questionId}`}`} onDecided={setDecided} />
                 </div>
               </li>
             ))}

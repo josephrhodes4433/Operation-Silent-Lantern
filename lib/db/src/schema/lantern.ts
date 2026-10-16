@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const lanternProgressTable = pgTable("lantern_progress", {
   sessionId: text("session_id").primaryKey(),
@@ -7,6 +7,8 @@ export const lanternProgressTable = pgTable("lantern_progress", {
   instructorEmail: text("instructor_email").notNull(),
   teamNumber: integer("team_number").notNull(),
   teamName: text("team_name"),
+  teamMembers: jsonb("team_members").$type<string[]>(),
+  sessionDate: date("session_date", { mode: "string" }),
   answers: jsonb("answers").notNull().default({}),
   authorizationNotes: text("authorization_notes").notNull().default(""),
   authorizationGranted: boolean("authorization_granted").notNull().default(false),

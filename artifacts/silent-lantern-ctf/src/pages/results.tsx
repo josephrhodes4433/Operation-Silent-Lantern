@@ -57,7 +57,7 @@ export default function Results() {
       <div className="space-y-8 rise">
         <ArchivedResponses progress={p} />
         <div className="grid md:grid-cols-[1fr_auto] gap-6 items-end">
-          <div><Eyebrow>Results | {p.name} | Team {p.teamNumber}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
+          <div><Eyebrow>Results | {p.name} | {p.teamName}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
           <div className="bg-secondary text-secondary-foreground px-6 py-4">
             <p className="font-display text-5xl font-bold" data-testid="text-total">{p.totalPoints}<span className="text-lg text-white/60"> / {a.totalPoints}</span></p>
             <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered | {doneCount} correct or accepted | hints -{p.penaltyPoints} | bonuses +{p.speedBonus + p.tradecraftBonus}</p>

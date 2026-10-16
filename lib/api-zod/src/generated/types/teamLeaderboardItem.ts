@@ -8,6 +8,7 @@
 
 export type TeamLeaderboardItem = {
   teamNumber: number;
+  teamName: string;
   /**
      * @minimum 0
      * @maximum 100

@@ -8,6 +8,13 @@
 import * as zod from 'zod';
 
 
+export const getCtfLeaderboardQueryDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetCtfLeaderboardQueryParams = zod.object({
+  "date": zod.coerce.string().regex(getCtfLeaderboardQueryDateRegExp).optional()
+})
+
 export const getCtfLeaderboardResponsePercentageMin = 0;
 export const getCtfLeaderboardResponsePercentageMax = 100;
 
@@ -15,10 +22,18 @@ export const getCtfLeaderboardResponsePercentageMax = 100;
 
 export const GetCtfLeaderboardResponseItem = zod.object({
   "teamNumber": zod.number().int(),
+  "teamName": zod.string(),
   "percentage": zod.number().int().min(getCtfLeaderboardResponsePercentageMin).max(getCtfLeaderboardResponsePercentageMax)
 })
 export const GetCtfLeaderboardResponse = zod.array(GetCtfLeaderboardResponseItem)
 
+
+export const getLanternLeaderboardQueryDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetLanternLeaderboardQueryParams = zod.object({
+  "date": zod.coerce.string().regex(getLanternLeaderboardQueryDateRegExp).optional()
+})
 
 export const getLanternLeaderboardResponsePercentageMin = 0;
 export const getLanternLeaderboardResponsePercentageMax = 100;
@@ -27,6 +42,7 @@ export const getLanternLeaderboardResponsePercentageMax = 100;
 
 export const GetLanternLeaderboardResponseItem = zod.object({
   "teamNumber": zod.number().int(),
+  "teamName": zod.string(),
   "percentage": zod.number().int().min(getLanternLeaderboardResponsePercentageMin).max(getLanternLeaderboardResponsePercentageMax)
 })
 export const GetLanternLeaderboardResponse = zod.array(GetLanternLeaderboardResponseItem)
@@ -42,10 +58,15 @@ export const GetCtfReviewQueueHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getCtfReviewQueueResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetCtfReviewQueueResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "teamNumber": zod.number().int().nullable(),
+  "teamName": zod.string(),
+  "sessionDate": zod.string().regex(getCtfReviewQueueResponseSessionDateRegExp),
   "questionId": zod.number().int(),
   "code": zod.string(),
   "prompt": zod.string(),
@@ -66,10 +87,15 @@ export const GetLanternReviewQueueHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getLanternReviewQueueResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetLanternReviewQueueResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "teamNumber": zod.number().int().nullable(),
+  "teamName": zod.string(),
+  "sessionDate": zod.string().regex(getLanternReviewQueueResponseSessionDateRegExp),
   "questionId": zod.number().int(),
   "code": zod.string(),
   "prompt": zod.string(),
@@ -84,9 +110,14 @@ export const GetCtfNotificationsHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getCtfNotificationsResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetCtfNotificationsResponseItem = zod.object({
   "id": zod.string().uuid(),
   "teamNumber": zod.number().int(),
+  "teamName": zod.string(),
+  "sessionDate": zod.string().regex(getCtfNotificationsResponseSessionDateRegExp),
   "completedAt": zod.coerce.date(),
   "readAt": zod.coerce.date().nullable()
 })
@@ -97,9 +128,14 @@ export const GetLanternNotificationsHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getLanternNotificationsResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetLanternNotificationsResponseItem = zod.object({
   "id": zod.string().uuid(),
   "teamNumber": zod.number().int(),
+  "teamName": zod.string(),
+  "sessionDate": zod.string().regex(getLanternNotificationsResponseSessionDateRegExp),
   "completedAt": zod.coerce.date(),
   "readAt": zod.coerce.date().nullable()
 })
@@ -228,7 +264,11 @@ export const createLanternProgressBodyOneEmailMax = 254;
 
 export const createLanternProgressBodyOneInstructorEmailMax = 254;
 
-export const createLanternProgressBodyTwoTeamNumberMax = 999;
+export const createLanternProgressBodyOneTeamNameMax = 60;
+
+export const createLanternProgressBodyOneAdditionalTeamMembersItemMax = 140;
+
+export const createLanternProgressBodyOneAdditionalTeamMembersMax = 29;
 
 
 
@@ -236,17 +276,24 @@ export const CreateLanternProgressBody = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string().min(1).max(createLanternProgressBodyOneNameMax),
   "email": zod.string().email().max(createLanternProgressBodyOneEmailMax),
-  "instructorEmail": zod.string().email().max(createLanternProgressBodyOneInstructorEmailMax)
+  "instructorEmail": zod.string().email().max(createLanternProgressBodyOneInstructorEmailMax),
+  "teamName": zod.string().min(1).max(createLanternProgressBodyOneTeamNameMax),
+  "additionalTeamMembers": zod.array(zod.string().min(1).max(createLanternProgressBodyOneAdditionalTeamMembersItemMax)).max(createLanternProgressBodyOneAdditionalTeamMembersMax).optional().describe('Additional full names; the registered learner is automatically included.')
 }).and(zod.object({
-  "teamNumber": zod.number().int().min(1).max(createLanternProgressBodyTwoTeamNumberMax),
   "roeAcknowledged": zod.literal(true)
 }))
+
+export const createLanternProgressResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
 
 export const CreateLanternProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(createLanternProgressResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -296,11 +343,17 @@ export const GetLanternProgressParams = zod.object({
   "sessionId": zod.coerce.string().uuid()
 })
 
+export const getLanternProgressResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetLanternProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(getLanternProgressResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -373,11 +426,17 @@ export const SubmitLanternProgressParams = zod.object({
   "sessionId": zod.coerce.string().uuid()
 })
 
+export const submitLanternProgressResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const SubmitLanternProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(submitLanternProgressResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -432,11 +491,17 @@ export const UseLanternHintParams = zod.object({
   "missionId": zod.coerce.number().int().min(1).max(useLanternHintPathMissionIdMax)
 })
 
+export const useLanternHintResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const UseLanternHintResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(useLanternHintResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -494,11 +559,17 @@ export const RequestLanternAuthorizationBody = zod.object({
   "notes": zod.string().min(1).max(requestLanternAuthorizationBodyNotesMax)
 })
 
+export const requestLanternAuthorizationResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const RequestLanternAuthorizationResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(requestLanternAuthorizationResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -600,6 +671,7 @@ export const ListLanternSubmissionsHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const listLanternSubmissionsResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const listLanternSubmissionsResponseTwoPendingWrittenReviewCountMin = 0;
 
 
@@ -608,6 +680,9 @@ export const ListLanternSubmissionsResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(listLanternSubmissionsResponseOneSessionDateRegExp),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
   "savedAt": zod.coerce.date(),
@@ -630,11 +705,17 @@ export const GetLanternInstructorSubmissionHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getLanternInstructorSubmissionResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetLanternInstructorSubmissionResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(getLanternInstructorSubmissionResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -706,11 +787,17 @@ export const ReviewLanternWrittenAnswerBody = zod.object({
   "responseUpdatedAt": zod.coerce.date()
 })
 
+export const reviewLanternWrittenAnswerResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const ReviewLanternWrittenAnswerResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(reviewLanternWrittenAnswerResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -799,11 +886,17 @@ export const GrantLanternAuthorizationBody = zod.object({
   "granted": zod.boolean()
 })
 
+export const grantLanternAuthorizationResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GrantLanternAuthorizationResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(grantLanternAuthorizationResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -862,11 +955,17 @@ export const AdjustLanternScoreBody = zod.object({
   "tradecraftBonus": zod.boolean()
 })
 
+export const adjustLanternScoreResponseOneSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const AdjustLanternScoreResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(adjustLanternScoreResponseOneSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -962,7 +1061,11 @@ export const createCtfProgressBodyEmailMax = 254;
 
 export const createCtfProgressBodyInstructorEmailMax = 254;
 
-export const createCtfProgressBodyTeamNumberMax = 9999;
+export const createCtfProgressBodyTeamNameMax = 60;
+
+export const createCtfProgressBodyAdditionalTeamMembersItemMax = 140;
+
+export const createCtfProgressBodyAdditionalTeamMembersMax = 29;
 
 
 
@@ -971,8 +1074,12 @@ export const CreateCtfProgressBody = zod.object({
   "name": zod.string().min(1).max(createCtfProgressBodyNameMax),
   "email": zod.string().email().max(createCtfProgressBodyEmailMax),
   "instructorEmail": zod.string().email().max(createCtfProgressBodyInstructorEmailMax),
-  "teamNumber": zod.number().int().min(1).max(createCtfProgressBodyTeamNumberMax)
+  "teamName": zod.string().min(1).max(createCtfProgressBodyTeamNameMax),
+  "additionalTeamMembers": zod.array(zod.string().min(1).max(createCtfProgressBodyAdditionalTeamMembersItemMax)).max(createCtfProgressBodyAdditionalTeamMembersMax).optional().describe('Additional full names; the registered learner is automatically included in the roster.')
 })
+
+export const createCtfProgressResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
 
 export const CreateCtfProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
@@ -980,6 +1087,9 @@ export const CreateCtfProgressResponse = zod.object({
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(createCtfProgressResponseSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1005,12 +1115,18 @@ export const GetCtfProgressParams = zod.object({
   "sessionId": zod.coerce.string().uuid()
 })
 
+export const getCtfProgressResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetCtfProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(getCtfProgressResponseSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1062,12 +1178,18 @@ export const SubmitCtfProgressParams = zod.object({
   "sessionId": zod.coerce.string().uuid()
 })
 
+export const submitCtfProgressResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const SubmitCtfProgressResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(submitCtfProgressResponseSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1281,10 +1403,16 @@ export const ListCtfSubmissionsHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const listCtfSubmissionsResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const ListCtfSubmissionsResponseItem = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(listCtfSubmissionsResponseSessionDateRegExp),
   "email": zod.string().email(),
   "totalPoints": zod.number().int(),
   "answeredCount": zod.number().int(),
@@ -1305,12 +1433,18 @@ export const GetCtfInstructorSubmissionHeader = zod.object({
   "x-instructor-code": zod.string()
 })
 
+export const getCtfInstructorSubmissionResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const GetCtfInstructorSubmissionResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(getCtfInstructorSubmissionResponseSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),
@@ -1358,12 +1492,18 @@ export const ReviewCtfWrittenAnswerBody = zod.object({
   "responseUpdatedAt": zod.coerce.date()
 })
 
+export const reviewCtfWrittenAnswerResponseSessionDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
 export const ReviewCtfWrittenAnswerResponse = zod.object({
   "sessionId": zod.string().uuid(),
   "name": zod.string(),
   "email": zod.string().email(),
   "instructorEmail": zod.string().email(),
   "teamNumber": zod.number().int().nullish(),
+  "teamName": zod.string(),
+  "teamMembers": zod.array(zod.string()),
+  "sessionDate": zod.string().regex(reviewCtfWrittenAnswerResponseSessionDateRegExp),
   "answers": zod.record(zod.string(), zod.object({
   "value": zod.union([zod.string(),zod.array(zod.string())]),
   "correct": zod.boolean().nullable(),

@@ -8,10 +8,5 @@
 import type { LanternLearnerInput } from './lanternLearnerInput';
 
 export type LanternProgressInput = LanternLearnerInput & {
-  /**
-     * @minimum 1
-     * @maximum 999
-     */
-  teamNumber: number;
   roeAcknowledged: true;
 };

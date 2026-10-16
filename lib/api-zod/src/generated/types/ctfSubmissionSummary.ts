@@ -11,6 +11,10 @@ export interface CtfSubmissionSummary {
   name: string;
   /** @nullable */
   teamNumber?: number | null;
+  teamName: string;
+  teamMembers: string[];
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   email: string;
   totalPoints: number;
   answeredCount: number;
