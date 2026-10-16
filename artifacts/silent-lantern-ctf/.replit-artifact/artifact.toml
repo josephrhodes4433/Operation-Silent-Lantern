@@ -20,8 +20,12 @@ serve = "static"
 publicDir = "artifacts/silent-lantern-ctf/dist/public"
 
 [[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+from = "/silent-lantern"
+to = "/silent-lantern/index.html"
+
+[[services.production.rewrites]]
+from = "/silent-lantern/*"
+to = "/silent-lantern/index.html"
 
 [services.env]
 PORT = "18303"

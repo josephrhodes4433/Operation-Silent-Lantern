@@ -20,7 +20,35 @@ serve = "static"
 publicDir = "artifacts/iron-meridian-ctf/dist/public"
 
 [[services.production.rewrites]]
-from = "/*"
+from = "/activity"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/activity/"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/results"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/results/"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/leaderboard"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/leaderboard/"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/instructor"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/instructor/"
 to = "/index.html"
 
 [services.env]
