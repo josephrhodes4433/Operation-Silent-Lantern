@@ -243,9 +243,8 @@ components:
       allOf:
         - $ref: "#/components/schemas/LanternLearnerInput"
         - type: object
-          required: [teamNumber, roeAcknowledged]
+          required: [roeAcknowledged]
           properties:
-            teamNumber: { type: integer, minimum: 1, maximum: 999 }
             roeAcknowledged: { type: boolean, const: true }
     LanternProgress:
       allOf:

@@ -1,10 +1,16 @@
 import { integer, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const classroomTeamsTable = pgTable("classroom_teams", {
   activity: text("activity").notNull(),
   teamNumber: integer("team_number").notNull(),
+  teamName: text("team_name"),
   sessionId: text("session_id").notNull(),
-}, t => [primaryKey({ columns: [t.activity, t.teamNumber] }), uniqueIndex("classroom_team_session_idx").on(t.activity, t.sessionId)]);
+}, t => [
+  primaryKey({ columns: [t.activity, t.teamNumber] }),
+  uniqueIndex("classroom_team_session_idx").on(t.activity, t.sessionId),
+  uniqueIndex("classroom_team_name_idx").on(t.activity, sql`lower(${t.teamName})`),
+]);
 
 export const classroomNotificationsTable = pgTable("classroom_notifications", {
   id: uuid("id").primaryKey().defaultRandom(),

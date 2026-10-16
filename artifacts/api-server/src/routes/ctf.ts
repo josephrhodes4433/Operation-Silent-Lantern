@@ -178,8 +178,8 @@ router.get("/ctf/instructor/submissions", async (req, res): Promise<void> => {
   const keys = await loadKeys();
   const questions = await loadQuestions();
   res.set("Cache-Control", "no-store").json(ListCtfSubmissionsResponse.parse(records.rows.map(row => {
-    const { sessionId, name, email, teamNumber, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
-    return { sessionId, name, email, teamNumber, totalPoints, answeredCount, savedAt, submittedAt };
+    const { sessionId, name, email, teamNumber, teamName, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
+    return { sessionId, name, email, teamNumber, teamName, totalPoints, answeredCount, savedAt, submittedAt };
   })));
 });
 

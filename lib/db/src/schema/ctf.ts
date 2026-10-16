@@ -8,6 +8,7 @@ export const ctfProgressTable = pgTable("ctf_progress", {
   email: text("email").notNull(),
   instructorEmail: text("instructor_email").notNull(),
   teamNumber: integer("team_number"),
+  teamName: text("team_name"),
   answers: jsonb("answers").notNull().default({}),
   savedAt: timestamp("saved_at", { withTimezone: true }).notNull().defaultNow(),
   submittedAt: timestamp("submitted_at", { withTimezone: true }),

@@ -8,7 +8,7 @@ import { bootstrapTeams, recordCompletion } from "./classroom-teams";
 
 export type Progress = ReturnType<typeof GetLanternProgressResponse.parse>;
 export interface LanternRow {
-  session_id: string; name: string; email: string; instructor_email: string; team_number: number;
+  session_id: string; name: string; email: string; instructor_email: string; team_number: number; team_name?: string | null;
   answers: Progress["answers"]; authorization_notes: string; authorization_granted: boolean;
   hints: number[]; speed_bonus: number; tradecraft_bonus: number;
   saved_at: Date; submitted_at: Date | null;
@@ -47,6 +47,7 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
   const penaltyPoints = currentHints.length * 2;
   return GetLanternProgressResponse.parse({
     sessionId: row.session_id, name: row.name, email: row.email, instructorEmail: row.instructor_email, teamNumber: row.team_number,
+    teamName: row.team_name ?? `Team ${row.team_number}`,
     archivedAnswers: Object.fromEntries(Object.entries(row.answers).filter(([id]) => Number(id) <= 18).map(([id, answer]) => [id, {
       ...answer, correct: answer.correct ?? null, earnedPoints: answer.earnedPoints ?? 0, status: answer.status ?? "manual",
     }])),

@@ -6,6 +6,7 @@ export const lanternProgressTable = pgTable("lantern_progress", {
   email: text("email").notNull(),
   instructorEmail: text("instructor_email").notNull(),
   teamNumber: integer("team_number").notNull(),
+  teamName: text("team_name"),
   answers: jsonb("answers").notNull().default({}),
   authorizationNotes: text("authorization_notes").notNull().default(""),
   authorizationGranted: boolean("authorization_granted").notNull().default(false),
