@@ -816,3 +816,31 @@ mtime_ms = 1792170742392
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/67f344f4-eaff-4820-8b8b-b961594160c6/9dc1d350-2bd0-40e4-8cc4-d0858cbc62cd"
 storage_version_token = "1792170921626778"
 content_type = "video/mp4"
+
+[[outputs]]
+id = "u9F84U67stZmUpJJf51a-"
+uri = "file://generated-artifacts/instructor-answer-keys/IRON_MERIDIAN_Instructor_Table_Answer_Key.pdf"
+type = "pdf"
+title = "IRON MERIDIAN — Instructor Answer Key (PDF)"
+description = "120 questions in a four-column table: question, answer, rationale and course material reference. Includes clearly labeled illustrative responses and evidence-dependent reference answers. 27 landscape pages."
+logical_id = "2d671c51-ee0c-4a64-9985-1cb9a91a5496"
+content_hash = "sha256:bb5ed20f7548d4b311b6c8c99ad436dc49476ea39060f4f473441e9556b8f2a0"
+size = 540327
+mtime_ms = 1792173303696
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/2d671c51-ee0c-4a64-9985-1cb9a91a5496/b1b94902-5f16-4fcd-a4ad-3f033c8da1d7"
+storage_version_token = "1792173317269653"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "5DM6LRU_UrgvVdSBFzwwU"
+uri = "file://generated-artifacts/instructor-answer-keys/SILENT_LANTERN_Instructor_Table_Answer_Key.pdf"
+type = "pdf"
+title = "SILENT LANTERN — Instructor Answer Key (PDF)"
+description = "All 26 current questions and flags across six missions, with question, answer, rationale and course material reference. Includes illustrative written responses and individualized evidence requirements. 8 landscape pages."
+logical_id = "dfd629da-a521-443f-9e78-772e047cb7f0"
+content_hash = "sha256:37c84a7d654a68be9ff39e3c03bbca816c13b5d6794a639f76b63ebe3487cddd"
+size = 182855
+mtime_ms = 1792173221128
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/dfd629da-a521-443f-9e78-772e047cb7f0/4dc2ad41-4259-4fc3-bb87-cc99cd9dd03d"
+storage_version_token = "1792173317922450"
+content_type = "application/pdf"
