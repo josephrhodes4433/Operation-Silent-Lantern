@@ -10,23 +10,12 @@ export interface CtfProgressInput {
   sessionId: string;
   /**
      * @minLength 1
-     * @maxLength 140
-     */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
-  /**
-     * @minLength 1
      * @maxLength 60
      */
   teamName: string;
   /**
-     * Additional full names; the registered learner is automatically included in the roster.
-     * @maxItems 29
-     * @items.minLength 1
-     * @items.maxLength 140
+     * @minLength 1
+     * @maxLength 140
      */
-  additionalTeamMembers?: string[];
+  instructorName: string;
 }

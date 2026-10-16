@@ -1,6 +1,6 @@
 import { Router, type ErrorRequestHandler } from "express";
 import { pool } from "@workspace/db";
-import { GetCtfLeaderboardResponse, GetCtfReviewQueueQueryParams, GetCtfReviewQueueResponse, GetCtfNotificationsResponse, ReadCtfNotificationParams } from "@workspace/api-zod";
+import { GetCtfWindowResponse, GetCtfLeaderboardResponse, GetCtfReviewQueueQueryParams, GetCtfReviewQueueResponse, GetCtfNotificationsResponse, ReadCtfNotificationParams } from "@workspace/api-zod";
 import { ClassroomError, requireInstructor } from "../lib/instructor-access";
 import { bootstrapTeams, completionPercentage, hasResponse, recordCompletion, type ActivityId } from "../lib/classroom-teams";
 import { loadKeys, toProgress, type ProgressRow } from "../lib/iron-progress";
@@ -8,6 +8,7 @@ import { loadQuestions } from "../lib/ctf-question-authoring";
 import { requiresReview } from "../lib/ctf-activity";
 import { lanternProgress, loadLanternKeys, type LanternRow } from "../lib/lantern-progress";
 import { lanternQuestions } from "../lib/lantern-activity";
+import { activityWindow, reopenActivityWindow } from "../lib/classroom-window";
 
 const router = Router();
 async function records(activity: ActivityId) {
@@ -21,6 +22,13 @@ async function records(activity: ActivityId) {
   return { questions: lanternQuestions, progress: rows.rows.map(row => lanternProgress(row, keys)) };
 }
 for (const activity of ["ctf", "lantern"] as const) {
+  router.get(`/${activity}/window`, async (_req, res) => {
+    res.set("Cache-Control", "no-store").json(GetCtfWindowResponse.parse(await activityWindow(activity)));
+  });
+  router.post(`/${activity}/instructor/window/reopen`, async (req, res) => {
+    requireInstructor(req);
+    res.set("Cache-Control", "no-store").json(GetCtfWindowResponse.parse(await reopenActivityWindow(activity)));
+  });
   router.get(`/${activity}/leaderboard`, async (_req, res) => {
     const date = _req.query.date;
     if (date !== undefined && (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
@@ -46,14 +54,14 @@ for (const activity of ["ctf", "lantern"] as const) {
       const a = p.answers[String(q.id)];
       return q.manualReview && a && hasResponse(a.value) && (a.reviewStatus ?? "pending") === "pending";
     }).map(q => ({
-      sessionId: p.sessionId, name: p.name, teamNumber: p.teamNumber ?? null, teamName: p.teamName, questionId: q.id,
+      sessionId: p.sessionId, instructorName: p.instructorName, teamNumber: p.teamNumber ?? null, teamName: p.teamName, questionId: q.id,
       sessionDate: p.sessionDate,
       code: q.code, prompt: q.prompt, value: String(p.answers[String(q.id)].value),
       points: q.points, updatedAt: p.answers[String(q.id)].updatedAt,
     })));
     const sort = query.data.sort ?? "time_asc";
     queue.sort((a, b) => {
-      const primary = sort.startsWith("name") ? a.name.localeCompare(b.name, "en", { sensitivity: "base" }) : new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+      const primary = sort.startsWith("name") ? a.teamName.localeCompare(b.teamName, "en", { sensitivity: "base" }) : new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
       return primary * (sort.endsWith("desc") ? -1 : 1) || a.sessionId.localeCompare(b.sessionId) || a.questionId - b.questionId;
     });
     res.set("Cache-Control", "no-store").json(GetCtfReviewQueueResponse.parse(queue));

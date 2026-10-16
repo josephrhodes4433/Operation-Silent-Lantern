@@ -13,7 +13,7 @@ import { evaluate, isManual, requiresReview, publicActivity, validationMode } fr
 import { loadQuestions, questionCatalog, saveQuestion, validateQuestion } from "../lib/ctf-question-authoring";
 import { ironAnswerGuide } from "../lib/iron-answer-guide";
 import { loadKeys, toProgress, changeIron, type ProgressRow } from "../lib/iron-progress";
-import { bootstrapTeams, completionPercentage, createSharedTeam, hasResponse, sameResponse } from "../lib/classroom-teams";
+import { assertAnonymousCheckIn, bootstrapTeams, completionPercentage, createSharedTeam, hasResponse, sameResponse } from "../lib/classroom-teams";
 import { ClassroomError } from "../lib/instructor-access";
 const router: IRouter = Router();
 const attempts = new Map<string, { count: number; until: number }>();
@@ -49,8 +49,9 @@ router.get("/ctf/activity", async (_req, res): Promise<void> => {
 });
 
 router.post("/ctf/progress", async (req, res): Promise<void> => {
+  assertAnonymousCheckIn(req.body);
   const input = CreateCtfProgressBody.safeParse(req.body);
-  if (!input.success || !input.data.name.trim()) { res.status(400).json({ error: "Enter your name, email and instructor email." }); return; }
+  if (!input.success) { res.status(400).json({ error: "Enter a non-identifying team name and instructor name." }); return; }
   const row = await createSharedTeam("ctf", input.data);
   res.json(toProgress(row, await loadKeys(), await loadQuestions()));
 });
@@ -178,8 +179,8 @@ router.get("/ctf/instructor/submissions", async (req, res): Promise<void> => {
   const keys = await loadKeys();
   const questions = await loadQuestions();
   res.set("Cache-Control", "no-store").json(ListCtfSubmissionsResponse.parse(records.rows.map(row => {
-    const { sessionId, name, email, teamNumber, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
-    return { sessionId, name, email, teamNumber, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt };
+    const { sessionId, instructorName, windowId, teamNumber, teamName, sessionDate, totalPoints, answeredCount, savedAt, submittedAt } = toProgress(row, keys, questions);
+    return { sessionId, instructorName, windowId, teamNumber, teamName, sessionDate, totalPoints, answeredCount, savedAt, submittedAt };
   })));
 });
 
@@ -210,7 +211,7 @@ router.put("/ctf/instructor/submissions/:sessionId/review/:questionId", async (r
     answer.reviewStatus = decision === "denied" ? "denied" : "approved";
     answer.instructorPoints = decision === "denied" ? 0 : question.points;
     answer.instructorNote = note;
-  }));
+  }, true));
 });
 
 router.use(((err, _req, res, next) => {

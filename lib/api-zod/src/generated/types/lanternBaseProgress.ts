@@ -9,11 +9,10 @@ import type { LanternBaseProgressAnswers } from './lanternBaseProgressAnswers';
 
 export interface LanternBaseProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   answers: LanternBaseProgressAnswers;

@@ -197,7 +197,7 @@ function Subs({ code }: { code: string }) {
           <li key={s.sessionId}>
             <button onClick={() => setSel(s.sessionId)} aria-pressed={sel === s.sessionId} data-testid={`button-sub-${s.sessionId}`}
               className={`w-full text-left bg-card border p-3 ${sel === s.sessionId ? 'border-primary' : 'border-border hover:bg-muted'}`}>
-              <p className="font-semibold text-sm">{s.name}</p><p className="text-xs text-muted-foreground">{s.email}</p>
+              <p className="font-semibold text-sm">{s.teamName}</p><p className="text-xs text-muted-foreground">{s.instructorName} · {s.sessionDate}</p>
               <p className="font-mono text-xs mt-1">{s.totalPoints} pts | {s.answeredCount} answered | {s.submittedAt ? 'submitted' : 'in progress'}</p>
             </button>
           </li>
@@ -217,7 +217,7 @@ function Detail({ sid, headers }: { sid: string; headers: Record<string, string>
   const p = d.data;
   return (
     <div className="space-y-3">
-      <h2 className="font-display text-xl font-bold">{p.name} <span className="font-mono text-sm text-muted-foreground break-words">{p.teamName} · {p.sessionDate} | {p.totalPoints} pts</span></h2>
+      <h2 className="font-display text-xl font-bold">{p.teamName} <span className="font-mono text-sm text-muted-foreground break-words">{p.instructorName} · {p.sessionDate} | {p.totalPoints} pts</span></h2>
       {[...act.data.questions].sort((a, b) => a.section - b.section || a.id - b.id).map((q) => {
         const an = p.answers[String(q.id)];
         const guidance = q.manualReview ? catalog.data?.questions.find(item => item.id === q.id) : undefined;

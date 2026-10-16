@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  ActivityWindow,
   CompletionNotifications,
   CtfActivity,
   CtfAnswerInput,
@@ -90,6 +91,284 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetCtfWindowUrl = () => {
+
+
+
+
+  return `/api/ctf/window`
+}
+
+export const getCtfWindow = async ( options?: Parameters<typeof customFetch>[1]): Promise<ActivityWindow> => {
+
+  return customFetch<ActivityWindow>(getGetCtfWindowUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCtfWindowQueryKey = () => {
+    return [
+    `/api/ctf/window`
+    ] as const;
+    }
+
+
+export const getGetCtfWindowQueryOptions = <TData = Awaited<ReturnType<typeof getCtfWindow>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCtfWindowQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCtfWindow>>> = ({ signal }) => getCtfWindow({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCtfWindow>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCtfWindowQueryResult = NonNullable<Awaited<ReturnType<typeof getCtfWindow>>>
+export type GetCtfWindowQueryError = ErrorType<unknown>
+
+
+
+export function useGetCtfWindow<TData = Awaited<ReturnType<typeof getCtfWindow>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCtfWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCtfWindowQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLanternWindowUrl = () => {
+
+
+
+
+  return `/api/lantern/window`
+}
+
+export const getLanternWindow = async ( options?: Parameters<typeof customFetch>[1]): Promise<ActivityWindow> => {
+
+  return customFetch<ActivityWindow>(getGetLanternWindowUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLanternWindowQueryKey = () => {
+    return [
+    `/api/lantern/window`
+    ] as const;
+    }
+
+
+export const getGetLanternWindowQueryOptions = <TData = Awaited<ReturnType<typeof getLanternWindow>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLanternWindowQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLanternWindow>>> = ({ signal }) => getLanternWindow({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLanternWindow>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLanternWindowQueryResult = NonNullable<Awaited<ReturnType<typeof getLanternWindow>>>
+export type GetLanternWindowQueryError = ErrorType<unknown>
+
+
+
+export function useGetLanternWindow<TData = Awaited<ReturnType<typeof getLanternWindow>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLanternWindow>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLanternWindowQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReopenCtfWindowUrl = () => {
+
+
+
+
+  return `/api/ctf/instructor/window/reopen`
+}
+
+export const reopenCtfWindow = async ( options?: Parameters<typeof customFetch>[1]): Promise<ActivityWindow> => {
+
+  return customFetch<ActivityWindow>(getReopenCtfWindowUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getReopenCtfWindowMutationKey = () => ['reopenCtfWindow'] as const;
+
+export const getReopenCtfWindowMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenCtfWindow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reopenCtfWindow>>, TError,void, TContext> => {
+
+const mutationKey = getReopenCtfWindowMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reopenCtfWindow>>, void> = () => {
+
+
+          return  reopenCtfWindow(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReopenCtfWindowMutationResult = NonNullable<Awaited<ReturnType<typeof reopenCtfWindow>>>
+
+    export type ReopenCtfWindowMutationError = ErrorType<unknown>
+
+
+    export const useReopenCtfWindow = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenCtfWindow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reopenCtfWindow>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getReopenCtfWindowMutationOptions(options));
+    }
+
+export const getReopenLanternWindowUrl = () => {
+
+
+
+
+  return `/api/lantern/instructor/window/reopen`
+}
+
+export const reopenLanternWindow = async ( options?: Parameters<typeof customFetch>[1]): Promise<ActivityWindow> => {
+
+  return customFetch<ActivityWindow>(getReopenLanternWindowUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getReopenLanternWindowMutationKey = () => ['reopenLanternWindow'] as const;
+
+export const getReopenLanternWindowMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenLanternWindow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reopenLanternWindow>>, TError,void, TContext> => {
+
+const mutationKey = getReopenLanternWindowMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reopenLanternWindow>>, void> = () => {
+
+
+          return  reopenLanternWindow(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReopenLanternWindowMutationResult = NonNullable<Awaited<ReturnType<typeof reopenLanternWindow>>>
+
+    export type ReopenLanternWindowMutationError = ErrorType<unknown>
+
+
+    export const useReopenLanternWindow = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reopenLanternWindow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reopenLanternWindow>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getReopenLanternWindowMutationOptions(options));
+    }
 
 export const getGetCtfLeaderboardUrl = (params?: GetCtfLeaderboardParams,) => {
   const normalizedParams = new URLSearchParams();

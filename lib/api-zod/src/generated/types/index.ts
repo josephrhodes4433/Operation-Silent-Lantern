@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './activityWindow';
+export * from './activityWindowState';
 export * from './completionNotifications';
 export * from './completionNotificationsItem';
 export * from './ctfActivity';

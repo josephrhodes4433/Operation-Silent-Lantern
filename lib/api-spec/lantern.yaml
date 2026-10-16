@@ -1,6 +1,24 @@
 openapi: 3.1.0
 info: { title: Api, version: 0.1.0 }
 paths:
+  /lantern/window:
+    get:
+      operationId: getLanternWindow
+      responses:
+        "200":
+          description: Server-authoritative shared 24-hour activity window
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
+  /lantern/instructor/window/reopen:
+    post:
+      operationId: reopenLanternWindow
+      responses:
+        "200":
+          description: Password verified; next window ready for its first team
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
   /lantern/activity:
     get:
       operationId: getLanternActivity
@@ -192,6 +210,16 @@ paths:
       responses: { "200": { description: Saved progress, content: { application/json: { schema: { $ref: "#/components/schemas/LanternProgress" } } } } }
 components:
   schemas:
+    ActivityWindow:
+      type: object
+      required: [state, windowId, startedAt, expiresAt, serverNow, durationHours]
+      properties:
+        state: { type: string, enum: [not_started, open, expired] }
+        windowId: { type: ["string", "null"], format: uuid }
+        startedAt: { type: ["string", "null"], format: date-time }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        serverNow: { type: string, format: date-time }
+        durationHours: { type: integer, const: 24 }
     LanternWrittenHistoryEntry:
       type: object
       required: [id, questionId, version, event, value, decision, feedback, points, responseUpdatedAt, recordedAt]
@@ -331,30 +359,19 @@ components:
         inject: { type: string }
     LanternLearnerInput:
       type: object
-      required: [sessionId, name, email, instructorEmail, teamName]
+      required: [sessionId, teamName, instructorName]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string, minLength: 1, maxLength: 140 }
-        email: { type: string, format: email, maxLength: 254 }
-        instructorEmail: { type: string, format: email, maxLength: 254 }
         teamName: { type: string, minLength: 1, maxLength: 60 }
-        additionalTeamMembers:
-          type: array
-          maxItems: 29
-          description: Additional full names; the registered learner is automatically included.
-          items: { type: string, minLength: 1, maxLength: 140 }
+        instructorName: { type: string, minLength: 1, maxLength: 140 }
     LanternBaseProgress:
       type: object
-      required: [sessionId, name, email, instructorEmail, teamName, teamMembers, sessionDate, answers, totalPoints, answeredCount, savedAt, submittedAt, reviewGateQuestionId]
+      required: [sessionId, teamName, instructorName, windowId, sessionDate, answers, totalPoints, answeredCount, savedAt, submittedAt, reviewGateQuestionId]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, format: email }
-        instructorEmail: { type: string, format: email }
         teamName: { type: string }
-        teamMembers:
-          type: array
-          items: { type: string }
+        instructorName: { type: string }
+        windowId: { type: ["string", "null"], format: uuid }
         sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         answers:
           type: object
@@ -434,15 +451,12 @@ components:
         responseUpdatedAt: { type: string, format: date-time }
     LanternBaseSubmissionSummary:
       type: object
-      required: [sessionId, name, email, teamName, teamMembers, sessionDate, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, teamName, instructorName, windowId, sessionDate, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, format: email }
         teamName: { type: string }
-        teamMembers:
-          type: array
-          items: { type: string }
+        instructorName: { type: string }
+        windowId: { type: ["string", "null"], format: uuid }
         sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         totalPoints: { type: integer }
         answeredCount: { type: integer }

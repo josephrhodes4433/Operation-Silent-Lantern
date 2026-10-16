@@ -1,0 +1,114 @@
+[
+  {
+    "id": "iron-student-join",
+    "app": "iron",
+    "role": "student",
+    "title": "Mission overview and anonymous team check-in",
+    "text": "Welcome to the Iron Meridian student overview. This is AI narration over the real website, using a separate demonstration database and fictional training evidence. Read the Mission page before starting the eight-section activity. At Begin activity, enter only a non-identifying team name and your instructor's name. Do not enter learner names, customer details, email addresses or a member roster. Your team shares one saved submission. Keep its private resume link and share it only with teammates. Returning to that link restores the team's work without collecting personal details again. The first team to begin starts one shared twenty-four-hour clock for this CTF."
+  },
+  {
+    "id": "iron-student-choices",
+    "app": "iron",
+    "role": "student",
+    "title": "Self-checking choices and saved work",
+    "text": "Work through the sections using the assigned training evidence. For multiple choice questions, select an option or all required options, then check your response. An incorrect answer gives coaching without identifying the correct choice. Use that feedback to inspect the evidence again rather than guessing. Here a demonstration answer is corrected, and the site confirms the saved result. Watch the saved status before leaving a question. The score and completion percentage count correct or instructor-accepted work, not merely filled-in answers. You can reload and resume from the private team session. Never use personal customer evidence in this training activity."
+  },
+  {
+    "id": "iron-student-written",
+    "app": "iron",
+    "role": "student",
+    "title": "Written answers, feedback and another attempt",
+    "text": "Responses that are not multiple choice need instructor review. Enter the requested training finding and save it. Pending work does not earn its points yet. Your instructor can accept it, accept with feedback, or deny it with required feedback. In this demonstration the instructor asks for a clearer source and limitation. Read that feedback inside the activity, revise the actual response, and save the new attempt. A denied response cannot simply be approved unchanged. Once the instructor accepts the revision, its full question points are added automatically and any review gate clears. No email or personal profile is needed for submitting, reviewing or receiving feedback."
+  },
+  {
+    "id": "iron-student-finish",
+    "app": "iron",
+    "role": "student",
+    "title": "Results, optional copies, progress and the classroom lock",
+    "text": "The remaining demonstration responses are now completed. Review Results and submit inside the app when every required answer is correct or accepted. Download a results copy whenever you need one. Optional email sharing asks for a recipient only at that moment and never sends the address to the CTF server. It opens a draft in your own mail app; press Send there. Long results download as a file that you attach yourself. Leaderboard shows team names, progress bars and percentages, not learner identities. Expiry is simulated here: after the shared twenty-four-hour window, learner pages lock. Ask the instructor to reopen with the password. Earlier work is preserved as a separate, read-only session."
+  },
+  {
+    "id": "lantern-student-join",
+    "app": "lantern",
+    "role": "student",
+    "title": "Six missions and anonymous team check-in",
+    "text": "Welcome to the Silent Lantern student overview. This is AI narration over the real website, using a separate demonstration database and fictional training evidence. Read the Mission page and its rules of engagement before beginning the six U F E D-only missions. Enter only a non-identifying team name and your instructor's name, and acknowledge the classroom rules. Do not enter learner names, customer details, email addresses or a member roster. Your team shares one saved submission. Keep its private resume link and share it only with teammates. Returning to that link restores the team's work without another personal check-in. The first team to begin starts one shared twenty-four-hour clock for this CTF."
+  },
+  {
+    "id": "lantern-student-choices",
+    "app": "lantern",
+    "role": "student",
+    "title": "Self-checking answers and mission guidance",
+    "text": "Use the assigned training evidence, select your multiple choice response, then check it. An incorrect answer gives coaching without revealing the correct option. Inspect the evidence and try again; wait for a saved confirmation. Mission flags and instructor acceptance control progression, so a filled-in response alone does not finish a mission. Mission Two's iPhone eight triage is an instructor-led beta demonstration, using the shared report rather than a learner's personal device. Report the actual first Major finding; do not force a predetermined identifier. Follow the separate U F E D Classic instructions for the Z T E mission. Optional hints have the displayed point cost."
+  },
+  {
+    "id": "lantern-student-written",
+    "app": "lantern",
+    "role": "student",
+    "title": "Typed flags, instructor feedback and revision",
+    "text": "Typed flags and other non-choice responses need instructor acceptance. Enter the requested training evidence, preserving the displayed flag format. The case flag uses your registered team name, not an old team number. Save the response and read its review status in the app. Pending work earns no points yet. Your instructor can accept, accept with feedback, or deny with feedback. Here the instructor requests clearer evidence and a limitation. Revise the denied response and save a new attempt; unchanged denied work cannot be accepted. When that revision is accepted, the full question points are added automatically and the relevant mission gate clears. All submission, review and feedback happens inside the site."
+  },
+  {
+    "id": "lantern-student-finish",
+    "app": "lantern",
+    "role": "student",
+    "title": "Results, optional email copies and the shared deadline",
+    "text": "The remaining demonstration responses are now completed. Review Results and submit inside the app after every required answer is correct or accepted. Download your results, including instructor feedback. Optional email copies ask for a recipient only while sharing; the CTF never receives or retains that address. A draft opens in your own mail app, where you press Send. If results are too long, attach the downloaded file yourself. Leaderboard shows only team names and progress percentages. The clock is shared by every team in Silent Lantern, independently of Iron Meridian. Expiry is simulated here. At twenty-four hours, learner pages lock until an instructor reopens with the password. Earlier sessions stay preserved and read-only."
+  },
+  {
+    "id": "iron-instructor-prepare",
+    "app": "iron",
+    "role": "instructor",
+    "title": "Prepare the activity without collecting customer information",
+    "text": "Welcome to the Iron Meridian instructor overview. This is AI narration over the actual site with isolated demonstration data. Learners now enter only a non-identifying team name and your instructor name. Do not request student identities, emails or rosters, and keep real customer information out of answers and feedback. Open Instructor using your private instructor password; this recording uses a disposable test password. Inspect the shared session status. Its twenty-four-hour window begins with the first team, not when someone views the page, and cannot be reset early. Before class, compare the eight-section answer guide and evidence-dependent grading keys with your assigned training dataset. Illustrative examples are coaching references, not universal forensic findings."
+  },
+  {
+    "id": "iron-instructor-review",
+    "app": "iron",
+    "role": "instructor",
+    "title": "Find pending work and make review decisions",
+    "text": "Open the review queue to find all non-choice responses awaiting approval. Sort by submission time or team name; no learner-name lookup is needed. Review the response against the training evidence and the question's criteria. Accept awards the question's full points. Accept with feedback also awards the points and saves your coaching. Deny with feedback requires a useful explanation and leaves the points unearned. Identify what evidence or reasoning is missing without supplying a finished answer. Here one team is accepted, another receives acceptance with feedback, and a third is asked to revise. A denied response must actually change and be resubmitted before it can be accepted. Students read these decisions directly in the app."
+  },
+  {
+    "id": "iron-instructor-archives",
+    "app": "iron",
+    "role": "instructor",
+    "title": "Dated archives, feedback, completion alerts and progress",
+    "text": "The revised response has returned to the queue. Read it as a new attempt, then accept it if it meets the criteria. The team receives its points automatically; do not add them a second time. Sessions provides tables grouped by calendar date in Eastern Time. All authorized instructors can open earlier team submissions, regardless of which instructor name was entered. These archives contain team and instructor names, answers, scores and feedback, not learner identities or member lists. Completion alerts identify teams whose required work is correct or accepted. The separate Leaderboard is a minimal team-progress display, not a public score sheet. Use the answer guide to coach and the private review tools to grade."
+  },
+  {
+    "id": "iron-instructor-reopen",
+    "app": "iron",
+    "role": "instructor",
+    "title": "Expiry, password reopening and the next class",
+    "text": "We advance only this isolated demonstration clock to show expiry. After twenty-four hours, learner overview, activity, results and leaderboard pages lock, and the server rejects new registrations and answer changes. Instructors can still sign in, review archives and give feedback. Once the window has expired, use the instructor password to open the next session. This creates a fresh window that waits for its first team before starting another twenty-four hours. Previous submissions are not erased or reused as new work. Teams can use the same names again in the new window without mixing their answers. Remind learners to download results in time and keep private resume links private. Email copies are optional; all authoritative grading stays in the app."
+  },
+  {
+    "id": "lantern-instructor-prepare",
+    "app": "lantern",
+    "role": "instructor",
+    "title": "Prepare the six-mission classroom",
+    "text": "Welcome to the Silent Lantern instructor overview. This is AI narration over the actual site with isolated demonstration data. Learners enter only a non-identifying team name and your instructor name, plus the rules acknowledgment. Do not collect learner identities, emails or rosters, and keep real customer details out of submissions and feedback. Unlock Instructor with your private password; this recording uses a disposable test password. The first team starts one shared twenty-four-hour window for Silent Lantern, independently of Iron Meridian. Verify the six-mission answer guide and dataset keys before class. Prepare Mission Two as an instructor-led iPhone eight triage demonstration using the shared report. Keep its first actual Major finding distinct from the later U F E D Classic Z T E activity."
+  },
+  {
+    "id": "lantern-instructor-review",
+    "app": "lantern",
+    "role": "instructor",
+    "title": "Review typed flags and written explanations",
+    "text": "Use the review queue for every non-multiple-choice response, including typed flags. Sort by submission time or team name and inspect the evidence, format and explanation. Accept gives the full question points. Accept with feedback gives the same points and saves your coaching. Deny with feedback requires a useful explanation and gives no points. Here one team is accepted, another receives acceptance with feedback, and another must revise. Do not reveal a finished answer in your coaching. A denied response cannot be accepted unchanged: the team must save a revised attempt first. Pending or denied work holds the relevant progression gate. All three decisions and the resulting points are handled inside the application."
+  },
+  {
+    "id": "lantern-instructor-archives",
+    "app": "lantern",
+    "role": "instructor",
+    "title": "Revisions, all-date archives and completion signals",
+    "text": "The team has revised its response, so it returns for a fresh review. Inspect the new attempt and its protected response history, including previous decisions and feedback. Accept it only when it meets the criteria; the points are calculated automatically. Sessions groups team submissions by calendar date in Eastern Time. All authorized instructors can open every previous session, not just those bearing their own instructor name. Archives retain answers, scores and feedback without learner identities or rosters. Completion alerts identify finished teams. Leaderboard exposes only team names, progress bars and percentages. Optional email is a learner-controlled copy, not a grading channel. Keep your feedback and review decisions in the site."
+  },
+  {
+    "id": "lantern-instructor-reopen",
+    "app": "lantern",
+    "role": "instructor",
+    "title": "Reopen the next window without mixing past submissions",
+    "text": "Expiry is simulated by advancing only this demonstration clock. At twenty-four hours the learner pages lock, and the server blocks late registrations, saved-answer changes and submission attempts. Instructor archives and feedback remain available. Once expired, use the instructor password to reopen for the next session. Reopening creates a fresh window, but its clock does not begin until the first new team checks in. Earlier team work remains separate and read-only to learners, while instructors retain review access. The same team names can be reused without merging answers across windows. Before the deadline, remind teams to review feedback and download their results. Keep the instructor password private and use only the supplied training evidence throughout the course."
+  }
+]

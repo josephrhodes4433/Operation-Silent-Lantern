@@ -169,7 +169,7 @@ function Subs({ code }: { code: string }) {
           <li key={s.sessionId}>
             <button onClick={() => setSel(s.sessionId)} aria-pressed={sel === s.sessionId} data-testid={`button-sub-${s.sessionId}`}
               className={`w-full text-left bg-card border p-3 ${sel === s.sessionId ? 'border-primary' : 'border-border hover:bg-muted'}`}>
-              <p className="font-semibold text-sm">{s.name} <span className="font-mono text-xs text-muted-foreground break-words">{s.teamName} · {s.sessionDate}</span></p><p className="text-xs text-muted-foreground">{s.email}</p>
+              <p className="font-semibold text-sm">{s.teamName}</p><p className="font-mono text-xs text-muted-foreground break-words">{s.instructorName} · {s.sessionDate}</p>
               <p className="font-mono text-xs mt-1">{s.totalPoints} pts | {s.answeredCount} answered | mission {Math.min(s.unlockedMission, 6)} | {s.submittedAt ? 'submitted' : 'in progress'}</p>
               <p className={`text-xs font-semibold mt-2 ${s.pendingWrittenReviewCount > 0 ? 'text-primary' : 'text-muted-foreground'}`} data-testid={`text-pending-${s.sessionId}`}>
                 {s.pendingWrittenReviewCount} written {s.pendingWrittenReviewCount === 1 ? 'response' : 'responses'} awaiting review
@@ -202,7 +202,7 @@ function Detail({ sid, headers }: { sid: string; headers: Headers }) {
   const tradeV = trade ?? p.tradecraftBonus > 0;
   return (
     <div className="space-y-3">
-      <h2 className="font-display text-xl font-bold">{p.name} <span className="font-mono text-sm text-muted-foreground break-words">{p.teamName} · {p.sessionDate} | {p.totalPoints} pts</span></h2>
+      <h2 className="font-display text-xl font-bold">{p.teamName} <span className="font-mono text-sm text-muted-foreground break-words">{p.instructorName} · {p.sessionDate} | {p.totalPoints} pts</span></h2>
       <ArchivedResponses progress={p} history={id => <WrittenHistory sid={sid} questionId={id} headers={headers} />} />
       <p className="text-sm text-muted-foreground">Preserved Extraction/SafeGuard is knowledge-based in Mission 1. Review each SIM IMSI against that learner's extraction; an empty SIM is a valid observation when supported by its summary.</p>
       <div className="bg-card border border-border p-4 grid sm:grid-cols-[1fr_1fr_auto] gap-3 items-end" data-testid="panel-bonuses">

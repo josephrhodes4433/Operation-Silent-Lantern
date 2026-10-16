@@ -96,8 +96,9 @@ async function outro(page, line) {
 }
 async function createContext(filePrefix) {
   mkdirSync(rawDir, { recursive: true });
+  const viewport = process.env.CTF_RECORDING_WORKFLOWS === "1" ? { width: 1280, height: 800 } : { width: 1440, height: 1000 };
   const context = await chromium.launchPersistentContext(path.join(work, `profile-${filePrefix}`), {
-    headless: true, viewport: { width: 1440, height: 1000 }, recordVideo: { dir: rawDir, size: { width: 1440, height: 1000 } },
+    headless: true, viewport, recordVideo: { dir: rawDir, size: viewport },
     acceptDownloads: true,
     executablePath: "/nix/store/71577rskzyhch3axhdqx7faygc2xyn4v-playwright-browsers-1.55.0-with-cjk/chromium-1187/chrome-linux/chrome",
     env: { PATH: childEnv.PATH, HOME: work, TMPDIR: work, LANG: childEnv.LANG ?? "C", USER: childEnv.USER ?? "runner", PLAYWRIGHT_BROWSERS_PATH: "/tmp/ctf-video-tools" },
@@ -376,6 +377,8 @@ try {
     ...childEnv, NODE_ENV: "test", CTF_RECORDING_FIXTURE: "ctf-recording-fixture-only",
     CTF_RECORDING_RUN_ID: runId, CTF_RECORDING_WORK: work,
     CTF_DATED_TEAMS_VERIFY: process.env.CTF_DATED_TEAMS_VERIFY === "1" ? "1" : "",
+    CTF_ANONYMOUS_VERIFY: process.env.CTF_ANONYMOUS_VERIFY === "1" ? "1" : "",
+    CTF_RECORDING_WORKFLOWS: process.env.CTF_RECORDING_WORKFLOWS === "1" ? "1" : "",
     DATABASE_URL: `postgres://fixture@127.0.0.1:${port}/postgres?host=${encodeURIComponent(work)}`,
     CTF_INSTRUCTOR_CODE: testCode, CTF_RECORDING_IRON_PUBLIC: ironPublic, CTF_RECORDING_LANTERN_PUBLIC: lanternPublic,
   }, stdio: ["ignore", "inherit", "inherit", "ipc"] });
@@ -389,7 +392,15 @@ try {
   if (proof.marker !== "ctf-recording-fixture-only" || proof.runId !== runId) throw new Error("Fixture marker/run ID mismatch; refusing to record.");
   console.log("Verified isolated fixture", proof);
   const recordings = [];
-  if (process.env.CTF_DATED_TEAMS_VERIFY === "1") {
+  if (process.env.CTF_RECORDING_WORKFLOWS === "1") {
+    const { captureWorkflowGuides } = await import("./src/capture-workflow-guides.mjs");
+    for (const lanternMode of (mode === "both" ? [false, true] : [mode === "lantern"])) {
+      recordings.push(...await captureWorkflowGuides({ base, lanternMode, createContext, outputDir, testCode, runId }));
+    }
+  } else if (process.env.CTF_ANONYMOUS_VERIFY === "1") {
+    const { verifyAnonymousSessions } = await import("./src/verify-anonymous-sessions.mjs");
+    await verifyAnonymousSessions({ base, outputDir, testCode });
+  } else if (process.env.CTF_DATED_TEAMS_VERIFY === "1") {
     const { verifyDatedTeams } = await import("./src/verify-dated-teams.mjs");
     await verifyDatedTeams({ base, outputDir, testCode });
   } else if (process.env.CTF_RECORDING_VERIFY_ONLY === "1") {
@@ -438,7 +449,7 @@ try {
     const iron = await captureApp({ base, title: "IRON MERIDIAN | STUDENT WALKTHROUGH", lanternMode: false });
     console.log("IRON MERIDIAN recorded", iron); recordings.push(iron);
   }
-  if (!process.env.CTF_DATED_TEAMS_VERIFY && !process.env.CTF_RECORDING_UPDATED && !process.env.CTF_RECORDING_VERIFY_ONLY && !process.env.CTF_RECORDING_HOLD && process.env.CTF_RECORDING_INSTRUCTOR !== "1" && mode !== "iron") {
+  if (!process.env.CTF_RECORDING_WORKFLOWS && !process.env.CTF_ANONYMOUS_VERIFY && !process.env.CTF_DATED_TEAMS_VERIFY && !process.env.CTF_RECORDING_UPDATED && !process.env.CTF_RECORDING_VERIFY_ONLY && !process.env.CTF_RECORDING_HOLD && process.env.CTF_RECORDING_INSTRUCTOR !== "1" && mode !== "iron") {
     const lantern = await captureApp({ base, title: "SILENT LANTERN | STUDENT WALKTHROUGH", lanternMode: true });
     console.log("SILENT LANTERN recorded", lantern); recordings.push(lantern);
   }

@@ -13,12 +13,12 @@ import { evaluateLantern, flagFormatValid, hasLanternResponse, lanternQuestions,
 import { changeLantern, getLanternRow, lanternProgress, loadLanternKeys, type LanternRow } from "../lib/lantern-progress";
 import { requireWrittenApproval, reviewLanternResponse, sameLanternResponse } from "../lib/lantern-review";
 import { getLanternHistory } from "../lib/lantern-history";
-import { completionPercentage, createSharedTeam } from "../lib/classroom-teams";
+import { assertAnonymousCheckIn, completionPercentage, createSharedTeam } from "../lib/classroom-teams";
 
 const router: IRouter = Router();
 function input<T>(schema: { parse: (data: unknown) => T }, data: unknown) {
   try { return schema.parse(data); }
-  catch { throw new ClassroomError(400, "Invalid request. Check the required fields, email addresses and response limits."); }
+  catch { throw new ClassroomError(400, "Invalid request. Check the required fields and response limits."); }
 }
 const session = (params: unknown) => input(GetLanternProgressParams, params).sessionId;
 function unlocked(row: LanternRow, keys: Map<number, string[]>, mission: number) {
@@ -28,8 +28,9 @@ router.get("/lantern/activity", async (_req, res) => {
   res.json(publicLanternActivity(await loadLanternKeys()));
 });
 router.post("/lantern/progress", async (req, res) => {
+  assertAnonymousCheckIn(req.body);
   const body = input(CreateLanternProgressBody, req.body);
-  if (!body.roeAcknowledged || !body.name.trim()) throw new ClassroomError(400, "Enter your name and acknowledge the classroom rules of engagement.");
+  if (!body.roeAcknowledged) throw new ClassroomError(400, "Acknowledge the classroom rules of engagement.");
   const row = await createSharedTeam("lantern", body);
   res.json(lanternProgress(row, await loadLanternKeys()));
 });
@@ -126,7 +127,7 @@ router.get("/lantern/instructor/submissions", async (_req, res) => {
       const answer = p.answers[String(question.id)];
       return question.manualReview && answer && hasLanternResponse(answer.value) && answer.reviewStatus === "pending";
     }).length;
-    return { sessionId: p.sessionId, name: p.name, email: p.email, totalPoints: p.totalPoints, answeredCount: p.answeredCount, savedAt: p.savedAt, submittedAt: p.submittedAt, teamNumber: p.teamNumber, teamName: p.teamName, teamMembers: p.teamMembers, sessionDate: p.sessionDate, unlockedMission: p.unlockedMission, authorizationRequested: !!p.authorizationNotes, authorizationGranted: p.authorizationGranted, pendingWrittenReviewCount };
+    return { sessionId: p.sessionId, instructorName: p.instructorName, windowId: p.windowId, totalPoints: p.totalPoints, answeredCount: p.answeredCount, savedAt: p.savedAt, submittedAt: p.submittedAt, teamNumber: p.teamNumber, teamName: p.teamName, sessionDate: p.sessionDate, unlockedMission: p.unlockedMission, authorizationRequested: !!p.authorizationNotes, authorizationGranted: p.authorizationGranted, pendingWrittenReviewCount };
   }));
 });
 router.get("/lantern/instructor/submissions/:sessionId", async (req, res) => {
@@ -146,7 +147,7 @@ router.put("/lantern/instructor/submissions/:sessionId/review/:questionId", asyn
   res.json(await changeLantern(sessionId, async (row, _keys, record) => {
     reviewLanternResponse(row, questionId, decision, question.points, note, responseUpdatedAt);
     await record(questionId, "reviewed");
-  }));
+  }, true));
 });
 router.put("/lantern/instructor/submissions/:sessionId/authorization", async () => {
   throw new ClassroomError(410, "Preservation is knowledge-based in Mission 1; authorization grants are retired.");
@@ -156,7 +157,7 @@ router.put("/lantern/instructor/submissions/:sessionId/adjustments", async (req,
   res.json(await changeLantern(session(req.params), row => {
     row.speed_bonus = speedBonus;
     row.tradecraft_bonus = tradecraftBonus ? 5 : 0;
-  }));
+  }, true));
 });
 const handleError: ErrorRequestHandler = (error, _req, res, next) => {
   if (error instanceof ClassroomError) res.status(error.status).json({ error: error.message });

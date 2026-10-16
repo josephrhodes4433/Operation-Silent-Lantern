@@ -3,8 +3,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getGetCtfProgressQueryKey, useSaveCtfAnswer } from '@workspace/api-client-react';
 import type { CtfAnswer, CtfAnswerResult, CtfProgress, CtfQuestion } from '@workspace/api-client-react';
 import { CheckCircle2, CircleDashed, Clock, XCircle } from 'lucide-react';
+import { getGetCtfWindowQueryKey } from '@workspace/api-client-react';
 import { btn, field } from '@/components/shell';
-import { clearDraft, FINAL_LIMIT, loadDraft, queueSave, storeDraft, wordCount } from '@/lib/ctf';
+import { errStatus, clearDraft, FINAL_LIMIT, loadDraft, queueSave, storeDraft, wordCount } from '@/lib/ctf';
 
 type Val = string | string[];
 const isEmpty = (v: Val) => (Array.isArray(v) ? v.length === 0 : v.trim() === '');
@@ -52,7 +53,7 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
         });
         qc.invalidateQueries({ queryKey: getGetCtfProgressQueryKey(sessionId) });
       })
-      .catch(() => { if (mounted.current) { setPending(false); setFailed(true); } });
+      .catch((e: unknown) => { if (errStatus(e) === 423) void qc.invalidateQueries({ queryKey: getGetCtfWindowQueryKey() }); if (mounted.current) { setPending(false); setFailed(true); } });
   };
 
   const change = (v: Val) => {
@@ -87,7 +88,7 @@ export function QuestionCard({ q, sessionId, saved, isFinal }: { q: CtfQuestion;
       <div className="p-5 space-y-5">
         <p id={`${id}-p`} className="text-lg leading-snug font-medium">{q.prompt}</p>
         {q.kind === 'single' && typeof value === 'string' && value && !q.options.includes(value) && <p className="text-sm bg-muted p-3 break-words" data-testid={`previous-answer-${q.id}`}>Previously saved response: {value}. It is retained and still graded. Choose an option if you want to update it.</p>}
-        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Your team's saved answer is reviewed by an instructor. Accepted responses earn full points; denied ones need a revision. Editing an accepted response sends it back for review.</p>}
+        {q.manualReview && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Written response. Do not enter real learner or customer information. Your team's saved answer is reviewed by an instructor. Accepted responses earn full points; denied ones need a revision. Editing an accepted response sends it back for review.</p>}
         {!q.manualReview && !q.correctAnswerAvailable && <p className="text-sm text-muted-foreground border-l-2 border-accent pl-3">Answer key not yet configured. Your response will be saved and marked pending.</p>}
 
         {(q.kind === 'single' || q.kind === 'multiple') && (

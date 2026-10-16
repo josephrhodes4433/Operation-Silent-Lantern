@@ -8,26 +8,6 @@ const fmtDay = (ymd: string) => {
   const [y, m, d] = ymd.split('-').map(Number);
   return new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', dateStyle: 'full' }).format(new Date(Date.UTC(y, m - 1, d)));
 };
-
-type Team = { key: string; name: string; members: string[]; subs: CtfSubmissionSummary[] };
-
-function buildTeams(rows: CtfSubmissionSummary[]): Team[] {
-  const map = new Map<string, Team>();
-  for (const s of rows) {
-    const label = (s.teamName ?? '').trim() || 'Unnamed team';
-    const key = label.toLowerCase();
-    const t = map.get(key) ?? { key, name: label, members: [], subs: [] };
-    t.subs.push(s);
-    for (const m of [...(s.teamMembers ?? []), s.name]) {
-      const v = (m ?? '').trim();
-      if (v && !t.members.some((x) => x.toLowerCase() === v.toLowerCase())) t.members.push(v);
-    }
-    map.set(key, t);
-  }
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-}
-
-const latest = (xs: string[]) => xs.reduce((a, b) => (new Date(b) > new Date(a) ? b : a));
 const wrap = 'break-words [overflow-wrap:anywhere]';
 
 export function SessionArchives({ submissions, onOpen }: { submissions: CtfSubmissionSummary[]; onOpen: (sessionId: string) => void }) {
@@ -36,7 +16,7 @@ export function SessionArchives({ submissions, onOpen }: { submissions: CtfSubmi
   const groups = useMemo(() => {
     const byDate = new Map<string, CtfSubmissionSummary[]>();
     for (const s of submissions) byDate.set(s.sessionDate, [...(byDate.get(s.sessionDate) ?? []), s]);
-    return [...byDate.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([d, rows]) => ({ date: d, teams: buildTeams(rows) }));
+    return [...byDate.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([d, rows]) => ({ date: d, rows: [...rows].sort((x, y) => x.teamName.localeCompare(y.teamName)) }));
   }, [submissions]);
   const shown = date === 'all' ? groups : groups.filter((g) => g.date === date);
 
@@ -45,7 +25,7 @@ export function SessionArchives({ submissions, onOpen }: { submissions: CtfSubmi
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id={`${selId}-h`} className="font-display text-xl font-bold">Session archive</h2>
-          <p className="text-sm text-muted-foreground">One table per start date (Eastern Time), newest first. Earlier sessions stay available.</p>
+          <p className="text-sm text-muted-foreground">One table per calendar date (Eastern Time), newest first. Earlier sessions stay available.</p>
         </div>
         <div>
           <label htmlFor={selId} className="block text-xs font-mono uppercase text-muted-foreground">Session date</label>
@@ -56,7 +36,7 @@ export function SessionArchives({ submissions, onOpen }: { submissions: CtfSubmi
           </select>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">All instructors with valid access can open every recorded date. Older submissions may list only the originally recorded learner; their dates use the recorded submission date or, if not submitted, the last-saved date.</p>
+      <p className="text-xs text-muted-foreground">Every authorized instructor can open every recorded date. Records hold team name, instructor name, date, scores and responses only. Sessions from earlier windows are read-only.</p>
 
       {!shown.length && (
         <div className="bg-card border border-dashed p-8 text-center" data-testid="panel-no-sessions">
@@ -67,47 +47,34 @@ export function SessionArchives({ submissions, onOpen }: { submissions: CtfSubmi
 
       {shown.map((g) => (
         <div key={g.date} className="space-y-2" data-testid={`session-date-${g.date}`}>
-          <h3 className="font-display font-bold">{fmtDay(g.date)} <span className="font-mono text-xs text-muted-foreground">{g.teams.length} {g.teams.length === 1 ? 'team' : 'teams'}</span></h3>
+          <h3 className="font-display font-bold">{fmtDay(g.date)} <span className="font-mono text-xs text-muted-foreground">{g.rows.length} {g.rows.length === 1 ? 'team' : 'teams'}</span></h3>
           <div className="overflow-x-auto border border-border bg-card" tabIndex={0} role="region" aria-label={`Teams for ${fmtDay(g.date)}, scrollable`}>
             <table className="w-full min-w-[640px] text-sm text-left border-collapse">
-              <caption className="sr-only">Teams and members that started on {fmtDay(g.date)}, Eastern Time</caption>
+              <caption className="sr-only">Teams that started on {fmtDay(g.date)}, Eastern Time</caption>
               <thead className="bg-muted text-xs font-mono uppercase text-muted-foreground">
                 <tr>
                   <th scope="col" className="p-3 font-medium">Team</th>
-                  <th scope="col" className="p-3 font-medium">Members</th>
+                  <th scope="col" className="p-3 font-medium">Instructor</th>
                   <th scope="col" className="p-3 font-medium">Saved / submitted</th>
-                  <th scope="col" className="p-3 font-medium">Responses</th>
+                  <th scope="col" className="p-3 font-medium">Score and responses</th>
                 </tr>
               </thead>
               <tbody>
-                {g.teams.map((t) => (
-                  <tr key={t.key} className="border-t border-border align-top">
-                    <th scope="row" className={`p-3 font-semibold max-w-[14rem] ${wrap}`}>{t.name}</th>
-                    <td className={`p-3 max-w-[16rem] ${wrap}`}>
-                      <ul className="space-y-0.5">{t.members.map((m) => <li key={m}>{m}</li>)}</ul>
+                {g.rows.map((s) => (
+                  <tr key={s.sessionId} className="border-t border-border align-top">
+                    <th scope="row" className={`p-3 font-semibold max-w-[14rem] ${wrap}`}>{s.teamName}{s.windowId === null && <span className="block font-mono text-[10px] uppercase text-muted-foreground">Legacy, read-only</span>}</th>
+                    <td className={`p-3 max-w-[14rem] ${wrap}`}>{s.instructorName}</td>
+                    <td className="p-3 text-xs">
+                      <span className="block">Saved {fmtStamp(s.savedAt)}</span>
+                      <span className={`block font-semibold ${s.submittedAt ? '' : 'text-muted-foreground'}`}>{s.submittedAt ? `Submitted ${fmtStamp(s.submittedAt)}` : 'Saved, not submitted'}</span>
                     </td>
-                    <td className="p-3 text-xs space-y-2">
-                      {t.subs.map((s) => (
-                        <p key={s.sessionId} className={wrap}>
-                          <span className="block">Saved {fmtStamp(s.savedAt)}</span>
-                          <span className={`block font-semibold ${s.submittedAt ? '' : 'text-muted-foreground'}`}>
-                            {s.submittedAt ? `Submitted ${fmtStamp(s.submittedAt)}` : 'Saved, not submitted'}
-                          </span>
-                        </p>
-                      ))}
-                      {t.subs.length > 1 && <span className="block text-muted-foreground">Latest save {fmtStamp(latest(t.subs.map((s) => s.savedAt)))}</span>}
-                    </td>
-                    <td className="p-3 space-y-2">
-                      {t.subs.map((s) => (
-                        <div key={s.sessionId} className="space-y-1">
-                          <p className={`font-mono text-xs ${wrap}`}>{s.name} | {s.totalPoints} pts | {s.answeredCount} answered</p>
-                          <button type="button" onClick={() => onOpen(s.sessionId)} data-testid={`button-open-${s.sessionId}`}
-                            aria-label={`Open responses for ${s.name}, team ${t.name}`}
-                            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-                            Open responses
-                          </button>
-                        </div>
-                      ))}
+                    <td className="p-3 space-y-1">
+                      <p className="font-mono text-xs">{s.totalPoints} pts | {s.answeredCount} answered</p>
+                      <button type="button" onClick={() => onOpen(s.sessionId)} data-testid={`button-open-${s.sessionId}`}
+                        aria-label={`Open responses for team ${s.teamName}`}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+                        Open responses
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -5,11 +5,13 @@ import { evaluateLantern, hasLanternResponse, hintTexts, lanternQuestions, missi
 import { reviewGate } from "./lantern-review";
 import { appendLanternHistory } from "./lantern-history";
 import { bootstrapTeams, recordCompletion, teamSessionDate } from "./classroom-teams";
+import { requireTeamWindow } from "./classroom-window";
 
 export type Progress = ReturnType<typeof GetLanternProgressResponse.parse>;
 export interface LanternRow {
   session_id: string; name: string; email: string; instructor_email: string; team_number: number; team_name?: string | null;
   team_members?: string[] | null; session_date?: string | Date | null;
+  instructor_name?: string | null; window_id?: string | null;
   answers: Progress["answers"]; authorization_notes: string; authorization_granted: boolean;
   hints: number[]; speed_bonus: number; tradecraft_bonus: number;
   saved_at: Date; submitted_at: Date | null;
@@ -47,9 +49,9 @@ export function lanternProgress(row: LanternRow, keys: Map<number, string[]>) {
   const currentHints = row.hints.filter(id => id >= 101 && id <= 106);
   const penaltyPoints = currentHints.length * 2;
   return GetLanternProgressResponse.parse({
-    sessionId: row.session_id, name: row.name, email: row.email, instructorEmail: row.instructor_email, teamNumber: row.team_number,
+    sessionId: row.session_id, teamNumber: row.team_number, instructorName: row.instructor_name || "Not recorded", windowId: row.window_id ?? null,
     teamName: row.team_name ?? `Team ${row.team_number}`,
-    teamMembers: row.team_members ?? [row.name], sessionDate: teamSessionDate(row),
+    sessionDate: teamSessionDate(row),
     archivedAnswers: Object.fromEntries(Object.entries(row.answers).filter(([id]) => Number(id) <= 18).map(([id, answer]) => [id, {
       ...answer, correct: answer.correct ?? null, earnedPoints: answer.earnedPoints ?? 0, status: answer.status ?? "manual",
     }])),
@@ -69,7 +71,7 @@ export async function getLanternRow(sessionId: string) {
 }
 // Serialize all session writes so autosaves, hint debits and instructor reviews
 // cannot overwrite each other's JSON responses or administrative changes.
-export async function changeLantern(sessionId: string, action: (row: LanternRow, keys: Map<number, string[]>, record: (questionId: number, event: "submitted" | "reviewed") => Promise<void>) => void | Promise<void>) {
+export async function changeLantern(sessionId: string, action: (row: LanternRow, keys: Map<number, string[]>, record: (questionId: number, event: "submitted" | "reviewed") => Promise<void>) => void | Promise<void>, instructorAction = false) {
   await bootstrapTeams("lantern");
   const client = await pool.connect();
   try {
@@ -77,6 +79,7 @@ export async function changeLantern(sessionId: string, action: (row: LanternRow,
     const result = await client.query<LanternRow>("SELECT * FROM lantern_progress WHERE session_id=$1 FOR UPDATE", [sessionId]);
     const row = result.rows[0];
     if (!row) throw new ClassroomError(404, "Saved session not found.");
+    if (!instructorAction) await requireTeamWindow("lantern", row.window_id, client);
     const keys = await loadLanternKeys(client);
     await action(row, keys, (questionId, event) => appendLanternHistory(client, row, questionId, event));
     const updated = await client.query<LanternRow>(

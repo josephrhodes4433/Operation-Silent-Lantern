@@ -1,12 +1,15 @@
-import { date, jsonb, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { date, jsonb, pgTable, text, timestamp, integer, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const ctfProgressTable = pgTable("ctf_progress", {
   sessionId: text("session_id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  instructorEmail: text("instructor_email").notNull(),
+  // Compatibility columns are always blank; personal identities are not collected.
+  name: text("name").notNull().default(""),
+  email: text("email").notNull().default(""),
+  instructorEmail: text("instructor_email").notNull().default(""),
+  instructorName: text("instructor_name"),
+  windowId: uuid("window_id"),
   teamNumber: integer("team_number"),
   teamName: text("team_name"),
   teamMembers: jsonb("team_members").$type<string[]>(),

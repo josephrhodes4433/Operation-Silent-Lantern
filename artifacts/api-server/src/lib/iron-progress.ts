@@ -4,12 +4,14 @@ import { evaluate, requiresReview, type Question } from "./ctf-activity";
 import { bootstrapTeams, hasResponse, recordCompletion, teamSessionDate } from "./classroom-teams";
 import { loadQuestions } from "./ctf-question-authoring";
 import { ClassroomError } from "./instructor-access";
+import { requireTeamWindow } from "./classroom-window";
 
 export type Progress = ReturnType<typeof GetCtfProgressResponse.parse>;
 export interface ProgressRow {
   session_id: string; name: string; email: string; instructor_email: string;
   team_number: number | null; team_name?: string | null; answers: Progress["answers"]; saved_at: Date; submitted_at: Date | null;
   team_members?: string[] | null; session_date?: string | Date | null;
+  instructor_name?: string | null; window_id?: string | null;
 }
 export async function loadKeys(connection: Pick<typeof pool, "query"> = pool) {
   const result = await connection.query<{ question_id: number; accepted_answers: string[] }>("SELECT question_id,accepted_answers FROM ctf_keys");
@@ -31,16 +33,16 @@ export function toProgress(row: ProgressRow, keys: Map<number, string[]>, questi
     } else answers[id] = { ...answer, ...grade };
   }
   return GetCtfProgressResponse.parse({
-    sessionId: row.session_id, name: row.name, email: row.email, instructorEmail: row.instructor_email, teamNumber: row.team_number,
+    sessionId: row.session_id, teamNumber: row.team_number, instructorName: row.instructor_name || "Not recorded", windowId: row.window_id ?? null,
     teamName: row.team_name ?? (row.team_number == null ? "Unassigned team" : `Team ${row.team_number}`),
-    teamMembers: row.team_members ?? [row.name], sessionDate: teamSessionDate(row),
+    sessionDate: teamSessionDate(row),
     answers, totalPoints: Object.values(answers).reduce((sum, answer) => sum + answer.earnedPoints, 0),
     answeredCount: Object.values(answers).filter(a => hasResponse(a.value)).length,
     savedAt: row.saved_at, submittedAt: row.submitted_at,
   });
 }
 
-export async function changeIron(sessionId: string, action: (row: ProgressRow, keys: Map<number, string[]>, questions: Question[]) => void | Promise<void>) {
+export async function changeIron(sessionId: string, action: (row: ProgressRow, keys: Map<number, string[]>, questions: Question[]) => void | Promise<void>, instructorAction = false) {
   await bootstrapTeams("ctf");
   const client = await pool.connect();
   try {
@@ -48,6 +50,7 @@ export async function changeIron(sessionId: string, action: (row: ProgressRow, k
     const result = await client.query<ProgressRow>("SELECT * FROM ctf_progress WHERE session_id=$1 FOR UPDATE", [sessionId]);
     const row = result.rows[0];
     if (!row) throw new ClassroomError(404, "Saved team submission not found.");
+    if (!instructorAction) await requireTeamWindow("ctf", row.window_id, client);
     const keys = await loadKeys(client);
     const questions = await loadQuestions();
     await action(row, keys, questions);

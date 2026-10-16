@@ -6,11 +6,12 @@ export const classroomTeamsTable = pgTable("classroom_teams", {
   teamNumber: integer("team_number").notNull(),
   teamName: text("team_name"),
   sessionDate: date("session_date", { mode: "string" }),
+  windowId: uuid("window_id"),
   sessionId: text("session_id").notNull(),
 }, t => [
   primaryKey({ columns: [t.activity, t.teamNumber] }),
   uniqueIndex("classroom_team_session_idx").on(t.activity, t.sessionId),
-  uniqueIndex("classroom_team_date_name_idx").on(t.activity, t.sessionDate, sql`lower(${t.teamName})`),
+  uniqueIndex("classroom_team_window_name_idx").on(t.activity, t.windowId, sql`lower(${t.teamName})`),
 ]);
 
 export const classroomNotificationsTable = pgTable("classroom_notifications", {

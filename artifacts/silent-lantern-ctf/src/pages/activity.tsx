@@ -2,103 +2,78 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  getGetLanternProgressQueryKey, useCreateLanternProgress, useGetLanternActivity, useGetLanternProgress,
+  getGetLanternProgressQueryKey, useCreateLanternProgress, getGetLanternWindowQueryKey, useGetLanternActivity, useGetLanternProgress,
   useUseLanternHint,
 } from '@workspace/api-client-react';
 import type { LanternProgress } from '@workspace/api-client-react';
 import { ArrowLeft, ArrowRight, Check, Lightbulb, Lock } from 'lucide-react';
+import { useActivityWindow, isArchivedSession } from '@/lib/window';
+import { ArchivedNotice } from '@/components/window-gate';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost, field } from '@/components/shell';
 import { QuestionCard } from '@/components/question-card';
 import { ArchivedResponses } from '@/components/archived-responses';
 import { type Session, errMessage, errStatus, hasResponse, isDone, loadSession, orderedQuestions, reviewCounts, storeSession } from '@/lib/ctf';
-import { clearCheckInDraft, loadCheckInDraft, loadLearnerProfile, storeCheckInDraft, type CheckInDraft } from '@/lib/check-in';
 
 function Onboarding({ onDone }: { onDone: (s: Session) => void }) {
+  const qc = useQueryClient();
   const create = useCreateLanternProgress();
-  const [f, setF] = useState(loadCheckInDraft);
-  const [editDetails, setEditDetails] = useState(() => {
-    const p = loadLearnerProfile();
-    return !p || !f.firstName.trim() || !f.lastName.trim() || p.name !== f.name || p.email !== f.email || p.instructorEmail !== f.instructorEmail;
-  });
-  const [identityError, setIdentityError] = useState('');
-  const change = (next: CheckInDraft) => {
-    next = { ...next, name: `${next.firstName.trim()} ${next.lastName.trim()}`.trim() };
-    setF(next); storeCheckInDraft(next); setIdentityError('');
-  };
-  const [roe, setRoe] = useState(false);
+  const [team, setTeam] = useState('');
+  const [instructor, setInstructor] = useState('');
   const [resume, setResume] = useState('');
+  const [roe, setRoe] = useState(false);
   const resumeRef = useRef<HTMLInputElement>(null);
-  const teamName = f.team.trim();
-  const teamOk = teamName.length > 0 && teamName.length <= 60;
+  const teamName = team.trim(), instructorName = instructor.trim();
+  const ok = teamName.length > 0 && teamName.length <= 60 && instructorName.length > 0 && instructorName.length <= 140 && roe;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.firstName.trim() || !f.lastName.trim() || f.name.trim().length > 140) {
-      setIdentityError('Enter both first and last name, using no more than 140 characters in total.');
-      setEditDetails(true);
-      return;
-    }
-    if (!teamOk || !roe) return;
-    const additionalTeamMembers = (f.additionalMembers ?? '').split(/\r?\n/).map(n => n.trim()).filter(Boolean);
-    if (additionalTeamMembers.length > 29 || additionalTeamMembers.some(n => n.length > 140)) {
-      setIdentityError('Enter up to 29 additional team members, one full name per line (140 characters maximum each).'); return;
-    }
-    storeCheckInDraft(f);
-    const s: Session = { sessionId: f.sessionId, name: f.name.trim(), firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), instructorEmail: f.instructorEmail.trim(), teamName };
-    create.mutate({ data: { sessionId: s.sessionId, name: s.name, email: s.email, instructorEmail: s.instructorEmail, teamName, additionalTeamMembers, roeAcknowledged: true } },
-      { onSuccess: (p) => {
-        const saved: Session = { ...s, sessionId: p.sessionId, name: p.name, email: p.email, instructorEmail: p.instructorEmail, teamNumber: p.teamNumber, teamName: p.teamName };
-        storeSession(saved); clearCheckInDraft(); onDone(saved);
-      } });
+    if (!ok) return;
+    const sessionId = crypto.randomUUID();
+    create.mutate({ data: { sessionId, teamName, instructorName, roeAcknowledged: true as const } }, {
+      onSuccess: async (p) => {
+        // Refresh the shared window first so the new session is never mistaken for an earlier one.
+        await qc.invalidateQueries({ queryKey: getGetLanternWindowQueryKey() });
+        const saved: Session = { sessionId: p.sessionId, teamName: p.teamName, instructorName: p.instructorName };
+        storeSession(saved); onDone(saved);
+      },
+      onError: (err) => { if (errStatus(err) === 423) void qc.invalidateQueries({ queryKey: getGetLanternWindowQueryKey() }); },
+    });
   };
+  const status = create.isError ? errStatus(create.error) : undefined;
   return (
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 max-w-4xl rise">
-      <form onSubmit={submit} className="bg-card border border-border p-6 space-y-4" aria-labelledby="ob-h">
-        <Eyebrow>Analyst onboarding</Eyebrow>
-        <h1 id="ob-h" className="font-display text-3xl font-bold">Check in to the mission</h1>
-        <p className="text-sm text-muted-foreground">Enter your details once. We reuse them for every mission, save and instructor email draft.</p>
-        {!editDetails && <div className="bg-muted p-3 space-y-1" data-testid="saved-learner-details">
-          <p className="text-sm font-semibold">{f.name}</p>
-          <p className="text-sm break-all">{f.email}</p>
-          <p className="text-xs text-muted-foreground break-all">Instructor: {f.instructorEmail}</p>
-          <button type="button" className="text-sm text-primary underline" onClick={() => setEditDetails(true)} data-testid="button-edit-learner-details">Edit details / different learner</button>
-        </div>}
-        {editDetails && ([['firstName', 'First name', 'text'], ['lastName', 'Last name', 'text'], ['email', 'Learner email address', 'email'], ['instructorEmail', 'Instructor email address', 'email']] as const).map(([k, l, t]) => (
-          <div key={k}>
-            <label htmlFor={`f-${k}`} className="block text-sm font-medium mb-1">{l}</label>
-            <input id={`f-${k}`} name={k} required type={t} maxLength={t === 'text' ? 70 : 254} className={field} value={f[k]} data-testid={`input-${k}`}
-              autoComplete={k === 'firstName' ? 'given-name' : k === 'lastName' ? 'family-name' : k === 'email' ? 'email' : 'off'}
-              onChange={(e) => change({ ...f, [k]: e.target.value })} />
-          </div>
-        ))}
+      <form onSubmit={submit} className="bg-card border border-border p-6 space-y-4" aria-labelledby="ob-h" autoComplete="off">
+        <Eyebrow>Team check-in</Eyebrow>
+        <h1 id="ob-h" className="font-display text-3xl font-bold">Begin activity</h1>
+        <p className="text-sm text-muted-foreground">Two details only: your team name and your instructor's name. No personal profile is collected.</p>
         <div>
           <label htmlFor="f-team" className="block text-sm font-medium mb-1">Team name</label>
-          <input id="f-team" required type="text" maxLength={60} placeholder="e.g. Night Watch" className={field} value={f.team} data-testid="input-teamName" onChange={(e) => change({ ...f, team: e.target.value })} />
-          <p className="text-xs text-muted-foreground mt-1">Choose a name for today's group. Sessions are grouped by calendar date in Eastern Time.</p>
+          <input id="f-team" required type="text" maxLength={60} autoComplete="off" placeholder="e.g. Night Watch" className={field} value={team} data-testid="input-teamName" onChange={(e) => setTeam(e.target.value)} />
         </div>
         <div>
-          <label htmlFor="f-members" className="block text-sm font-medium mb-1">Additional team members</label>
-          <textarea id="f-members" rows={3} maxLength={4200} className={field} value={f.additionalMembers ?? ''} onChange={e => change({ ...f, additionalMembers: e.target.value })} data-testid="input-teamMembers" aria-describedby="members-help" />
-          <p id="members-help" className="text-xs text-muted-foreground mt-1">One full name per line, up to 29 others. Your name above is included automatically. The roster is private to your team and instructors.</p>
+          <label htmlFor="f-instructor" className="block text-sm font-medium mb-1">Instructor name</label>
+          <input id="f-instructor" required type="text" maxLength={140} autoComplete="off" className={field} value={instructor} data-testid="input-instructorName" onChange={(e) => setInstructor(e.target.value)} />
+          <p className="text-xs text-muted-foreground mt-1">The staff member running your class.</p>
         </div>
         <label className="flex gap-3 items-start text-sm border border-border p-3 cursor-pointer">
           <input type="checkbox" required checked={roe} onChange={(e) => setRoe(e.target.checked)} className="mt-1 accent-[hsl(var(--primary))]" data-testid="checkbox-roe" />
           <span>I have read the rules of engagement on the Mission page and agree to follow them.</span>
         </label>
-        <p className="text-xs text-muted-foreground">Your details are remembered in this browser. Your name, emails and responses are saved for instructor review. Your team shares ONE saved submission. On another device, use your private resume link instead of checking in again. Share that link only with your teammates; anyone holding it can continue the team's session.</p>
-        {identityError && <p role="alert" className="text-sm text-destructive">{identityError}</p>}
-        {create.isError && <ErrorPanel title={errStatus(create.error) === 409 ? 'Team already has a submission' : 'Could not start'} message={errStatus(create.error) === 409
-          ? `${errMessage(create.error, 'A submission already exists for this team.')} Each team shares one saved submission. Ask a teammate for the private resume link and use it instead of creating a new one.`
-          : errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />}
-        {create.isError && errStatus(create.error) === 409 && <button type="button" className={btnGhost} onClick={() => resumeRef.current?.focus()} data-testid="button-use-resume">Resume with a teammate's link</button>}
-        <button className={btn} disabled={create.isPending || !roe || !teamOk} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
+        <p className="text-xs text-muted-foreground" data-testid="text-privacy-notice">Do not enter real learner, customer or case information anywhere in this activity, including written responses. Use fictional or generic details. Your team shares ONE saved submission, tied to a private resume key stored in this browser. Share the resume link only with your teammates; anyone holding it can continue the team's session.</p>
+        {create.isError && (status === 423
+          ? <ErrorPanel title="Activity window is closed" message="The shared window has ended or changed. Checking the clock now." />
+          : <ErrorPanel title={status === 409 ? 'Team already has a submission' : 'Could not start'} message={status === 409
+            ? `${errMessage(create.error, 'A submission already exists for this team.')} Each team shares one saved submission. Ask a teammate for the private resume link and use it instead of creating a new one.`
+            : errMessage(create.error, 'The server rejected the details. Check the fields and retry.')} />)}
+        {status === 409 && <button type="button" className={btnGhost} onClick={() => resumeRef.current?.focus()} data-testid="button-use-resume">Resume with a teammate's link</button>}
+        <button className={btn} disabled={create.isPending || !ok} data-testid="button-start">{create.isPending ? 'Starting...' : 'Start activity'}</button>
       </form>
       <div className="space-y-3 self-start bg-secondary text-secondary-foreground p-6">
         <h2 className="font-display text-xl font-bold">Returning analyst?</h2>
         <p className="text-sm text-white/70">Paste your team's private resume key (or open the resume link) to continue where you left off. Share that link only with your teammates.</p>
         <label htmlFor="resume" className="sr-only">Resume key</label>
-        <input id="resume" ref={resumeRef} className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
+        <input id="resume" ref={resumeRef} autoComplete="off" className={`${field} text-foreground font-mono`} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="xxxxxxxx-xxxx-..." data-testid="input-resume" />
         <button className={btnGhost + ' text-foreground'} disabled={resume.trim().length < 8}
-          onClick={() => { const s = { sessionId: resume.trim(), name: '', email: '', instructorEmail: '' }; storeSession(s); onDone(s); }} data-testid="button-resume">Resume session</button>
+          onClick={() => { const s: Session = { sessionId: resume.trim() }; storeSession(s); onDone(s); }} data-testid="button-resume">Resume session</button>
       </div>
     </div>
   );
@@ -133,10 +108,11 @@ export default function Activity() {
   const qc = useQueryClient();
   const [session, setSession] = useState<Session | null>(() => {
     const r = new URLSearchParams(window.location.search).get('resume');
-    if (r) { const s = { sessionId: r, name: '', email: '', instructorEmail: '' }; storeSession(s); return s; }
+    if (r) { const s = { sessionId: r }; storeSession(s); return s; }
     return loadSession();
   });
   const act = useGetLanternActivity();
+  const win = useActivityWindow();
   const sid = session?.sessionId ?? '';
   const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const [idx, setIdx] = useState(0);
@@ -145,10 +121,9 @@ export default function Activity() {
   const qs = useMemo(() => (act.data ? orderedQuestions(act.data) : []), [act.data]);
 
   useEffect(() => {
-    if (session && prog.data?.name) {
-      const s = { sessionId: session.sessionId, name: prog.data.name, email: prog.data.email, instructorEmail: prog.data.instructorEmail, teamNumber: prog.data.teamNumber, teamName: prog.data.teamName };
-      storeSession(s);
-      if (JSON.stringify(s) !== JSON.stringify(session)) setSession(s);
+    if (session && prog.data && (session.teamName !== prog.data.teamName || session.instructorName !== prog.data.instructorName)) {
+      const s: Session = { sessionId: session.sessionId, teamName: prog.data.teamName, instructorName: prog.data.instructorName };
+      storeSession(s); setSession(s);
     }
   }, [prog.data, session]);
 
@@ -188,6 +163,8 @@ export default function Activity() {
     );
   }
 
+  if (isArchivedSession(prog.data.windowId, win.window)) return <Shell><ArchivedNotice onNew={() => { storeSession(null); setSession(null); }} /></Shell>;
+
   const a = act.data, p = prog.data;
   const unlocked = p.unlockedMission;
   const cur = qs[Math.min(idx, qs.length - 1)];
@@ -210,7 +187,7 @@ export default function Activity() {
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <aside className="space-y-4 lg:sticky lg:top-4 self-start" aria-label="Progress">
           <div className="bg-secondary text-secondary-foreground p-4 space-y-3">
-            <p className="font-mono text-xs uppercase tracking-widest text-white/60 break-words">{p.name || 'Analyst'} | {p.teamName}</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-white/60 break-words">{p.teamName} | {p.instructorName}</p>
             <p className="font-display text-3xl font-bold" data-testid="text-score">{p.totalPoints}<span className="text-base text-white/60"> / {a.totalPoints} pts</span></p>
             <p className="text-xs text-white/70" data-testid="text-adjust">Hints -{p.penaltyPoints} | speed +{p.speedBonus} | tradecraft +{p.tradecraftBonus}</p>
             <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Correct or accepted" className="h-2 bg-white/15"><div className="h-full bg-accent" style={{ width: `${pct}%` }} /></div>

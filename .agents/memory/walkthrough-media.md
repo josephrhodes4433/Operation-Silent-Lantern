@@ -20,3 +20,9 @@ Keep completed recordings durable independently of the disposable classroom fixt
 **Why:** Temporary recording storage and the workspace can be on different filesystems. A completed instructor capture was lost when an atomic move failed and fixture cleanup removed the temporary recording.
 
 **How to apply:** Copy and verify completed media into the ignored artifact directory before tearing down a fixture. Keep successful captures and speech when a later export or another activity fails; retry only the incomplete stage.
+
+Browser checks without recording do not validate Playwright's recording runtime.
+
+**Why:** Chromium testing passed, but video capture could not launch because Playwright's expected FFmpeg cache had disappeared from temporary storage.
+
+**How to apply:** Preflight the FFmpeg executable expected by the installed Playwright version, not only Chromium. Recreate the temporary runtime link from an available compatible FFmpeg when necessary; do not reinstall the browser blindly.

@@ -9,13 +9,12 @@ import type { CtfProgressAnswers } from './ctfProgressAnswers';
 
 export interface CtfProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
   /** @nullable */
   teamNumber?: number | null;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   answers: CtfProgressAnswers;

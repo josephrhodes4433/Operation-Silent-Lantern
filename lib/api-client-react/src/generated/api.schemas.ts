@@ -193,38 +193,26 @@ export interface CtfProgressInput {
   sessionId: string;
   /**
      * @minLength 1
-     * @maxLength 140
-     */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
-  /**
-     * @minLength 1
      * @maxLength 60
      */
   teamName: string;
   /**
-     * Additional full names; the registered learner is automatically included in the roster.
-     * @maxItems 29
-     * @items.minLength 1
-     * @items.maxLength 140
+     * @minLength 1
+     * @maxLength 140
      */
-  additionalTeamMembers?: string[];
+  instructorName: string;
 }
 
 export type CtfProgressAnswers = {[key: string]: CtfAnswer};
 
 export interface CtfProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
   /** @nullable */
   teamNumber?: number | null;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   answers: CtfProgressAnswers;
@@ -305,14 +293,14 @@ export interface CtfReviewInput {
 
 export interface CtfSubmissionSummary {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber?: number | null;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
-  email: string;
   totalPoints: number;
   answeredCount: number;
   savedAt: string;
@@ -334,10 +322,10 @@ export type TeamLeaderboard = TeamLeaderboardItem[];
 
 export type ReviewQueueItem = {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber: number | null;
   teamName: string;
+  instructorName: string;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   questionId: number;
@@ -362,6 +350,27 @@ export type CompletionNotificationsItem = {
 };
 
 export type CompletionNotifications = CompletionNotificationsItem[];
+
+export type ActivityWindowState = typeof ActivityWindowState[keyof typeof ActivityWindowState];
+
+
+export const ActivityWindowState = {
+  not_started: 'not_started',
+  open: 'open',
+  expired: 'expired',
+} as const;
+
+export interface ActivityWindow {
+  state: ActivityWindowState;
+  /** @nullable */
+  windowId: string | null;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  expiresAt: string | null;
+  serverNow: string;
+  durationHours: 24;
+}
 
 export type LanternWrittenHistoryEntryEvent = typeof LanternWrittenHistoryEntryEvent[keyof typeof LanternWrittenHistoryEntryEvent];
 
@@ -465,25 +474,14 @@ export interface LanternLearnerInput {
   sessionId: string;
   /**
      * @minLength 1
-     * @maxLength 140
-     */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
-  /**
-     * @minLength 1
      * @maxLength 60
      */
   teamName: string;
   /**
-     * Additional full names; the registered learner is automatically included.
-     * @maxItems 29
-     * @items.minLength 1
-     * @items.maxLength 140
+     * @minLength 1
+     * @maxLength 140
      */
-  additionalTeamMembers?: string[];
+  instructorName: string;
 }
 
 export type LanternProgressInput = LanternLearnerInput & {
@@ -533,11 +531,10 @@ export type LanternBaseProgressAnswers = {[key: string]: LanternAnswer};
 
 export interface LanternBaseProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   answers: LanternBaseProgressAnswers;
@@ -574,10 +571,10 @@ export type LanternProgress = LanternBaseProgress & ({
 
 export interface LanternBaseSubmissionSummary {
   sessionId: string;
-  name: string;
-  email: string;
   teamName: string;
-  teamMembers: string[];
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
   /** @pattern ^\d{4}-\d{2}-\d{2}$ */
   sessionDate: string;
   totalPoints: number;

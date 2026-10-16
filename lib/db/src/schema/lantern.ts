@@ -1,10 +1,13 @@
-import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const lanternProgressTable = pgTable("lantern_progress", {
   sessionId: text("session_id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  instructorEmail: text("instructor_email").notNull(),
+  // Compatibility columns are always blank; personal identities are not collected.
+  name: text("name").notNull().default(""),
+  email: text("email").notNull().default(""),
+  instructorEmail: text("instructor_email").notNull().default(""),
+  instructorName: text("instructor_name"),
+  windowId: uuid("window_id"),
   teamNumber: integer("team_number").notNull(),
   teamName: text("team_name"),
   teamMembers: jsonb("team_members").$type<string[]>(),

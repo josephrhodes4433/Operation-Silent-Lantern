@@ -6,7 +6,7 @@ import { errMessage } from '@/lib/ctf';
 
 const SORTS: [QueueSort, string][] = [
   ['time_asc', 'Submitted: oldest first'], ['time_desc', 'Submitted: newest first'],
-  ['name_asc', 'Name: A to Z'], ['name_desc', 'Name: Z to A'],
+  ['name_asc', 'Team name: A to Z'], ['name_desc', 'Team name: Z to A'],
 ];
 
 export function ReviewQueue({ code }: { code: string }) {
@@ -44,7 +44,7 @@ export function ReviewQueue({ code }: { code: string }) {
               <li key={`${it.sessionId}-${it.questionId}`} className="bg-card border border-border" data-testid={`queue-item-${it.sessionId}-${it.questionId}`}>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 bg-muted/60 border-b border-border text-xs font-mono">
                   <span className="bg-secondary text-secondary-foreground px-2 py-0.5 break-words">{it.teamName} · {it.sessionDate}</span>
-                  <span className="font-semibold text-sm font-sans">{it.name}</span>
+                  <span className="font-semibold text-sm font-sans">{it.instructorName}</span>
                   <span className="text-primary">{it.code || `Flag ${it.questionId}`}</span>
                   <span>{it.points} pts</span>
                   <time className="ml-auto text-muted-foreground" dateTime={it.updatedAt}>Submitted {new Date(it.updatedAt).toLocaleString()}</time>
