@@ -23,7 +23,9 @@ subprocesses. No managed classroom workflows are repointed.
 
 Coverage: access gate, lazy per-question expansion/collapse, empty history,
 chronological versions, newly saved approval and feedback without reload or
-polling, learner switching with a delayed response, locking with a delayed
+polling, learner switching with a delayed response, a failed history request
+with a visible error and explicit Retry (polling paused), learner/question
+isolation during the held retry and after recovery, locking with a delayed
 response, stopped polling, unauthorized history requests, reload, and fresh
 unlock. Existing API history tests remain responsible for persistence,
 migrations, rollback, stale approvals and concurrent reviews.
