@@ -20,11 +20,11 @@ Preserve earlier work as read-only archives when question meaning changes. Earli
 
 **How to apply:** Separate grading identity for substantial curriculum revisions while retaining records, history, names, emails, and resume links. Do not delete old work to simplify an update.
 
-SILENT LANTERN is intended to be a separate Replit project, not just a second website inside IRON MERIDIAN's project.
+Both CTFs are intended to be separate Replit projects, not two websites inside one project. Separation must preserve the current content, appearance, functionality and saved work; do not bundle unrelated changes.
 
-**Why:** After the initial side-by-side copy, the user explicitly requested “Seperate this as a seperate project.”
+**Why:** After requesting a separate SILENT LANTERN project, the user reiterated: “two individual apps instead of both of them inside this one project” and “do not change anything else.”
 
-**How to apply:** Keep SILENT LANTERN independently runnable, with its own backend, database and secret configuration. Do not describe a different URL inside the shared workspace as completing project separation.
+**How to apply:** Each app needs independent runtime, backend, database and secret configuration. Do not describe a different URL or downloadable source package as completing live project separation. Keep the source intact until destination records, settings and apps are verified.
 
 When the two sites are published together, give SILENT LANTERN explicit runtime ownership of its full URL namespace rather than relying on a second static SPA fallback. Keep any remaining IRON rewrites restricted to IRON routes.
 

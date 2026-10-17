@@ -844,3 +844,31 @@ mtime_ms = 1792173221128
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/dfd629da-a521-443f-9e78-772e047cb7f0/4dc2ad41-4259-4fc3-bb87-cc99cd9dd03d"
 storage_version_token = "1792173317922450"
 content_type = "application/pdf"
+
+[[outputs]]
+id = "FD9UWCK8wXw03EPi846yi"
+uri = "file://generated-artifacts/separate-ctf-apps/IRON-MERIDIAN-Independent-App.zip"
+type = "unspecified"
+title = "IRON MERIDIAN — Independent App"
+description = "Verified standalone source package. Includes its website, backend, database schema, and saved-data transfer checklist. No secrets or live records included."
+logical_id = "abe8d103-4768-4d32-9b80-03a25e9ae34a"
+content_hash = "sha256:53ff8619f24dd75a2f4bc960cc45fe83cce3a3d94e9feb570ae136bb85e7e8f8"
+size = 296745
+mtime_ms = 1792196115357
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/abe8d103-4768-4d32-9b80-03a25e9ae34a/add09783-541d-4a13-8ffa-ad99e867626b"
+storage_version_token = "1792196194969633"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "kYcd1TWv9l7DbzYUyyavf"
+uri = "file://generated-artifacts/separate-ctf-apps/SILENT-LANTERN-Independent-App.zip"
+type = "unspecified"
+title = "SILENT LANTERN — Independent App"
+description = "Verified standalone source package. Includes its website, backend, database schema, and saved-data transfer checklist. No secrets or live records included."
+logical_id = "c3467bae-05e7-4d2b-9fdc-fdd4bbbd4f58"
+content_hash = "sha256:60d31e3730e4b23b83ed634493ef42cae6cae80d373a9fb78b1858f47ff95c99"
+size = 1194172
+mtime_ms = 1792196147165
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/c3467bae-05e7-4d2b-9fdc-fdd4bbbd4f58/d8f31699-6c8a-4e29-b50b-ffd13f3faed6"
+storage_version_token = "1792196195584536"
+content_type = "application/octet-stream"

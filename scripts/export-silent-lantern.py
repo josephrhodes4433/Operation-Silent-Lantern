@@ -379,7 +379,7 @@ or the conflicting eight-phase narrative as additional graded missions.
         with zipfile.ZipFile(destination) as archive:
             assert archive.testzip() is None
             assert all("node_modules" not in name for name in archive.namelist())
-        print(f"Verified standalone project: {destination.relative_to(ROOT)}")
+        print(f"Verified standalone project: {os.path.relpath(destination, ROOT)}")
         print(f"{len(paths)} source/resource files; {destination.stat().st_size:,} bytes.")
 
 
