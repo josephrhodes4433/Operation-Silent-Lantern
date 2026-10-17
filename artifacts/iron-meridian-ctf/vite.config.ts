@@ -1,7 +1,7 @@
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -27,9 +27,28 @@ if (!basePath) {
   );
 }
 
+function legacyEntryRedirects(): Plugin {
+  return {
+    name: 'iron-legacy-entry-redirects',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (basePath === '/') return next();
+        const [pathname, ...query] = (req.url ?? '/').split('?');
+        if (!/^\/(?:activity\/?|results\/?|leaderboard\/?|instructor\/?|index\.html)?$/.test(pathname)) return next();
+        res.writeHead(308, {
+          Location: `${basePath}${pathname.slice(1)}${query.length ? '?' + query.join('?') : ''}`,
+          'Cache-Control': 'no-store',
+        });
+        res.end();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   base: basePath,
   plugins: [
+    legacyEntryRedirects(),
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),

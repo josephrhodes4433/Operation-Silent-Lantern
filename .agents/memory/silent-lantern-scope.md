@@ -20,13 +20,13 @@ Preserve earlier work as read-only archives when question meaning changes. Earli
 
 **How to apply:** Separate grading identity for substantial curriculum revisions while retaining records, history, names, emails, and resume links. Do not delete old work to simplify an update.
 
-Both CTFs are intended to be separate Replit projects, not two websites inside one project. Separation must preserve the current content, appearance, functionality and saved work; do not bundle unrelated changes.
+Keep both CTFs together in this Replit project with distinct named URL paths. Preserve current content, appearance, functionality and saved work; do not bundle unrelated changes.
 
-**Why:** After requesting a separate SILENT LANTERN project, the user reiterated: “two individual apps instead of both of them inside this one project” and “do not change anything else.”
+**Why:** After learning that separate projects require manual imports and data transfer, the user changed direction: “keep the projects together but make two distinct URLs that pertain to each project without changing anything else.” This supersedes the earlier separate-project requirement.
 
-**How to apply:** Each app needs independent runtime, backend, database and secret configuration. Do not describe a different URL or downloadable source package as completing live project separation. Keep the source intact until destination records, settings and apps are verified.
+**How to apply:** Scope work to URL routing and backward compatibility. Do not move databases, transfer secrets, remove either app, or turn the standalone export packages into a required setup step. Preserve existing resume links when changing paths.
 
-When the two sites are published together, give SILENT LANTERN explicit runtime ownership of its full URL namespace rather than relying on a second static SPA fallback. Keep any remaining IRON rewrites restricted to IRON routes.
+Give each site's production handler explicit ownership of its full URL namespace rather than relying on overlapping static SPA fallbacks.
 
 **Why:** The shared publication showed actual IRON MERIDIAN questions at the SILENT LANTERN URL. Replacing catch-all rewrites with scoped rewrites still failed after a confirmed republish. Static handler registration and correct separate builds were not sufficient evidence of correct live routing.
 

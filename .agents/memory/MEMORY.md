@@ -1,5 +1,5 @@
 - [Optional email privacy](email-delivery.md) — email copies are optional, recipients are transient, and in-app submissions and feedback are authoritative.
-- [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions; latest feedback supersedes old questions; archive older approvals; separate-project requirement.
+- [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions; latest feedback controls; archive older approvals; keep both CTFs together with distinct URLs.
 - [Orval external YAML references](orval-yaml-references.md) — avoid YAML aliases sharing $ref objects across external paths; the resolver mutates shared nodes.
 - [Calendar-date contracts](calendar-date-contracts.md) — Orval date coercion can turn calendar dates into timestamps; verify literal YYYY-MM-DD wire values.
 - [Classroom test isolation](classroom-test-isolation.md) — browser regressions must not replace shared dataset keys or use the real instructor credential.

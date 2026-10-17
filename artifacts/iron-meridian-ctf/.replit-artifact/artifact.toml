@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/"
+previewPath = "/iron-meridian/"
 title = "IRON MERIDIAN CTF"
 description = "A Cellebrite Analysis for Defense and Intelligence capture-the-flag assessment site. Students work through 120 sequential flags, receive immediate validation where answer keys are configured, save their progress and written responses, and submit work for instructor review. Instructors configure dataset-dependent answer keys and the review email address."
 version = "1.0.0"
@@ -16,41 +16,13 @@ run = "pnpm --filter @workspace/iron-meridian-ctf run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/iron-meridian-ctf", "run", "build" ]
-serve = "static"
-publicDir = "artifacts/iron-meridian-ctf/dist/public"
 
-[[services.production.rewrites]]
-from = "/activity"
-to = "/index.html"
+[services.production.run]
+args = [ "node", "artifacts/iron-meridian-ctf/server.mjs" ]
 
-[[services.production.rewrites]]
-from = "/activity/"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/results"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/results/"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/leaderboard"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/leaderboard/"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/instructor"
-to = "/index.html"
-
-[[services.production.rewrites]]
-from = "/instructor/"
-to = "/index.html"
+[services.production.health.startup]
+path = "/iron-meridian/__site_health"
 
 [services.env]
 PORT = "25140"
-BASE_PATH = "/"
+BASE_PATH = "/iron-meridian/"
