@@ -8,7 +8,7 @@ router = "path"
 
 [[services]]
 name = "web"
-paths = [ "/silent-lantern/" ]
+paths = [ "/silent-lantern" ]
 localPort = 18303
 
 [services.development]
@@ -16,16 +16,12 @@ run = "pnpm --filter @workspace/silent-lantern-ctf run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/silent-lantern-ctf", "run", "build" ]
-serve = "static"
-publicDir = "artifacts/silent-lantern-ctf/dist/public"
 
-[[services.production.rewrites]]
-from = "/silent-lantern"
-to = "/silent-lantern/index.html"
+[services.production.run]
+args = [ "node", "artifacts/silent-lantern-ctf/server.mjs" ]
 
-[[services.production.rewrites]]
-from = "/silent-lantern/*"
-to = "/silent-lantern/index.html"
+[services.production.health.startup]
+path = "/silent-lantern/__site_health"
 
 [services.env]
 PORT = "18303"

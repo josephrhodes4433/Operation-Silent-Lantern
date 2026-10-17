@@ -26,11 +26,11 @@ SILENT LANTERN is intended to be a separate Replit project, not just a second we
 
 **How to apply:** Keep SILENT LANTERN independently runnable, with its own backend, database and secret configuration. Do not describe a different URL inside the shared workspace as completing project separation.
 
-When the two sites are published together, keep production SPA rewrites restricted to each site's URL namespace; do not introduce a deployment-wide `/*` fallback to the root index.
+When the two sites are published together, give SILENT LANTERN explicit runtime ownership of its full URL namespace rather than relying on a second static SPA fallback. Keep any remaining IRON rewrites restricted to IRON routes.
 
-**Why:** The shared publication was reported to show actual IRON MERIDIAN questions at the SILENT LANTERN URL while both artifacts declared root-index catch-all rewrites. Their separate frontend builds alone did not prevent the wrong activity from appearing.
+**Why:** The shared publication showed actual IRON MERIDIAN questions at the SILENT LANTERN URL. Replacing catch-all rewrites with scoped rewrites still failed after a confirmed republish. Static handler registration and correct separate builds were not sufficient evidence of correct live routing.
 
-**How to apply:** Check both artifacts' rewrite rules together, preserve the SILENT LANTERN prefix in destinations, and exclude API and other artifact paths from IRON fallbacks. Preview success does not verify production rewrites; changes require republishing and checking the published routes.
+**How to apply:** Production handlers must consume the full base path because the proxy does not strip it. Verify the actual production handler against built pages and assets, reject other namespaces, and distinguish local checks from live verification. Preview success alone is insufficient; publish changes and check the live route when authorized access is available.
 
 The later triage email clarifies the beta: use the instructor-kit **iPhone 8**, with an instructor demonstration/shared saved report because beta learners have no kits. The simplest offline profile matches the actual kit IMEI; known planted contact/message indicators can support an expanded, pre-tested profile with Major/Minor priorities. The kit ZTE does not expose Triage through the needed Advanced extraction workflow.
 
