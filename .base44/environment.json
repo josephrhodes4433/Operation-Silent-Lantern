@@ -1,0 +1,8 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/api/healthz",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {"name": "CTF_INSTRUCTOR_CODE", "description": "Passcode you choose for the Instructor pages (instructor endpoints return 503 without it)", "requiredAtBoot": false}
+  ]
+}

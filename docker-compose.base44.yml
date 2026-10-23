@@ -1,0 +1,110 @@
+x-node: &node
+  image: node:24
+  working_dir: /app
+  volumes:
+    - ./:/app
+    - node_modules:/app/node_modules
+  environment: &nodeenv
+    CI: "true"
+    DATABASE_URL: postgres://ctf:ctf@db:5432/ctf
+    BASE44_PREVIEW_MODE:
+  env_file:
+    - /run/base44/app.env
+
+services:
+  db:
+    image: postgres:16
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ctf
+      POSTGRES_PASSWORD: ctf
+      POSTGRES_DB: ctf
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ctf -d ctf"]
+      interval: 5s
+      retries: 10
+    labels: { base44.project: Postgres, base44.kind: infra }
+
+  setup:
+    <<: *node
+    command: ["sh", "-ec", "npm i -g pnpm@10 >/dev/null && pnpm install --frozen-lockfile && pnpm --filter @workspace/db run push-force"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    <<: *node
+    restart: on-failure
+    environment:
+      <<: *nodeenv
+      PORT: "8080"
+      NODE_ENV: development
+    command: ["sh", "-ec", "npm i -g pnpm@10 >/dev/null && cd artifacts/api-server && pnpm run build && exec node --enable-source-maps ./dist/index.mjs"]
+    depends_on:
+      setup: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/api/healthz >/dev/null || (echo api failed; exit 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    labels: { base44.project: API Server, base44.kind: api, base44.port: "3000" }
+
+  iron-meridian:
+    <<: *node
+    restart: on-failure
+    environment:
+      <<: *nodeenv
+      PORT: "25140"
+      BASE_PATH: /
+      CHOKIDAR_USEPOLLING: "true"
+    command: ["sh", "-ec", "npm i -g pnpm@10 >/dev/null && exec pnpm --filter @workspace/iron-meridian-ctf run dev"]
+    depends_on:
+      setup: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:25140/ >/dev/null || (echo iron-meridian failed; exit 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels: { base44.project: IRON MERIDIAN CTF, base44.kind: web, base44.port: "3000" }
+
+  silent-lantern:
+    <<: *node
+    restart: on-failure
+    environment:
+      <<: *nodeenv
+      PORT: "18303"
+      BASE_PATH: /silent-lantern/
+      CHOKIDAR_USEPOLLING: "true"
+    command: ["sh", "-ec", "npm i -g pnpm@10 >/dev/null && exec pnpm --filter @workspace/silent-lantern-ctf run dev"]
+    depends_on:
+      setup: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:18303/silent-lantern/ >/dev/null || (echo silent-lantern failed; exit 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels: { base44.project: SILENT LANTERN CTF, base44.kind: web, base44.port: "3000" }
+
+  proxy:
+    image: nginx:alpine
+    restart: on-failure
+    ports: ["3000:80"]
+    volumes:
+      - ./.base44/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api: { condition: service_healthy }
+      iron-meridian: { condition: service_healthy }
+      silent-lantern: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  node_modules:
