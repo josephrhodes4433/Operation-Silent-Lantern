@@ -47,11 +47,11 @@ try {
   await call("GET", "/instructor/keys", undefined, 401);
   await call("POST", "/instructor/verify", {code: CODE}, 200);
   await call("GET", "/progress/not-a-uuid", undefined, 400);
-  const details = {sessionId: sid, name: "Verification team", email: "learner@example.test", instructorEmail: "instructor@example.test", teamNumber: 3, roeAcknowledged: true};
+  const details = {sessionId: sid, teamName: "Verification team", instructorName: "Training instructor", roeAcknowledged: true};
   await call("POST", "/progress", {...details, roeAcknowledged: false}, 400);
   await call("POST", "/progress", details);
-  await call("POST", "/progress", {...details, name: "Cannot overwrite"});
-  assert.equal((await progress()).name, details.name);
+  await call("POST", "/progress", {...details, teamName: "Cannot overwrite"});
+  assert.equal((await progress()).teamName, details.teamName);
   await save(5, "ALIAS:Harbor", 403);
   assert.equal((await save(1, "B. Triage Scan first, then targeted extractions")).earnedPoints, 5);
   assert.equal((await save(2, "CASE:JTF-0427-TEAM4")).correct, false);
@@ -134,7 +134,7 @@ try {
   assert.ok(list.some((row: {sessionId: string; teamNumber: number}) => row.sessionId === sid && row.teamNumber === 3));
   const resumed = await progress();
   assert.equal(resumed.answeredCount, 18);
-  assert.equal(resumed.name, details.name);
+  assert.equal(resumed.teamName, details.teamName);
   await call("PUT", `/instructor/submissions/${sid}/authorization`, {granted: false}, 200, true);
   assert.equal((await progress()).trainingAuthorizationCode, null);
   assert.equal((await progress()).unlockedMission, 5);

@@ -15,9 +15,49 @@ tags:
   - name: instructor
     description: Instructor-only answer-key and review operations
 paths:
+  /ctf/window:
+    get:
+      operationId: getCtfWindow
+      responses:
+        "200":
+          description: Server-authoritative shared 24-hour activity window
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
+  /lantern/window:
+    get:
+      operationId: getLanternWindow
+      responses:
+        "200":
+          description: Server-authoritative shared 24-hour activity window
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
+  /ctf/instructor/window/reopen:
+    post:
+      operationId: reopenCtfWindow
+      responses:
+        "200":
+          description: Instructor password verified; next window ready for its first team
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
+  /lantern/instructor/window/reopen:
+    post:
+      operationId: reopenLanternWindow
+      responses:
+        "200":
+          description: Instructor password verified; next window ready for its first team
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ActivityWindow" }
   /ctf/leaderboard:
     get:
       operationId: getCtfLeaderboard
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
       responses:
         "200":
           description: Public team completion only
@@ -27,6 +67,10 @@ paths:
   /lantern/leaderboard:
     get:
       operationId: getLanternLeaderboard
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
       responses:
         "200":
           description: Public team completion only
@@ -658,22 +702,21 @@ components:
         reviewStatus: { type: string, enum: [pending, approved, denied] }
     CtfProgressInput:
       type: object
-      required: [sessionId, name, email, instructorEmail, teamNumber]
+      required: [sessionId, teamName, instructorName]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string, minLength: 1, maxLength: 140 }
-        email: { type: string, format: email, maxLength: 254 }
-        instructorEmail: { type: string, format: email, maxLength: 254 }
-        teamNumber: { type: integer, minimum: 1, maximum: 9999 }
+        teamName: { type: string, minLength: 1, maxLength: 60 }
+        instructorName: { type: string, minLength: 1, maxLength: 140 }
     CtfProgress:
       type: object
-      required: [sessionId, name, email, instructorEmail, answers, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, teamName, instructorName, windowId, sessionDate, answers, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, format: email }
-        instructorEmail: { type: string, format: email }
         teamNumber: { type: ["integer", "null"] }
+        teamName: { type: string }
+        instructorName: { type: string }
+        windowId: { type: ["string", "null"], format: uuid }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         answers:
           type: object
           additionalProperties:
@@ -745,12 +788,14 @@ components:
         responseUpdatedAt: { type: string, format: date-time }
     CtfSubmissionSummary:
       type: object
-      required: [sessionId, name, email, totalPoints, answeredCount, savedAt, submittedAt]
+      required: [sessionId, teamName, instructorName, windowId, sessionDate, totalPoints, answeredCount, savedAt, submittedAt]
       properties:
         sessionId: { type: string, format: uuid }
-        name: { type: string }
         teamNumber: { type: ["integer", "null"] }
-        email: { type: string, format: email }
+        teamName: { type: string }
+        instructorName: { type: string }
+        windowId: { type: ["string", "null"], format: uuid }
+        sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
         totalPoints: { type: integer }
         answeredCount: { type: integer }
         savedAt: { type: string, format: date-time }
@@ -759,19 +804,22 @@ components:
       type: array
       items:
         type: object
-        required: [teamNumber, percentage]
+        required: [teamNumber, teamName, percentage]
         properties:
           teamNumber: { type: integer }
+          teamName: { type: string }
           percentage: { type: integer, minimum: 0, maximum: 100 }
     ReviewQueue:
       type: array
       items:
         type: object
-        required: [sessionId, name, teamNumber, questionId, code, prompt, value, points, updatedAt]
+        required: [sessionId, teamNumber, teamName, instructorName, sessionDate, questionId, code, prompt, value, points, updatedAt]
         properties:
           sessionId: { type: string, format: uuid }
-          name: { type: string }
           teamNumber: { type: ["integer", "null"] }
+          teamName: { type: string }
+          instructorName: { type: string }
+          sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
           questionId: { type: integer }
           code: { type: string }
           prompt: { type: string }
@@ -782,10 +830,22 @@ components:
       type: array
       items:
         type: object
-        required: [id, teamNumber, completedAt, readAt]
+        required: [id, teamNumber, teamName, sessionDate, completedAt, readAt]
         properties:
           id: { type: string, format: uuid }
           teamNumber: { type: integer }
+          teamName: { type: string }
+          sessionDate: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
           completedAt: { type: string, format: date-time }
           readAt: { type: ["string", "null"], format: date-time }
+    ActivityWindow:
+      type: object
+      required: [state, windowId, startedAt, expiresAt, serverNow, durationHours]
+      properties:
+        state: { type: string, enum: [not_started, open, expired] }
+        windowId: { type: ["string", "null"], format: uuid }
+        startedAt: { type: ["string", "null"], format: date-time }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        serverNow: { type: string, format: date-time }
+        durationHours: { type: integer, const: 24 }
 

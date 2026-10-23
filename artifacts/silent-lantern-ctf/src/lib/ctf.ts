@@ -1,19 +1,30 @@
 import type { LanternActivity, LanternProgress, LanternQuestion } from '@workspace/api-client-react';
-import { rememberLearner } from './check-in';
 
 const KEY = 'silent-lantern-session';
-export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number }
+export interface Session { sessionId: string; teamName?: string; instructorName?: string }
 
 export function loadSession(): Session | null {
   try {
+    purgeLegacyIdentity();
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
+    if (!raw) return null;
+    const o = JSON.parse(raw) as Record<string, unknown>;
+    if (!o || typeof o.sessionId !== 'string' || !o.sessionId) { localStorage.removeItem(KEY); return null; }
+    // Keep only the private resume token, team name and instructor name.
+    const clean: Session = { sessionId: o.sessionId };
+    if (typeof o.teamName === 'string') clean.teamName = o.teamName;
+    if (typeof o.instructorName === 'string') clean.instructorName = o.instructorName;
+    const out = JSON.stringify(clean);
+    if (out !== raw) localStorage.setItem(KEY, out);
+    return clean;
   } catch { return null; }
 }
 export function storeSession(s: Session | null) {
   if (s) {
-    localStorage.setItem(KEY, JSON.stringify(s));
-    rememberLearner(s);
+    const clean: Session = { sessionId: s.sessionId };
+    if (s.teamName) clean.teamName = s.teamName;
+    if (s.instructorName) clean.instructorName = s.instructorName;
+    localStorage.setItem(KEY, JSON.stringify(clean));
   } else localStorage.removeItem(KEY);
 }
 export function resumeLink(sessionId: string) {
@@ -84,7 +95,7 @@ export const clearAuthDraft = (s: string, saved: string) => {
 };
 
 export function buildResultsText(a: LanternActivity, p: LanternProgress): string {
-  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, `Team: ${p.teamNumber}`,
+  const lines = [`${a.title} - results`, `Team: ${p.teamName}`, `Instructor: ${p.instructorName}`, `Session date (Eastern Time): ${p.sessionDate}`,
     `Score: ${p.totalPoints} / ${a.totalPoints} points (hint penalty ${p.penaltyPoints}, speed bonus ${p.speedBonus}, tradecraft bonus ${p.tradecraftBonus})`,
     `Answered: ${p.answeredCount} / ${a.totalFlags}`, `Saved: ${p.savedAt}`, ''];
   for (const q of orderedQuestions(a)) {
@@ -104,16 +115,9 @@ export function buildResultsText(a: LanternActivity, p: LanternProgress): string
 }
 export function buildWrittenEmailBody(a: LanternActivity, p: LanternProgress): string {
   const written = orderedQuestions(a).filter((q) => q.manualReview || q.kind === 'long' || q.isFinalSummary);
-  return [`Analyst: ${p.name}`, `Student email: ${p.email}`, `Team: ${p.teamNumber}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
+  return [`Team: ${p.teamName}`, `Instructor: ${p.instructorName}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
     ...written.flatMap((q) => [`${q.code}: ${q.prompt}`, p.answers[String(q.id)] ? asText(p.answers[String(q.id)].value) : '(not answered)', '']),
   ].join('\n');
-}
-export function buildMailto(a: LanternActivity, p: LanternProgress): string {
-  const full = buildWrittenEmailBody(a, p);
-  const body = encodeURIComponent(full).length > 6000
-    ? `Analyst: ${p.name}\nStudent email: ${p.email}\nTeam: ${p.teamNumber}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy written responses are in the results text file. Please attach the downloaded results file before sending, or paste the copied written responses here.`
-    : full;
-  return `mailto:${encodeURIComponent(p.instructorEmail)}?subject=${encodeURIComponent(`${a.title} - Team ${p.teamNumber} - ${p.name}`)}&body=${encodeURIComponent(body)}`;
 }
 
 type Reviewable = { value: string | string[]; status: string; reviewStatus?: 'pending' | 'approved' | 'denied' };
@@ -141,4 +145,27 @@ export function reviewCounts(qs: { id: number; manualReview: boolean }[], answer
     if (an.reviewStatus === 'denied') denied++; else if (an.reviewStatus !== 'approved') pending++;
   }
   return { pending, denied };
+}
+
+const LEGACY_KEY = /learner-profile|check-in|checkin/i;
+/** Remove identity data stored by earlier versions (profiles, check-in drafts). */
+export function purgeLegacyIdentity() {
+  try {
+    for (const k of Object.keys(localStorage)) if (LEGACY_KEY.test(k)) localStorage.removeItem(k);
+  } catch { /* storage unavailable */ }
+}
+purgeLegacyIdentity();
+
+export function mailDraftNotice() { return 'Do not include real learner or customer information.'; }
+export function buildMailDraft(a: LanternActivity, p: LanternProgress, recipient: string): { href: string; oversize: boolean } {
+  const full = buildWrittenEmailBody(a, p);
+  const oversize = encodeURIComponent(full).length > 6000;
+  const body = oversize
+    ? `Team: ${p.teamName}\nInstructor: ${p.instructorName}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy responses are too long for this draft. Attach the downloaded results text file before sending. It was NOT attached automatically.`
+    : full;
+  return { href: `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(`${a.title} - ${p.teamName}`)}&body=${encodeURIComponent(body)}`, oversize };
+}
+export function downloadResults(a: LanternActivity, p: LanternProgress) {
+  const url = URL.createObjectURL(new Blob([buildResultsText(a, p)], { type: 'text/plain' }));
+  const el = document.createElement('a'); el.href = url; el.download = 'silent-lantern-results.txt'; el.click(); URL.revokeObjectURL(url);
 }

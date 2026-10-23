@@ -172,8 +172,8 @@ try {
     ["00000000-0000-4000-8000-000000000011", "987654321098765"],
   ]) {
     const created = GetLanternProgressResponse.parse(await call("/progress", "POST", {
-      sessionId: learnerId, name: "Synthetic Feedback Learner", email: "feedback@example.test",
-      instructorEmail: "teacher@example.test", teamNumber: 3, roeAcknowledged: true,
+      sessionId: learnerId, teamName: "Synthetic Feedback Team",
+      instructorName: "Training Instructor", roeAcknowledged: true,
     }));
     assert.equal(created.reviewGateQuestionId, 107);
     assert.equal(created.authorizationGranted, false);
@@ -218,11 +218,10 @@ try {
     assert.equal(resumed.answers["117"].value, `IMSI:${imsi}`);
     assert.equal(resumed.answers["124"].correct, true);
     const duplicate = GetLanternProgressResponse.parse(await call("/progress", "POST", {
-      sessionId: learnerId, name: "Must not overwrite", email: "other@example.test",
-      instructorEmail: "other-teacher@example.test", teamNumber: 4, roeAcknowledged: true,
+      sessionId: learnerId, teamName: "Must not overwrite",
+      instructorName: "Another Instructor", roeAcknowledged: true,
     }));
-    assert.equal(duplicate.name, "Synthetic Feedback Learner");
-    assert.equal(duplicate.teamNumber, 3);
+    assert.equal(duplicate.teamName, "Synthetic Feedback Team");
   }
   const legacyProgress = GetLanternProgressResponse.parse(await call(`/progress/${oldSid}`));
   assert.equal(legacyProgress.archivedAnswers?.["6"].value, "Legacy response");

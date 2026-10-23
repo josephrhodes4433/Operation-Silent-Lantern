@@ -153,6 +153,74 @@ test('private instructor histories expand, refresh, follow learner selection, an
     await expect(page.locator('body')).not.toContainText('Alpha newly saved private approval');
   });
 
+  await test.step('failed history stays scoped to the selected learner and Retry recovers the correct question', async () => {
+    // Bravo is selected after Alpha's history was viewed, so stale cross-learner
+    // data would be observable. Fail only Bravo question 6, including automatic
+    // attempts, until the error panel offers an explicit retry.
+    const pattern = `**${historyPath(bravo)}`;
+    let failures = 0;
+    await page.route(pattern, async route => {
+      failures++;
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Synthetic history service unavailable' }),
+      });
+    });
+    const history = page.getByTestId('history-6');
+    const assertNoAlphaHistory = async () => {
+      await expect(page.locator('body')).not.toContainText('Alpha original private response');
+      await expect(page.locator('body')).not.toContainText('Alpha revised private response');
+      await expect(page.locator('body')).not.toContainText('Alpha private revision feedback');
+      await expect(page.locator('body')).not.toContainText('Alpha newly saved private approval');
+      await expect(page.getByTestId('history-7')).toHaveCount(0);
+    };
+    try {
+      await page.getByTestId('button-history-6').click();
+      const error = history.getByRole('alert');
+      await expect(error).toBeVisible({ timeout: 15_000 });
+      await expect(error).toContainText('Could not load response history');
+      await expect(error.getByRole('button', { name: 'Try again', exact: true })).toBeVisible();
+      await expect(history.locator(':scope > ol > li')).toHaveCount(0);
+      await expect(page.getByTestId('review-6')).toContainText('Bravo private response');
+      await assertNoAlphaHistory();
+      expect(failures).toBeGreaterThan(0);
+
+      // Stop polling so recovery must be caused by clicking Retry, not by the
+      // five-second interval. The held response comes from the disposable API.
+      await page.clock.pauseAt(new Date());
+      await page.unroute(pattern);
+      const retry = await holdHistory(page, bravo);
+      const before = historyRequests.length;
+      const recovered = page.waitForResponse(response => response.url().endsWith(historyPath(bravo)));
+      try {
+        await error.getByRole('button', { name: 'Try again', exact: true }).click();
+        await retry.seen;
+        expect(historyRequests.slice(before)).toEqual([historyPath(bravo)]);
+        await expect(page.getByTestId('button-history-6')).toHaveAttribute('aria-expanded', 'true');
+        await expect(page.getByTestId('review-6')).toContainText('Bravo private response');
+        await assertNoAlphaHistory();
+      } finally {
+        await retry.release();
+      }
+      expect((await recovered).ok()).toBeTruthy();
+      await page.clock.runFor(100);
+      await expect(history.getByRole('alert')).toHaveCount(0);
+      await expect(history.getByRole('button', { name: 'Try again', exact: true })).toHaveCount(0);
+      const entries = history.locator(':scope > ol > li');
+      await expect(entries).toHaveCount(1);
+      await expect(entries.first()).toContainText('Version 1 | Imported latest snapshot | pending');
+      await expect(entries.first()).toContainText('Bravo private response');
+      await assertNoAlphaHistory();
+      expect(historyRequests.slice(before)).toEqual([historyPath(bravo)]);
+      await page.getByTestId('button-history-6').click();
+      await expect(history).toHaveCount(0);
+    } finally {
+      await page.unroute(pattern);
+      await page.clock.resume();
+    }
+  });
+
   await test.step('lock hides private data even when a history response arrives late', async () => {
     const late = await holdHistory(page, bravo);
     await page.getByTestId('button-history-6').click();

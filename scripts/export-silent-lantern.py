@@ -120,6 +120,7 @@ def export(destination):
             "src/lib/lantern-answer-guide.ts",
             "src/lib/lantern-choice-feedback.ts",
             "src/lib/classroom-teams.ts",
+            "src/lib/classroom-window.ts",
             "src/routes/health.ts", "src/routes/lantern.ts", "src/routes/classroom.ts",
             "src/tests/lantern-history.test.ts",
             "tests/lantern-triage-email.test.ts",
@@ -155,7 +156,7 @@ router.use(classroomRouter);
 router.use(lanternRouter);
 export default router;
 """)
-        write(stage, "lib/db/src/schema/index.ts", 'export * from "./lantern";\nexport * from "./classroom-teams";\n')
+        write(stage, "lib/db/src/schema/index.ts", 'export * from "./lantern";\nexport * from "./classroom-teams";\nexport * from "./classroom-windows";\n')
         (stage / "lib/db/src/schema/ctf.ts").unlink(missing_ok=True)
 
         app = (stage / "artifacts/api-server/src/app.ts").read_text()
@@ -294,7 +295,9 @@ projects and their saved records have not been deleted or changed.
 ## Features
 
 - Six UFED-only missions, 26 responses, 165 base points
-- Names, team numbers, learner email and instructor email
+- Anonymous check-in: non-identifying team name and instructor name only
+- Shared, server-enforced 24-hour activity window and password reopening
+- All-date instructor archives with no learner identities, emails or rosters
 - Saved responses and private resume links
 - Self-validation, strict flag formats and server-enforced mission unlocks
 - Three hint tokens, each deducting two points
@@ -304,7 +307,7 @@ projects and their saved records have not been deleted or changed.
 - Written-answer review, optional speed and tradecraft bonuses
 - Instructor-only searchable answer guide with sample responses and print view
 - Protected per-question history of written submissions and instructor decisions
-- Downloadable results and provider-free email drafts
+- Downloadable results and provider-free email copies with transient recipients
 
 Email opens the learner's mail app. It does not send automatically.
 
@@ -376,7 +379,7 @@ or the conflicting eight-phase narrative as additional graded missions.
         with zipfile.ZipFile(destination) as archive:
             assert archive.testzip() is None
             assert all("node_modules" not in name for name in archive.namelist())
-        print(f"Verified standalone project: {destination.relative_to(ROOT)}")
+        print(f"Verified standalone project: {os.path.relpath(destination, ROOT)}")
         print(f"{len(paths)} source/resource files; {destination.stat().st_size:,} bytes.")
 
 

@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './activityWindow';
+export * from './activityWindowState';
 export * from './completionNotifications';
 export * from './completionNotificationsItem';
 export * from './ctfActivity';
@@ -34,8 +36,10 @@ export * from './ctfReviewInput';
 export * from './ctfReviewInputDecision';
 export * from './ctfSection';
 export * from './ctfSubmissionSummary';
+export * from './getCtfLeaderboardParams';
 export * from './getCtfReviewQueueParams';
 export * from './getCtfReviewQueueSort';
+export * from './getLanternLeaderboardParams';
 export * from './getLanternReviewQueueParams';
 export * from './getLanternReviewQueueSort';
 export * from './healthStatus';

@@ -1,4 +1,4 @@
-ALTER TABLE ctf_progress ADD COLUMN IF NOT EXISTS team_number integer;
+ALTER TABLE IF EXISTS ctf_progress ADD COLUMN IF NOT EXISTS team_number integer;
 CREATE TABLE IF NOT EXISTS classroom_teams (
   activity text NOT NULL, team_number integer NOT NULL, session_id text NOT NULL,
   PRIMARY KEY(activity,team_number)

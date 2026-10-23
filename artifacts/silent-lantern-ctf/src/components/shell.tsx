@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
+import { WindowBar } from '@/components/window-bar';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 const nav = [
@@ -34,6 +35,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
+      <WindowBar />
       <main id="main" className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">{children}</main>
       <footer className="border-t border-border bg-card/70 text-xs text-muted-foreground">
         <div className="max-w-6xl mx-auto px-4 py-4">

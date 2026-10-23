@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { WindowGate } from '@/components/window-gate';
 import NotFound from '@/pages/not-found';
 import Overview from '@/pages/overview';
 import Activity from '@/pages/activity';
@@ -17,10 +18,10 @@ function Router() {
   return (
     <RoutedErrorBoundary>
       <Switch>
-        <Route path="/" component={Overview} />
-        <Route path="/activity" component={Activity} />
-        <Route path="/results" component={Results} />
-        <Route path="/leaderboard" component={Leaderboard} />
+        <Route path="/"><WindowGate><Overview /></WindowGate></Route>
+        <Route path="/activity"><WindowGate><Activity /></WindowGate></Route>
+        <Route path="/results"><WindowGate><Results /></WindowGate></Route>
+        <Route path="/leaderboard"><WindowGate><Leaderboard /></WindowGate></Route>
         <Route path="/instructor" component={Instructor} />
         <Route component={NotFound} />
       </Switch>

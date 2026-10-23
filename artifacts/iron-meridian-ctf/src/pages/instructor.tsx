@@ -15,6 +15,7 @@ import { QuestionAuthoring } from '@/components/question-authoring';
 import { asText, errStatus, hasResponse, outcome } from '@/lib/ctf';
 import { ReviewActions } from '@/components/review-actions';
 import { ReviewQueue } from '@/components/review-queue';
+import { SessionArchives } from '@/components/session-archives';
 import { CompletionsPanel, SignalsBar, useNotificationData, useQueueData } from '@/components/instructor-signals';
 
 export default function Instructor() {
@@ -56,7 +57,7 @@ function Gate({ onOk }: { onOk: (c: string) => void }) {
 }
 
 function Console({ code, onLock }: { code: string; onLock: () => void }) {
-  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'author' | 'queue' | 'notes'>('guide');
+  const [tab, setTab] = useState<'guide' | 'keys' | 'subs' | 'author' | 'queue' | 'notes' | 'archives'>('guide');
   const queue = useQueueData(code, 'time_asc');
   const notes = useNotificationData(code);
   const pending = queue.data?.length ?? 0;
@@ -69,12 +70,12 @@ function Console({ code, onLock }: { code: string; onLock: () => void }) {
       </div>
       <SignalsBar pending={pending} pendingState={queue.data ? 'ready' : queue.isError ? 'error' : 'loading'} unread={unread} onQueue={() => setTab('queue')} onNotes={() => setTab('notes')} />
       <div role="tablist" className="flex flex-wrap border-b border-border">
-        {([['queue', `Review queue (${pending})`], ['notes', `Completions (${unread} new)`], ['guide', 'Answer guide'], ['author', 'Questions'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
+        {([['archives', 'Sessions & rosters'], ['queue', `Review queue (${pending})`], ['notes', `Completions (${unread} new)`], ['guide', 'Answer guide'], ['author', 'Questions'], ['keys', 'Edit grading keys'], ['subs', 'Submissions']] as const).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}
             className={`px-4 py-2 text-sm font-semibold border-b-2 ${tab === k ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{l}</button>
         ))}
       </div>
-      {tab === 'queue' ? <ReviewQueue code={code} /> : tab === 'notes' ? <CompletionsPanel code={code} /> : tab === 'guide' ? <Guide code={code} /> : tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
+      {tab === 'archives' ? <Archives code={code} /> : tab === 'queue' ? <ReviewQueue code={code} /> : tab === 'notes' ? <CompletionsPanel code={code} /> : tab === 'guide' ? <Guide code={code} /> : tab === 'author' ? <QuestionAuthoring headers={{ 'x-instructor-code': code }} /> : tab === 'keys' ? <Keys code={code} /> : <Subs code={code} />}
     </div>
   );
 }
@@ -169,6 +170,19 @@ function KeyRow({ q, headers, initial }: { q: CtfInstructorQuestion; headers: Re
   );
 }
 
+function Archives({ code }: { code: string }) {
+  const headers = { 'x-instructor-code': code };
+  const [selected, setSelected] = useState<string | null>(null);
+  const list = useListCtfSubmissions({ query: { queryKey: getListCtfSubmissionsQueryKey(), refetchInterval: 5000, staleTime: 0 }, request: { headers } });
+  if (list.isLoading) return <PageSkeleton />;
+  if (list.isError) return <ErrorPanel title="Could not load session archives" onRetry={() => list.refetch()} />;
+  if (selected) return <div className="space-y-4">
+    <button className={btnGhost} onClick={() => setSelected(null)} data-testid="button-back-archives">Back to all sessions</button>
+    <Detail key={selected} sid={selected} headers={headers} />
+  </div>;
+  return <SessionArchives submissions={list.data ?? []} onOpen={setSelected} />;
+}
+
 function Subs({ code }: { code: string }) {
   const headers = { 'x-instructor-code': code };
   const [sel, setSel] = useState<string | null>(null);
@@ -183,7 +197,7 @@ function Subs({ code }: { code: string }) {
           <li key={s.sessionId}>
             <button onClick={() => setSel(s.sessionId)} aria-pressed={sel === s.sessionId} data-testid={`button-sub-${s.sessionId}`}
               className={`w-full text-left bg-card border p-3 ${sel === s.sessionId ? 'border-primary' : 'border-border hover:bg-muted'}`}>
-              <p className="font-semibold text-sm">{s.name}</p><p className="text-xs text-muted-foreground">{s.email}</p>
+              <p className="font-semibold text-sm">{s.teamName}</p><p className="text-xs text-muted-foreground">{s.instructorName} · {s.sessionDate}</p>
               <p className="font-mono text-xs mt-1">{s.totalPoints} pts | {s.answeredCount} answered | {s.submittedAt ? 'submitted' : 'in progress'}</p>
             </button>
           </li>
@@ -203,7 +217,7 @@ function Detail({ sid, headers }: { sid: string; headers: Record<string, string>
   const p = d.data;
   return (
     <div className="space-y-3">
-      <h2 className="font-display text-xl font-bold">{p.name} <span className="font-mono text-sm text-muted-foreground">{p.totalPoints} pts</span></h2>
+      <h2 className="font-display text-xl font-bold">{p.teamName} <span className="font-mono text-sm text-muted-foreground break-words">{p.instructorName} · {p.sessionDate} | {p.totalPoints} pts</span></h2>
       {[...act.data.questions].sort((a, b) => a.section - b.section || a.id - b.id).map((q) => {
         const an = p.answers[String(q.id)];
         const guidance = q.manualReview ? catalog.data?.questions.find(item => item.id === q.id) : undefined;

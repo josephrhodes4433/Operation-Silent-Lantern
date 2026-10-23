@@ -1,4 +1,5 @@
 // Export your models here. Add one export per file
+export * from "./classroom-windows";
 // export * from "./posts";
 //
 // Each model/table should ideally be split into different files.

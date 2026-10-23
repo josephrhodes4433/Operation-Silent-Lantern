@@ -8,9 +8,12 @@
 
 export type ReviewQueueItem = {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber: number | null;
+  teamName: string;
+  instructorName: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   questionId: number;
   code: string;
   prompt: string;

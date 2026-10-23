@@ -3,8 +3,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getGetLanternProgressQueryKey, useSaveLanternAnswer } from '@workspace/api-client-react';
 import type { LanternAnswer, LanternAnswerResult, LanternProgress, LanternQuestion } from '@workspace/api-client-react';
 import { CheckCircle2, CircleDashed, Clock, Lock, XCircle } from 'lucide-react';
+import { getGetLanternWindowQueryKey } from '@workspace/api-client-react';
 import { btn, field } from '@/components/shell';
-import { clearDraft, loadDraft, queueSave, sentenceCount, storeDraft } from '@/lib/ctf';
+import { errStatus, clearDraft, loadDraft, queueSave, sentenceCount, storeDraft } from '@/lib/ctf';
 
 type Val = string | string[];
 const isEmpty = (v: Val) => (Array.isArray(v) ? v.length === 0 : v.trim() === '');
@@ -56,6 +57,7 @@ export function QuestionCard({ q, sessionId, saved, locked }: { q: LanternQuesti
         qc.invalidateQueries({ queryKey: getGetLanternProgressQueryKey(sessionId) });
       })
       .catch((e: unknown) => {
+        if (errStatus(e) === 423) void qc.invalidateQueries({ queryKey: getGetLanternWindowQueryKey() });
         const m = (e as { data?: { error?: string; message?: string } } | null)?.data;
         if (mounted.current) { setPending(false); setFailed(m?.error || m?.message || 'Save failed.'); }
       });

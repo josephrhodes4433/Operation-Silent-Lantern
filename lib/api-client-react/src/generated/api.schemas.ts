@@ -193,29 +193,28 @@ export interface CtfProgressInput {
   sessionId: string;
   /**
      * @minLength 1
+     * @maxLength 60
+     */
+  teamName: string;
+  /**
+     * @minLength 1
      * @maxLength 140
      */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
-  /**
-     * @minimum 1
-     * @maximum 9999
-     */
-  teamNumber: number;
+  instructorName: string;
 }
 
 export type CtfProgressAnswers = {[key: string]: CtfAnswer};
 
 export interface CtfProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
   /** @nullable */
   teamNumber?: number | null;
+  teamName: string;
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   answers: CtfProgressAnswers;
   totalPoints: number;
   answeredCount: number;
@@ -294,10 +293,14 @@ export interface CtfReviewInput {
 
 export interface CtfSubmissionSummary {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber?: number | null;
-  email: string;
+  teamName: string;
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   totalPoints: number;
   answeredCount: number;
   savedAt: string;
@@ -307,6 +310,7 @@ export interface CtfSubmissionSummary {
 
 export type TeamLeaderboardItem = {
   teamNumber: number;
+  teamName: string;
   /**
      * @minimum 0
      * @maximum 100
@@ -318,9 +322,12 @@ export type TeamLeaderboard = TeamLeaderboardItem[];
 
 export type ReviewQueueItem = {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber: number | null;
+  teamName: string;
+  instructorName: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   questionId: number;
   code: string;
   prompt: string;
@@ -334,12 +341,36 @@ export type ReviewQueue = ReviewQueueItem[];
 export type CompletionNotificationsItem = {
   id: string;
   teamNumber: number;
+  teamName: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   completedAt: string;
   /** @nullable */
   readAt: string | null;
 };
 
 export type CompletionNotifications = CompletionNotificationsItem[];
+
+export type ActivityWindowState = typeof ActivityWindowState[keyof typeof ActivityWindowState];
+
+
+export const ActivityWindowState = {
+  not_started: 'not_started',
+  open: 'open',
+  expired: 'expired',
+} as const;
+
+export interface ActivityWindow {
+  state: ActivityWindowState;
+  /** @nullable */
+  windowId: string | null;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  expiresAt: string | null;
+  serverNow: string;
+  durationHours: 24;
+}
 
 export type LanternWrittenHistoryEntryEvent = typeof LanternWrittenHistoryEntryEvent[keyof typeof LanternWrittenHistoryEntryEvent];
 
@@ -443,21 +474,17 @@ export interface LanternLearnerInput {
   sessionId: string;
   /**
      * @minLength 1
+     * @maxLength 60
+     */
+  teamName: string;
+  /**
+     * @minLength 1
      * @maxLength 140
      */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
+  instructorName: string;
 }
 
 export type LanternProgressInput = LanternLearnerInput & {
-  /**
-     * @minimum 1
-     * @maximum 999
-     */
-  teamNumber: number;
   roeAcknowledged: true;
 };
 
@@ -504,9 +531,12 @@ export type LanternBaseProgressAnswers = {[key: string]: LanternAnswer};
 
 export interface LanternBaseProgress {
   sessionId: string;
-  name: string;
-  email: string;
-  instructorEmail: string;
+  teamName: string;
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   answers: LanternBaseProgressAnswers;
   totalPoints: number;
   answeredCount: number;
@@ -541,8 +571,12 @@ export type LanternProgress = LanternBaseProgress & ({
 
 export interface LanternBaseSubmissionSummary {
   sessionId: string;
-  name: string;
-  email: string;
+  teamName: string;
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   totalPoints: number;
   answeredCount: number;
   savedAt: string;
@@ -659,6 +693,20 @@ export interface LanternReviewInput {
   decision: LanternReviewInputDecision;
   responseUpdatedAt: string;
 }
+
+export type GetCtfLeaderboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: string;
+};
+
+export type GetLanternLeaderboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date?: string;
+};
 
 export type GetCtfReviewQueueParams = {
 sort?: GetCtfReviewQueueSort;

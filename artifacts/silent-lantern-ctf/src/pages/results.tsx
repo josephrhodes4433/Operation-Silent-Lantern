@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { ArchivedResponses } from '@/components/archived-responses';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetLanternProgressQueryKey, useGetLanternActivity, useGetLanternProgress, useSubmitLanternProgress } from '@workspace/api-client-react';
-import { Copy, Download, Mail, Send } from 'lucide-react';
+import { Copy, Download, Send } from 'lucide-react';
+import { EmailShare } from '@/components/email-share';
+import { ArchivedNotice } from '@/components/window-gate';
+import { isArchivedSession, useActivityWindow } from '@/lib/window';
+import { storeSession } from '@/lib/ctf';
 import { ErrorPanel, Eyebrow, PageSkeleton, Shell, btn, btnGhost } from '@/components/shell';
-import { asText, buildMailto, buildResultsText, buildWrittenEmailBody, errMessage, hasResponse, hasUnsavedWork, isDone, loadSession, orderedQuestions, outcome, resumeLink, reviewCounts, submitBlockers } from '@/lib/ctf';
+import { asText, buildResultsText, buildWrittenEmailBody, errMessage, hasResponse, hasUnsavedWork, isDone, loadSession, orderedQuestions, outcome, resumeLink, reviewCounts, submitBlockers } from '@/lib/ctf';
 
 export default function Results() {
   const session = loadSession();
@@ -14,6 +18,8 @@ export default function Results() {
   const sid = session?.sessionId ?? '';
   const prog = useGetLanternProgress(sid, { query: { enabled: !!session, queryKey: getGetLanternProgressQueryKey(sid), refetchInterval: 5000, staleTime: 0 } });
   const submit = useSubmitLanternProgress();
+  const win = useActivityWindow();
+  const [, navigate] = useLocation();
   const [copied, setCopied] = useState(false);
   const [mailCopied, setMailCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
@@ -33,6 +39,7 @@ export default function Results() {
   if (!act.data || !prog.data) return <Shell><ErrorPanel title="Results unavailable" onRetry={() => { act.refetch(); prog.refetch(); }} /></Shell>;
 
   const a = act.data, p = prog.data;
+  const archived = isArchivedSession(p.windowId, win.window);
   const link = resumeLink(p.sessionId);
   const blockers = submitBlockers(a, p);
   const unsaved = hasUnsavedWork(a, p);
@@ -57,7 +64,7 @@ export default function Results() {
       <div className="space-y-8 rise">
         <ArchivedResponses progress={p} />
         <div className="grid md:grid-cols-[1fr_auto] gap-6 items-end">
-          <div><Eyebrow>Results | {p.name} | Team {p.teamNumber}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
+          <div><Eyebrow>Results | {p.teamName} | {p.instructorName}</Eyebrow><h1 className="font-display text-4xl font-bold">Saved responses</h1></div>
           <div className="bg-secondary text-secondary-foreground px-6 py-4">
             <p className="font-display text-5xl font-bold" data-testid="text-total">{p.totalPoints}<span className="text-lg text-white/60"> / {a.totalPoints}</span></p>
             <p className="text-xs font-mono text-white/70">{p.answeredCount} of {a.totalFlags} answered | {doneCount} correct or accepted | hints -{p.penaltyPoints} | bonuses +{p.speedBonus + p.tradecraftBonus}</p>
@@ -65,16 +72,16 @@ export default function Results() {
           </div>
         </div>
 
+        {archived && <ArchivedNotice onNew={() => { storeSession(null); navigate('/activity'); }} />}
+
         <section className="bg-card border border-border p-5 space-y-4" aria-labelledby="ship">
-          <h2 id="ship" className="font-display font-bold text-lg">Send to your instructor</h2>
-          <p className="text-sm text-muted-foreground">Written answers are already saved on the server for instructor review. The email button opens your own mail app with a draft; nothing is sent automatically, so press send there.</p>
-          <p className="text-xs text-muted-foreground">Sending to: {p.instructorEmail}. For a long response, the draft will ask you to attach the downloaded text file or paste your copied responses. Attachments are not added automatically.</p>
+          <h2 id="ship" className="font-display font-bold text-lg">Save or share your results</h2>
+          <p className="text-sm text-muted-foreground">Written answers are already saved on the server for instructor review. Grading and feedback stay in this app. Download a text copy any time. Do not put real learner or customer information in responses.</p>
           <div className="flex flex-wrap gap-3">
-            <a href={unsaved ? undefined : buildMailto(a, p)} aria-disabled={unsaved} onClick={e => { if (unsaved) e.preventDefault(); }} className={`${btn} ${unsaved ? 'opacity-50 cursor-not-allowed' : ''}`} data-testid="link-mailto"><Mail size={16} /> Email instructor</a>
             <button className={btnGhost} disabled={unsaved} onClick={download} data-testid="button-download"><Download size={16} /> Download text</button>
             <button className={btnGhost} disabled={unsaved} onClick={copyMail} data-testid="button-copy-written"><Copy size={16} /> {mailCopied ? 'Written responses copied' : 'Copy written responses'}</button>
             <button className={btnGhost} onClick={copy} data-testid="button-copy-link"><Copy size={16} /> {copied ? 'Copied' : 'Copy private resume link'}</button>
-            <button className={btnGhost} disabled={submit.isPending || !!p.submittedAt || blockers.length > 0} data-testid="button-submit"
+            <button className={btnGhost} disabled={archived || submit.isPending || !!p.submittedAt || blockers.length > 0} data-testid="button-submit"
               onClick={() => submit.mutate({ sessionId: p.sessionId }, { onSuccess: () => qc.invalidateQueries({ queryKey: getGetLanternProgressQueryKey(sid) }) })}>
               <Send size={16} /> {p.submittedAt ? 'Marked ready for review' : submit.isPending ? 'Submitting...' : 'Mark ready for review'}
             </button>
@@ -85,6 +92,7 @@ export default function Results() {
           {copyError && <p role="alert" className="text-sm text-destructive">Your browser blocked clipboard access. Download the text file instead, or select and copy the private link below.</p>}
           {p.submittedAt && <p className="text-xs font-mono text-muted-foreground">Submitted {new Date(p.submittedAt).toLocaleString()}</p>}
           <p className="text-xs text-muted-foreground break-all font-mono">Keep this link private and share it only with your teammates; your team shares one saved submission: {link}</p>
+          <EmailShare a={a} p={p} disabled={unsaved} />
         </section>
 
         <section aria-labelledby="resp"><h2 id="resp" className="font-display font-bold text-lg mb-3">Responses in mission order</h2>
@@ -100,7 +108,7 @@ export default function Results() {
                     <p className="text-sm font-medium">{q.prompt}</p>
                     <p className="text-sm whitespace-pre-wrap break-words">{an ? asText(an.value) : <span className="text-muted-foreground italic">Incomplete</span>}</p>
                     {an?.instructorNote && <p className="text-xs bg-muted p-2">Instructor feedback: {an.instructorNote}</p>}
-                    {q.section <= p.unlockedMission && (p.reviewGateQuestionId === null || q.id <= p.reviewGateQuestionId) && <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>}
+                    {!archived && q.section <= p.unlockedMission && (p.reviewGateQuestionId === null || q.id <= p.reviewGateQuestionId) && <Link href={`/activity?flag=${q.id}`} className="text-xs text-primary underline">{an ? 'Revisit' : 'Answer now'}</Link>}
                   </div>
                   <div className="text-right text-sm">
                     <p className={`font-semibold ${oc.cls}`} data-testid={`status-result-${q.id}`}>{oc.text}</p>

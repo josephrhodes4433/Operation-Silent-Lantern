@@ -20,11 +20,17 @@ Preserve earlier work as read-only archives when question meaning changes. Earli
 
 **How to apply:** Separate grading identity for substantial curriculum revisions while retaining records, history, names, emails, and resume links. Do not delete old work to simplify an update.
 
-SILENT LANTERN is intended to be a separate Replit project, not just a second website inside IRON MERIDIAN's project.
+Keep both CTFs together in this Replit project with distinct named URL paths. Preserve current content, appearance, functionality and saved work; do not bundle unrelated changes.
 
-**Why:** After the initial side-by-side copy, the user explicitly requested “Seperate this as a seperate project.”
+**Why:** After learning that separate projects require manual imports and data transfer, the user changed direction: “keep the projects together but make two distinct URLs that pertain to each project without changing anything else.” This supersedes the earlier separate-project requirement.
 
-**How to apply:** Keep SILENT LANTERN independently runnable, with its own backend, database and secret configuration. Do not describe a different URL inside the shared workspace as completing project separation.
+**How to apply:** Scope work to URL routing and backward compatibility. Do not move databases, transfer secrets, remove either app, or turn the standalone export packages into a required setup step. Preserve existing resume links when changing paths.
+
+Give each site's production handler explicit ownership of its full URL namespace rather than relying on overlapping static SPA fallbacks.
+
+**Why:** The shared publication showed actual IRON MERIDIAN questions at the SILENT LANTERN URL. Replacing catch-all rewrites with scoped rewrites still failed after a confirmed republish. Static handler registration and correct separate builds were not sufficient evidence of correct live routing.
+
+**How to apply:** Production handlers must consume the full base path because the proxy does not strip it. Verify the actual production handler against built pages and assets, reject other namespaces, and distinguish local checks from live verification. Preview success alone is insufficient; publish changes and check the live route when authorized access is available.
 
 The later triage email clarifies the beta: use the instructor-kit **iPhone 8**, with an instructor demonstration/shared saved report because beta learners have no kits. The simplest offline profile matches the actual kit IMEI; known planted contact/message indicators can support an expanded, pre-tested profile with Major/Minor priorities. The kit ZTE does not expose Triage through the needed Advanced extraction workflow.
 

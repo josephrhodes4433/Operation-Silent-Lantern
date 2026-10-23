@@ -632,3 +632,243 @@ mtime_ms = 1792094971490
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/78b110da-01c3-40f0-985a-5cc8a2d9399b/9edde7f3-30d4-4a5c-9d29-0fd525400b78"
 storage_version_token = "1792095147214163"
 content_type = "video/mp4"
+
+[[outputs]]
+id = "zfP4d1MeoJA5dBV6V3xgw"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-student-choices.mp3"
+type = "audio"
+title = "iron-student-choices"
+description = "Text-to-speech audio: Work through the sections using the assigned training evidence. For multiple choice questions, select an option or all required options, then check your response. An incorrect a…"
+logical_id = "3a665ff9-fa03-4c8b-ba65-1f27fb4d4a6d"
+
+[[outputs]]
+id = "k5E6b4Xj0eAB55j7PASoq"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-student-join.mp3"
+type = "audio"
+title = "iron-student-join"
+description = "Text-to-speech audio: Welcome to the Iron Meridian student overview. This is AI narration over the real website, using a separate demonstration database and fictional training evidence. Read the Miss…"
+logical_id = "c2dd7705-5035-4766-8241-bf126aeeb863"
+
+[[outputs]]
+id = "fxK6ewG5A2p6tOGrVTUsJ"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-student-written.mp3"
+type = "audio"
+title = "iron-student-written"
+description = "Text-to-speech audio: Responses that are not multiple choice need instructor review. Enter the requested training finding and save it. Pending work does not earn its points yet. Your instructor can a…"
+logical_id = "262020cb-ee82-4acd-abcd-a2615fe90f53"
+
+[[outputs]]
+id = "caCiNGHMys-pBMSiJdcf_"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-student-finish.mp3"
+type = "audio"
+title = "iron-student-finish"
+description = "Text-to-speech audio: The remaining demonstration responses are now completed. Review Results and submit inside the app when every required answer is correct or accepted. Download a results copy when…"
+logical_id = "38b6f226-7de2-4105-9999-0cfe95096b0a"
+
+[[outputs]]
+id = "M47WTDEICZ-p_JlYdhQPO"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-student-choices.mp3"
+type = "audio"
+title = "lantern-student-choices"
+description = "Text-to-speech audio: Use the assigned training evidence, select your multiple choice response, then check it. An incorrect answer gives coaching without revealing the correct option. Inspect the evi…"
+logical_id = "c54df915-f8df-4bb8-8f44-127dfc82e7c5"
+
+[[outputs]]
+id = "x6qA_1aDmNQaVU9E9yBkl"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-student-join.mp3"
+type = "audio"
+title = "lantern-student-join"
+description = "Text-to-speech audio: Welcome to the Silent Lantern student overview. This is AI narration over the real website, using a separate demonstration database and fictional training evidence. Read the Mis…"
+logical_id = "be53908f-1349-4545-8cff-36aaecef3c54"
+
+[[outputs]]
+id = "BA7vbJTKbMSfzBODCfofc"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-student-written.mp3"
+type = "audio"
+title = "lantern-student-written"
+description = "Text-to-speech audio: Typed flags and other non-choice responses need instructor acceptance. Enter the requested training evidence, preserving the displayed flag format. The case flag uses your regis…"
+logical_id = "c64c85c9-cc70-4ca9-b24e-79bcb13c8da6"
+
+[[outputs]]
+id = "_btAMf4opqLvufgG3Mimo"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-student-finish.mp3"
+type = "audio"
+title = "lantern-student-finish"
+description = "Text-to-speech audio: The remaining demonstration responses are now completed. Review Results and submit inside the app after every required answer is correct or accepted. Download your results, incl…"
+logical_id = "5b954768-9329-4eaf-84fb-230620ce7aec"
+
+[[outputs]]
+id = "ScNd2NTTGacNcZ-lyaJtz"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-instructor-review.mp3"
+type = "audio"
+title = "iron-instructor-review"
+description = "Text-to-speech audio: Open the review queue to find all non-choice responses awaiting approval. Sort by submission time or team name; no learner-name lookup is needed. Review the response against the…"
+logical_id = "58b8025c-066a-4df9-b61f-2c6c2076bfd7"
+
+[[outputs]]
+id = "WX4PIf5eK7-ZzpEwuPcpX"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-instructor-prepare.mp3"
+type = "audio"
+title = "iron-instructor-prepare"
+description = "Text-to-speech audio: Welcome to the Iron Meridian instructor overview. This is AI narration over the actual site with isolated demonstration data. Learners now enter only a non-identifying team name…"
+logical_id = "bd5cb120-e77f-40ec-a5ef-2ddd80dfb53f"
+
+[[outputs]]
+id = "8UK1dLdoesCQnE7x__0Ej"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-instructor-reopen.mp3"
+type = "audio"
+title = "iron-instructor-reopen"
+description = "Text-to-speech audio: We advance only this isolated demonstration clock to show expiry. After twenty-four hours, learner overview, activity, results and leaderboard pages lock, and the server rejects…"
+logical_id = "3e76fcb8-fb11-4237-a5ba-3bae44a6149d"
+
+[[outputs]]
+id = "aPZa1TXm8eeyTE_oToTpN"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/iron-instructor-archives.mp3"
+type = "audio"
+title = "iron-instructor-archives"
+description = "Text-to-speech audio: The revised response has returned to the queue. Read it as a new attempt, then accept it if it meets the criteria. The team receives its points automatically; do not add them a …"
+logical_id = "4a9ee7c4-129c-44a1-a273-c657b972f844"
+
+[[outputs]]
+id = "X4t7AOsHykN37TnB0wOOQ"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-instructor-review.mp3"
+type = "audio"
+title = "lantern-instructor-review"
+description = "Text-to-speech audio: Use the review queue for every non-multiple-choice response, including typed flags. Sort by submission time or team name and inspect the evidence, format and explanation. Accept…"
+logical_id = "7a3f01e9-024f-4dc9-9670-b7622438e6a2"
+
+[[outputs]]
+id = "1KRGA_28wJB1YEoFok4GM"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-instructor-prepare.mp3"
+type = "audio"
+title = "lantern-instructor-prepare"
+description = "Text-to-speech audio: Welcome to the Silent Lantern instructor overview. This is AI narration over the actual site with isolated demonstration data. Learners enter only a non-identifying team name an…"
+logical_id = "846e116e-8f58-4b9e-9aee-7cd8d6a58ef1"
+
+[[outputs]]
+id = "zxJhJDmdHO89B7DJ-f052"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-instructor-archives.mp3"
+type = "audio"
+title = "lantern-instructor-archives"
+description = "Text-to-speech audio: The team has revised its response, so it returns for a fresh review. Inspect the new attempt and its protected response history, including previous decisions and feedback. Accep…"
+logical_id = "89e9f3df-c4dc-44d2-9c75-f68e24ebf91a"
+
+[[outputs]]
+id = "gjs95IAMBr5LxQ3MssgI8"
+uri = "file://generated-artifacts/ctf-walkthroughs/workflow-narration/lantern-instructor-reopen.mp3"
+type = "audio"
+title = "lantern-instructor-reopen"
+description = "Text-to-speech audio: Expiry is simulated by advancing only this demonstration clock. At twenty-four hours the learner pages lock, and the server blocks late registrations, saved-answer changes and s…"
+logical_id = "96292d53-f037-4cfd-bfb0-2e9f4232f03f"
+
+[[outputs]]
+id = "b8ZCUFg7LDrT8c8iyM0Bn"
+uri = "file://generated-artifacts/ctf-walkthroughs/IRON-MERIDIAN-Student-Overview-Anonymous-Sessions.mp4"
+type = "video"
+title = "IRON MERIDIAN — Student overview (2:55)"
+description = "Updated team-only check-in, self-checking answers, saved work, instructor feedback, optional result copies and the shared 24-hour lock. AI narration over actual screens with fictional teams."
+logical_id = "e9be028d-14b4-4164-8d57-4ba019fed00e"
+content_hash = "sha256:3f5645f18bafbee7e42917b80c3bca6f7304de4837a0977d8d243f5c66c05ebe"
+size = 8923966
+mtime_ms = 1792170698344
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/e9be028d-14b4-4164-8d57-4ba019fed00e/10934929-094f-4031-8188-43c3093881f8"
+storage_version_token = "1792170919515808"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "aW_3XQdcylMi7Fy8IfHED"
+uri = "file://generated-artifacts/ctf-walkthroughs/IRON-MERIDIAN-Instructor-Overview-Anonymous-Sessions.mp4"
+type = "video"
+title = "IRON MERIDIAN — Instructor overview (3:20)"
+description = "Review queues, acceptance and denial with feedback, automatic points, dated archives, completion alerts, the Leaderboard and password reopening. AI-narrated demonstration using isolated training data."
+logical_id = "38b93d15-065e-4007-b25c-18fcf74c4459"
+content_hash = "sha256:5a7d7c58c958001800c85d0c71acc7dcdb08786ae73b34110121c71dda590f97"
+size = 8371071
+mtime_ms = 1792170738360
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/38b93d15-065e-4007-b25c-18fcf74c4459/c3c2b374-95b0-49e2-9bbc-c57590c58622"
+storage_version_token = "1792170920300326"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "dC3uWiLDFPbj53UW1NPUN"
+uri = "file://generated-artifacts/ctf-walkthroughs/SILENT-LANTERN-Student-Overview-Anonymous-Sessions.mp4"
+type = "video"
+title = "SILENT LANTERN — Student overview (3:12)"
+description = "The six-mission workflow: anonymous team check-in, validation, saved answers, written-response revision and approval, optional copies and session expiry. AI narration and fictional demonstration teams."
+logical_id = "b2a169ca-eb88-4034-b440-5a43c3af103b"
+content_hash = "sha256:b1696b7ad6675c5eeb31564863f08df37c2ccc60707ef4da88cbc2cac6c63935"
+size = 8160263
+mtime_ms = 1792170724240
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/b2a169ca-eb88-4034-b440-5a43c3af103b/83a34ab6-1374-4e15-8d08-ed39e801d4d8"
+storage_version_token = "1792170920986575"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "SvGNweow5PBs6avZHELjq"
+uri = "file://generated-artifacts/ctf-walkthroughs/SILENT-LANTERN-Instructor-Overview-Anonymous-Sessions.mp4"
+type = "video"
+title = "SILENT LANTERN — Instructor overview (3:26)"
+description = "Instructor preparation, review decisions, response history, session archives, completion alerts, the Leaderboard and reopening the next class. AI-narrated footage with simulated expiry; no live classroom was changed."
+logical_id = "67f344f4-eaff-4820-8b8b-b961594160c6"
+content_hash = "sha256:a1a88b887e86e3fbad907e69af8c5dbb59618485e0f8e4d9cb73892a8b390de7"
+size = 8904101
+mtime_ms = 1792170742392
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/67f344f4-eaff-4820-8b8b-b961594160c6/9dc1d350-2bd0-40e4-8cc4-d0858cbc62cd"
+storage_version_token = "1792170921626778"
+content_type = "video/mp4"
+
+[[outputs]]
+id = "u9F84U67stZmUpJJf51a-"
+uri = "file://generated-artifacts/instructor-answer-keys/IRON_MERIDIAN_Instructor_Table_Answer_Key.pdf"
+type = "pdf"
+title = "IRON MERIDIAN — Instructor Answer Key (PDF)"
+description = "120 questions in a four-column table: question, answer, rationale and course material reference. Includes clearly labeled illustrative responses and evidence-dependent reference answers. 27 landscape pages."
+logical_id = "2d671c51-ee0c-4a64-9985-1cb9a91a5496"
+content_hash = "sha256:bb5ed20f7548d4b311b6c8c99ad436dc49476ea39060f4f473441e9556b8f2a0"
+size = 540327
+mtime_ms = 1792173303696
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/2d671c51-ee0c-4a64-9985-1cb9a91a5496/b1b94902-5f16-4fcd-a4ad-3f033c8da1d7"
+storage_version_token = "1792173317269653"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "5DM6LRU_UrgvVdSBFzwwU"
+uri = "file://generated-artifacts/instructor-answer-keys/SILENT_LANTERN_Instructor_Table_Answer_Key.pdf"
+type = "pdf"
+title = "SILENT LANTERN — Instructor Answer Key (PDF)"
+description = "All 26 current questions and flags across six missions, with question, answer, rationale and course material reference. Includes illustrative written responses and individualized evidence requirements. 8 landscape pages."
+logical_id = "dfd629da-a521-443f-9e78-772e047cb7f0"
+content_hash = "sha256:37c84a7d654a68be9ff39e3c03bbca816c13b5d6794a639f76b63ebe3487cddd"
+size = 182855
+mtime_ms = 1792173221128
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/dfd629da-a521-443f-9e78-772e047cb7f0/4dc2ad41-4259-4fc3-bb87-cc99cd9dd03d"
+storage_version_token = "1792173317922450"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "FD9UWCK8wXw03EPi846yi"
+uri = "file://generated-artifacts/separate-ctf-apps/IRON-MERIDIAN-Independent-App.zip"
+type = "unspecified"
+title = "IRON MERIDIAN — Independent App"
+description = "Verified standalone source package. Includes its website, backend, database schema, and saved-data transfer checklist. No secrets or live records included."
+logical_id = "abe8d103-4768-4d32-9b80-03a25e9ae34a"
+content_hash = "sha256:53ff8619f24dd75a2f4bc960cc45fe83cce3a3d94e9feb570ae136bb85e7e8f8"
+size = 296745
+mtime_ms = 1792196115357
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/abe8d103-4768-4d32-9b80-03a25e9ae34a/add09783-541d-4a13-8ffa-ad99e867626b"
+storage_version_token = "1792196194969633"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "kYcd1TWv9l7DbzYUyyavf"
+uri = "file://generated-artifacts/separate-ctf-apps/SILENT-LANTERN-Independent-App.zip"
+type = "unspecified"
+title = "SILENT LANTERN — Independent App"
+description = "Verified standalone source package. Includes its website, backend, database schema, and saved-data transfer checklist. No secrets or live records included."
+logical_id = "c3467bae-05e7-4d2b-9fdc-fdd4bbbd4f58"
+content_hash = "sha256:60d31e3730e4b23b83ed634493ef42cae6cae80d373a9fb78b1858f47ff95c99"
+size = 1194172
+mtime_ms = 1792196147165
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:d9487643-52d3-4301-9df4-9d7cd66a4d0e/c3467bae-05e7-4d2b-9fdc-fdd4bbbd4f58/d8f31699-6c8a-4e29-b50b-ffd13f3faed6"
+storage_version_token = "1792196195584536"
+content_type = "application/octet-stream"

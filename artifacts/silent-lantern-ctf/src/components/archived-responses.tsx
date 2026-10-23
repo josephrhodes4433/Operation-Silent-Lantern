@@ -9,7 +9,7 @@ export function ArchivedResponses({ progress: p, history }: { progress: LanternP
   if (!entries.length && !p.authorizationNotes) return null;
   return <details className="border border-border bg-card p-4 space-y-3" data-testid="archived-responses">
     <summary className="cursor-pointer font-semibold">Earlier activity — saved responses (read-only)</summary>
-    <p className="text-sm text-muted-foreground">The feedback revision uses new question identities. Earlier work is retained here, but its answers, approvals, hints, and final-submission state do not count toward the revised activity. Your name and email details are unchanged.</p>
+    <p className="text-sm text-muted-foreground">The feedback revision uses new question identities. Earlier work is retained here, but its answers, approvals, hints, and final-submission state do not count toward the revised activity.</p>
     {entries.map(([id, answer]) => <div key={id} className="border-t border-border pt-3">
       <p className="font-mono text-xs">Earlier {codes[Number(id) - 1] ?? `question ${id}`} · {answer.reviewStatus ?? answer.status} · {new Date(answer.updatedAt).toLocaleString()}</p>
       <p className="text-sm whitespace-pre-wrap break-words">{asText(answer.value)}</p>

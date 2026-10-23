@@ -8,10 +8,14 @@
 
 export interface CtfSubmissionSummary {
   sessionId: string;
-  name: string;
   /** @nullable */
   teamNumber?: number | null;
-  email: string;
+  teamName: string;
+  instructorName: string;
+  /** @nullable */
+  windowId: string | null;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  sessionDate: string;
   totalPoints: number;
   answeredCount: number;
   savedAt: Date;

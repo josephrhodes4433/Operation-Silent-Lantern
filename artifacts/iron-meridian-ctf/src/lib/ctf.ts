@@ -1,16 +1,31 @@
 import type { CtfActivity, CtfProgress, CtfQuestion } from '@workspace/api-client-react';
 
 const KEY = 'iron-meridian-session';
-export interface Session { sessionId: string; name: string; firstName?: string; lastName?: string; email: string; instructorEmail: string; teamNumber?: number | null }
+export interface Session { sessionId: string; teamName?: string; instructorName?: string }
 
 export function loadSession(): Session | null {
   try {
+    purgeLegacyIdentity();
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
+    if (!raw) return null;
+    const o = JSON.parse(raw) as Record<string, unknown>;
+    if (!o || typeof o.sessionId !== 'string' || !o.sessionId) { localStorage.removeItem(KEY); return null; }
+    // Keep only the private resume token, team name and instructor name.
+    const clean: Session = { sessionId: o.sessionId };
+    if (typeof o.teamName === 'string') clean.teamName = o.teamName;
+    if (typeof o.instructorName === 'string') clean.instructorName = o.instructorName;
+    const out = JSON.stringify(clean);
+    if (out !== raw) localStorage.setItem(KEY, out);
+    return clean;
   } catch { return null; }
 }
 export function storeSession(s: Session | null) {
-  if (s) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY);
+  if (s) {
+    const clean: Session = { sessionId: s.sessionId };
+    if (s.teamName) clean.teamName = s.teamName;
+    if (s.instructorName) clean.instructorName = s.instructorName;
+    localStorage.setItem(KEY, JSON.stringify(clean));
+  } else localStorage.removeItem(KEY);
 }
 export function resumeLink(sessionId: string) {
   return `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}/activity?resume=${sessionId}`;
@@ -51,7 +66,7 @@ export function clearDraft(sessionId: string, questionId: number, value: string 
 }
 
 export function buildResultsText(a: CtfActivity, p: CtfProgress): string {
-  const lines = [`${a.title} - results`, `Analyst: ${p.name} <${p.email}>`, ...(p.teamNumber ? [`Team: ${p.teamNumber}`] : []), `Score: ${p.totalPoints} / ${a.totalPoints} points`,
+  const lines = [`${a.title} - results`, `Team: ${p.teamName}`, `Instructor: ${p.instructorName}`, `Session date (Eastern Time): ${p.sessionDate}`, `Score: ${p.totalPoints} / ${a.totalPoints} points`,
     `Answered: ${p.answeredCount} / ${a.totalFlags}`, `Saved: ${p.savedAt}`, ''];
   for (const q of orderedQuestions(a)) {
     const ans = p.answers[String(q.id)];
@@ -65,16 +80,9 @@ export function buildResultsText(a: CtfActivity, p: CtfProgress): string {
 }
 export function buildWrittenEmailBody(a: CtfActivity, p: CtfProgress): string {
   const written = orderedQuestions(a).filter((q) => q.manualReview || q.kind === 'long');
-  const body = [`Analyst: ${p.name}`, `Student email: ${p.email}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
+  const body = [`Team: ${p.teamName}`, `Instructor: ${p.instructorName}`, `Score so far: ${p.totalPoints} / ${a.totalPoints}`, '', 'WRITTEN RESPONSES', '',
     ...written.flatMap((q) => [`Q${q.id}: ${q.prompt}`, p.answers[String(q.id)] ? asText(p.answers[String(q.id)].value) : '(not answered)', ''])].join('\n');
   return body;
-}
-export function buildMailto(a: CtfActivity, p: CtfProgress): string {
-  const full = buildWrittenEmailBody(a, p);
-  const body = encodeURIComponent(full).length > 6000
-    ? `Analyst: ${p.name}\nStudent email: ${p.email}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy written responses are in the results text file. Please attach the downloaded results file before sending, or paste the copied written responses here.`
-    : full;
-  return `mailto:${encodeURIComponent(p.instructorEmail)}?subject=${encodeURIComponent(`${a.title} - ${p.name}`)}&body=${encodeURIComponent(body)}`;
 }
 export function errMessage(e: unknown, fallback: string): string {
   const x = e as { data?: { error?: string; message?: string } | string } | null;
@@ -119,4 +127,27 @@ export function reviewCounts(qs: { id: number; manualReview: boolean }[], answer
     if (an.reviewStatus === 'denied') denied++; else if (an.reviewStatus !== 'approved') pending++;
   }
   return { pending, denied };
+}
+
+const LEGACY_KEY = /learner-profile|check-in|checkin/i;
+/** Remove identity data stored by earlier versions (profiles, check-in drafts). */
+export function purgeLegacyIdentity() {
+  try {
+    for (const k of Object.keys(localStorage)) if (LEGACY_KEY.test(k)) localStorage.removeItem(k);
+  } catch { /* storage unavailable */ }
+}
+purgeLegacyIdentity();
+
+export function mailDraftNotice() { return 'Do not include real learner or customer information.'; }
+export function buildMailDraft(a: CtfActivity, p: CtfProgress, recipient: string): { href: string; oversize: boolean } {
+  const full = buildWrittenEmailBody(a, p);
+  const oversize = encodeURIComponent(full).length > 6000;
+  const body = oversize
+    ? `Team: ${p.teamName}\nInstructor: ${p.instructorName}\n${a.title}\nScore: ${p.totalPoints} / ${a.totalPoints}\n\nMy responses are too long for this draft. Attach the downloaded results text file before sending. It was NOT attached automatically.`
+    : full;
+  return { href: `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(`${a.title} - ${p.teamName}`)}&body=${encodeURIComponent(body)}`, oversize };
+}
+export function downloadResults(a: CtfActivity, p: CtfProgress) {
+  const url = URL.createObjectURL(new Blob([buildResultsText(a, p)], { type: 'text/plain' }));
+  const el = document.createElement('a'); el.href = url; el.download = 'iron-meridian-results.txt'; el.click(); URL.revokeObjectURL(url);
 }

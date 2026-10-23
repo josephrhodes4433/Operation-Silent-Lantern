@@ -35,7 +35,7 @@ export async function captureUpdatedStudent(options) {
       await page.getByTestId("input-lastName").fill("Demo");
       await page.getByTestId("input-email").fill("student@example.test");
       await page.getByTestId("input-instructorEmail").fill("instructor@example.test");
-      await page.getByTestId("input-teamNumber").fill("3");
+      await page.getByTestId("input-teamName").fill("Demo Team");
       if (lanternMode) await page.getByTestId("checkbox-roe").check();
       await pause(1000);
       await page.getByTestId("button-start").click();

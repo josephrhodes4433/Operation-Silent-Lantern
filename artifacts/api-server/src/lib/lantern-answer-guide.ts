@@ -35,8 +35,8 @@ export function lanternAnswerGuide(keys: Map<number, string[]>): InstructorAnswe
         notes = "The email confirms an iPhone 8 contact and message produced Major/Minor indicators with a configured profile; it supplies no report, actual IMEI, planted values, or definitive first Major row. Verify the saved demonstration before teaching or accepting FLAG-02. Existing configured values are retained as references, not overwritten or assumed valid for every profile.";
       }
       if (q.id === 108) {
-        answers = ["CASE:JTF-0427-TEAM<registered team number>"];
-        notes = "For registered Team 3: CASE:JTF-0427-TEAM3. The team number must match the learner's saved check-in.";
+        answers = ["CASE:JTF-0427-<registered team name>"];
+        notes = "For Night Watch: CASE:JTF-0427-Night Watch. Match the team name saved at check-in. Earlier numbered teams and their accepted CASE flags remain valid historical work; do not revoke an approval solely for using the earlier format.";
       }
       if (q.id === 124) {
         answers = active.map(keyword => `TPL:<verified alias>-<approved IMSI last four>-${keyword}`);

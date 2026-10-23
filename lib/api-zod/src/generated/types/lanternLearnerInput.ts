@@ -10,11 +10,12 @@ export interface LanternLearnerInput {
   sessionId: string;
   /**
      * @minLength 1
+     * @maxLength 60
+     */
+  teamName: string;
+  /**
+     * @minLength 1
      * @maxLength 140
      */
-  name: string;
-  /** @maxLength 254 */
-  email: string;
-  /** @maxLength 254 */
-  instructorEmail: string;
+  instructorName: string;
 }

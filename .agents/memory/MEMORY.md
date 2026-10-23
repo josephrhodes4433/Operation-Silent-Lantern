@@ -1,11 +1,12 @@
-- [Email delivery requirement](email-delivery.md) — submitting results must automatically email the provided instructor address; a mail-app draft is insufficient.
-- [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions; latest feedback supersedes old questions; archive older approvals; separate-project requirement.
+- [Optional email privacy](email-delivery.md) — email copies are optional, recipients are transient, and in-app submissions and feedback are authoritative.
+- [SILENT LANTERN scope](silent-lantern-scope.md) — six UFED-only missions; latest feedback controls; archive older approvals; keep both CTFs together with distinct URLs.
 - [Orval external YAML references](orval-yaml-references.md) — avoid YAML aliases sharing $ref objects across external paths; the resolver mutates shared nodes.
+- [Calendar-date contracts](calendar-date-contracts.md) — Orval date coercion can turn calendar dates into timestamps; verify literal YYYY-MM-DD wire values.
 - [Classroom test isolation](classroom-test-isolation.md) — browser regressions must not replace shared dataset keys or use the real instructor credential.
 - [IRON MERIDIAN sources](iron-meridian-source-policy.md) — keep eight sections; match supplementary guide keys by meaning and device, not ordinals.
 - [Written response progression](written-response-review.md) — explicit approval permits advancement; denial requires revision and another review.
 - [Shared team progress](shared-team-progress.md) — one shared submission per team; minimal public progress; completion requires correct or accepted answers.
-- [Learner check-in](learner-check-in.md) — first/last name and both email addresses are required at first-time Begin activity; reuse saved details.
+- [Anonymous classroom sessions](learner-check-in.md) — team/instructor names only; remove old identities; one password-reopened 24-hour window per CTF.
 - [Merge integrity](merge-integrity.md) — inspect merged route handlers beyond conflict markers; structural merges can mix unrelated endpoint bodies.
 - [Publish migration failures](publish-migration-failures.md) — a failed publish can still leave production schema applied; inspect read-only before changing anything.
 - [Assessment policy](assessment-policy.md) — prefer self-checking choices, non-revealing coaching, and readable instructor-only answer guides with open-ended examples.

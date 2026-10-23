@@ -24,7 +24,7 @@ export async function verifyTeamReviews({ base, outputDir, testCode }) {
     const guide = await request("/instructor/answer-guide");
     check(activity.questions.every(q => q.manualReview === !["single", "multiple"].includes(q.kind)), "Only effective non-choices require review");
     const sid = randomUUID();
-    const identity = { sessionId: sid, name: "Zoe Demo", email: "zoe@example.test", instructorEmail: "instructor@example.test", teamNumber: 9,
+    const identity = { sessionId: sid, name: "Zoe Demo", email: "zoe@example.test", instructorEmail: "instructor@example.test", teamName: "Verification Team",
       ...(app === "lantern" ? { roeAcknowledged: true } : {}) };
     await request("/progress", "POST", identity);
     const repeat = await request("/progress", "POST", { ...identity, name: "Do not overwrite shared identity" });
@@ -62,7 +62,7 @@ export async function verifyTeamReviews({ base, outputDir, testCode }) {
     await request(`${token}/submit`, "POST", {}, 409);
     check((await request("/instructor/notifications")).length === 0, "Incomplete teams produce no completion notification");
     const secondId = randomUUID();
-    await request("/progress", "POST", { ...identity, sessionId: secondId, teamNumber: 10, name: "Amy Demo" });
+    await request("/progress", "POST", { ...identity, sessionId: secondId, teamName: "Verification Team 2", name: "Amy Demo" });
     for (const q of activity.questions.filter(q => q.id < manual.id)) {
       const entry = guide.entries.find(e => e.id === q.id);
       await request(`/progress/${secondId}/answers/${q.id}`, "PUT", { value: q.kind === "multiple" ? entry.answers : entry.answers[0] });
@@ -98,12 +98,12 @@ export async function verifyTeamReviews({ base, outputDir, testCode }) {
     const expectedPoints = activity.questions.reduce((sum, q) => sum + q.points, 0);
     check(current.totalPoints === expectedPoints, "Full accepted/correct score equals activity maximum");
     const board = await request("/leaderboard");
-    check(board.find(x => x.teamNumber === 9).percentage === 100, "Accepted/correct team reaches exactly 100 percent");
-    check(board.every(x => JSON.stringify(Object.keys(x).sort()) === JSON.stringify(["percentage", "teamNumber"])), "Public leaderboard contains no PII, tokens, answers or scores");
+    check(board.find(x => x.teamName === identity.teamName).percentage === 100, "Accepted/correct team reaches exactly 100 percent");
+    check(board.every(x => JSON.stringify(Object.keys(x).sort()) === JSON.stringify(["percentage", "teamName", "teamNumber"])), "Public leaderboard contains no PII, tokens, answers or scores");
     const submitted = await request(`${token}/submit`, "POST", {});
     check(!!submitted.submittedAt, "Final submission persists");
     let notes = await request("/instructor/notifications");
-    check(notes.length === 1 && notes[0].teamNumber === 9 && notes[0].readAt === null, "One unread completion notification is stored");
+    check(notes.length === 1 && notes[0].teamName === identity.teamName && notes[0].readAt === null, "One unread completion notification is stored");
     const again = await request("/instructor/notifications");
     check(again.length === 1, "Polling does not duplicate notifications");
     await request(`/instructor/notifications/${notes[0].id}/read`, "PUT", {});
