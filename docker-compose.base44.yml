@@ -4,8 +4,10 @@ x-node: &node
   volumes:
     - ./:/app
     - node_modules:/app/node_modules
+    - pnpm_store:/pnpm-store
   environment: &nodeenv
     CI: "true"
+    npm_config_store_dir: /pnpm-store
     DATABASE_URL: postgres://ctf:ctf@db:5432/ctf
     BASE44_PREVIEW_MODE:
   env_file:
@@ -108,3 +110,4 @@ services:
 volumes:
   pgdata:
   node_modules:
+  pnpm_store:
