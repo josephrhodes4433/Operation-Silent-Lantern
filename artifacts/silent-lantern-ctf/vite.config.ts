@@ -69,6 +69,16 @@ export default defineConfig({
     strictPort: true,
     host: '0.0.0.0',
     allowedHosts: true,
+    // Proxy /api requests to the API server in the Base44 dev sandbox.
+    // Only active when API_PROXY_TARGET is set; absent in the original Replit setup.
+    ...(process.env.API_PROXY_TARGET && {
+      proxy: {
+        '/api': {
+          target: process.env.API_PROXY_TARGET,
+          changeOrigin: true,
+        },
+      },
+    }),
     fs: {
       strict: true,
     },
