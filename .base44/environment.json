@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "CTF_INSTRUCTOR_CODE",
+      "description": "Shared instructor access code for both CTF sites' Instructor tabs. Without it, instructor endpoints answer 503 and learners are unaffected. Set it in the Replit Secrets / Base44 dashboard to the code your instructors use.",
+      "requiredAtBoot": false
+    }
+  ]
+}
