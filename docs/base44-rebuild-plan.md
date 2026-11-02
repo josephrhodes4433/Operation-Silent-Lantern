@@ -1,9 +1,9 @@
 # Rebuilding the CTFs as a native Base44 app
 
-This repo (Express API + PostgreSQL/Drizzle + two Vite frontends, deployed on Replit)
+This repo (Express API + PostgreSQL/Drizzle + two Vite frontends, configured for Replit)
 cannot be published by Base44. This brief maps every piece onto a native Base44 app so it
-can be rebuilt in the regular Base44 builder and published there. Keep the Replit
-deployment running until the Base44 version has been tested with a real class.
+can be rebuilt in the regular Base44 builder and published there. The app has never been
+live, so there is no classroom data to migrate and no deployment to keep running.
 
 ## 1. Target shape
 
@@ -80,8 +80,6 @@ Logic lives in `artifacts/api-server/src/lib/`; port it rather than re-describe 
   `lib/lantern-activity.ts` and `lib/lantern-choice-feedback.ts`. Load these as
   `Question` / `AnswerKey` seed records.
 - Frontend UI: `artifacts/iron-meridian-ctf/src` and `artifacts/silent-lantern-ctf/src` (React + Tailwind + shadcn). The builder can reuse layout and copy; data calls change to Base44 functions.
-- Classroom data: export the live tables from the Replit Postgres (CSV per table) and import
-  into the matching entities only if past sessions need to be kept. Otherwise start fresh.
 
 ## 6. Suggested build order in the Base44 builder
 
@@ -90,4 +88,4 @@ Logic lives in `artifacts/api-server/src/lib/`; port it rather than re-describe 
 3. Build the learner backend functions, then the IRON MERIDIAN learner pages.
 4. Build the instructor login, functions, and Instructor page.
 5. Repeat steps 3–4 for SILENT LANTERN (hints, authorization, bonuses, written history).
-6. Run a test class end to end (two teams, window expiry, reopen, review, leaderboard), then move classes over and retire the Replit deployment.
+6. Run a test class end to end (two teams, window expiry, reopen, review, leaderboard), then publish.
